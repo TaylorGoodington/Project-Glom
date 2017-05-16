@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class SceneTransitions : MonoBehaviour
 {
@@ -26,9 +26,9 @@ public class SceneTransitions : MonoBehaviour
         animator.Play("transitionOut");
     }
 
-    public void CallGoToLevel()
+    public void GoToLevel()
     {
-        GameControl.GoToLevel(levelDestination);
+        SceneManager.LoadScene(levelDestination);
     }
 
     public void TransitionIn ()

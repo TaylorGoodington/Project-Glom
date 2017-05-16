@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 1f6fbe9a345e6e843977ba80d6fd8546
+timeCreated: 1494875658
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Pokemon X and Y
+  fontNames:
+  - Pokemon X and Y
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

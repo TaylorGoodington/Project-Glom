@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class StartController : MonoBehaviour
+public class TestLevel : MonoBehaviour
 {
     void Start ()
     {
