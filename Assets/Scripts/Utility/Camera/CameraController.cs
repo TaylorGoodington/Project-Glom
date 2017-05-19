@@ -11,15 +11,20 @@ public class CameraController : MonoBehaviour
     public Vector2 focusAreaSize;
 
     private float cameraHeight;
+    private float cameraWidth;
     private FocusArea focusArea;
     private float maxYCameraClamp;
     private float minYCameraClamp;
     private float maxXCameraClamp;
     private float minXCameraClamp;
 
+    private float targetAspectRatio;
+
     void Start()
     {
+        targetAspectRatio = 16 / (float)9;
         cameraHeight = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().orthographicSize;
+        cameraWidth = cameraHeight * targetAspectRatio;
     }
     
     void LateUpdate()
@@ -57,10 +62,10 @@ public class CameraController : MonoBehaviour
             currentLookAheadX = Mathf.SmoothDamp(currentLookAheadX, targetLookAheadX, ref smoothLookVelocityX, lookSmoothTimeX);
 
             focusPosition += Vector2.right * currentLookAheadX;
-
             FindBounds();
-            transform.position = new Vector3(Mathf.Clamp(focusPosition.x, (minXCameraClamp + (cameraHeight * 2)), maxXCameraClamp - (cameraHeight * 2)),
-                                              Mathf.Clamp(focusPosition.y, (minYCameraClamp + cameraHeight), (maxYCameraClamp - cameraHeight)), -10);
+            float cameraPositionX = Mathf.Clamp(focusPosition.x, (minXCameraClamp + cameraWidth), maxXCameraClamp - cameraWidth);
+            float cameraPositionY = Mathf.Clamp(focusPosition.y, (minYCameraClamp + cameraHeight), (maxYCameraClamp - cameraHeight));
+            transform.position = new Vector3(Mathf.Round(cameraPositionX), Mathf.Round(cameraPositionY), -10);
         }
     }
 
@@ -80,21 +85,21 @@ public class CameraController : MonoBehaviour
 
     private void FindBounds()
     {
-        Vector2 topRight = new Vector2((transform.position.x - 1 + (cameraHeight * 2)), (transform.position.y + cameraHeight));
+        Vector2 topRight = new Vector2((transform.position.x - 1 + cameraWidth), (transform.position.y - 1 + cameraHeight));
         Vector2 topRightHitPoint = new Vector2();
-        Vector2 topLeft = new Vector2((transform.position.x + 1 - (cameraHeight * 2)), (transform.position.y + cameraHeight));
+        Vector2 topLeft = new Vector2((transform.position.x + 1 - cameraWidth), (transform.position.y - 1 + cameraHeight));
         Vector2 topLeftHitPoint = new Vector2();
-        Vector2 bottomRight = new Vector2((transform.position.x - 1 + (cameraHeight * 2)), (transform.position.y - cameraHeight));
+        Vector2 bottomRight = new Vector2((transform.position.x - 1 + cameraWidth), (transform.position.y + 1 - cameraHeight));
         Vector2 bottomRightHitPoint = new Vector2();
-        Vector2 bottomLeft = new Vector2((transform.position.x + 1 - (cameraHeight * 2)), (transform.position.y - cameraHeight));
+        Vector2 bottomLeft = new Vector2((transform.position.x + 1 - cameraWidth), (transform.position.y + 1 - cameraHeight));
         Vector2 bottomLeftHitPoint = new Vector2();
-        Vector2 rightTop = new Vector2((transform.position.x + (cameraHeight * 2)), (transform.position.y - 1 + cameraHeight));
+        Vector2 rightTop = new Vector2((transform.position.x - 1 + cameraWidth), (transform.position.y - 1 + cameraHeight));
         Vector2 rightTopHitPoint = new Vector2();
-        Vector2 leftTop = new Vector2((transform.position.x - (cameraHeight * 2)), (transform.position.y - 1 + cameraHeight));
+        Vector2 leftTop = new Vector2((transform.position.x + 1 - cameraWidth), (transform.position.y - 1 + cameraHeight));
         Vector2 leftTopHitPoint = new Vector2();
-        Vector2 rightBottom = new Vector2((transform.position.x + (cameraHeight * 2)), (transform.position.y + 1 - cameraHeight));
+        Vector2 rightBottom = new Vector2((transform.position.x - 1 + cameraWidth), (transform.position.y + 1 - cameraHeight));
         Vector2 rightBottomHitPoint = new Vector2();
-        Vector2 leftBottom = new Vector2((transform.position.x - (cameraHeight * 2)), (transform.position.y + 1 - cameraHeight));
+        Vector2 leftBottom = new Vector2((transform.position.x + 1 - cameraWidth), (transform.position.y + 1 - cameraHeight));
         Vector2 leftBottomHitPoint = new Vector2();
 
         RaycastHit2D topRightHit = Physics2D.Raycast(topRight, Vector2.up, 5000, levelBounds);
@@ -147,6 +152,7 @@ public class CameraController : MonoBehaviour
         {
             maxYCameraClamp = topRightHitPoint.y;
         }
+        
         //MinY Clamp
         if (bottomRightHitPoint.y >= bottomLeftHitPoint.y)
         {
@@ -156,6 +162,7 @@ public class CameraController : MonoBehaviour
         {
             minYCameraClamp = bottomLeftHitPoint.y;
         }
+
         //MaxX Clamp
         if (rightTopHitPoint.x >= rightBottomHitPoint.x)
         {
@@ -165,6 +172,7 @@ public class CameraController : MonoBehaviour
         {
             maxXCameraClamp = rightTopHitPoint.x;
         }
+
         //MinX Clamp
         if (leftTopHitPoint.x >= leftBottomHitPoint.x)
         {

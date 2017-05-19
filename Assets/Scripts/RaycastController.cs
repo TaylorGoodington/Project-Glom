@@ -1,31 +1,31 @@
 ﻿using UnityEngine;
 
 [RequireComponent (typeof (BoxCollider2D))]
-public class RaycastController : MonoBehaviour {
-	
+public class RaycastController : MonoBehaviour
+{
 	public LayerMask collisionMask;
-	
+
 	public const float skinWidth = .015f;
-	public int horizontalRayCount = 4;
-	public int verticalRayCount = 4;
+
+    [HideInInspector] public int horizontalRayCount = 4;
+    [HideInInspector] public int verticalRayCount = 4;
+	[HideInInspector] public float horizontalRaySpacing;
+	[HideInInspector] public float verticalRaySpacing;
+    [HideInInspector] public BoxCollider2D boxCollider;
+    [HideInInspector] public RaycastOrigins raycastOrigins;
 	
-	[HideInInspector]
-	public float horizontalRaySpacing;
-	[HideInInspector]
-	public float verticalRaySpacing;
-	
-	public BoxCollider2D boxCollider;
-	public RaycastOrigins raycastOrigins;
-	
-	public virtual void Awake() {
+	public virtual void Awake()
+    {
 		boxCollider = GetComponent<BoxCollider2D> ();
 	}
 	
-	public virtual void Start() {
+	public virtual void Start()
+    {
 		CalculateRaySpacing ();
 	}
 	
-	public void UpdateRaycastOrigins() {
+	public void UpdateRaycastOrigins()
+    {
 		Bounds bounds = boxCollider.bounds;
 		bounds.Expand (skinWidth * -2);
 		
@@ -35,7 +35,8 @@ public class RaycastController : MonoBehaviour {
 		raycastOrigins.topRight = new Vector2 (bounds.max.x, bounds.max.y);
 	}
 	
-	public void CalculateRaySpacing() {
+	public void CalculateRaySpacing()
+    {
 		Bounds bounds = boxCollider.bounds;
 		bounds.Expand (skinWidth * -2);
 		
@@ -46,7 +47,8 @@ public class RaycastController : MonoBehaviour {
 		verticalRaySpacing = bounds.size.x / (verticalRayCount - 1);
 	}
 	
-	public struct RaycastOrigins {
+	public struct RaycastOrigins
+    {
 		public Vector2 topLeft, topRight;
 		public Vector2 bottomLeft, bottomRight;
 	}

@@ -4,6 +4,10 @@ public class GameControl : MonoBehaviour
 {
     private static GameControl _thisObject;
 
+    public static bool playerHasControl;
+    public static int playerCurrentHP;
+    public static bool inMenus;
+
     void Awake()
     {
         if (_thisObject != null)
@@ -17,6 +21,7 @@ public class GameControl : MonoBehaviour
 
     void Start ()
     {
-
+        playerHasControl = false;
+        playerCurrentHP = 10;
     }
 }

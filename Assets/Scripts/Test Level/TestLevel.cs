@@ -4,6 +4,7 @@ public class TestLevel : MonoBehaviour
 {
     void Start ()
     {
-        SceneTransitions.instance.TransitionIn();
+        GameControl.playerHasControl = true;
+        //SceneTransitions.instance.TransitionIn();
     }
 }
