@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        targetAspectRatio = 16 / (float)9;
+        targetAspectRatio = 160 / (float)144;
         cameraHeight = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().orthographicSize;
         cameraWidth = cameraHeight * targetAspectRatio;
     }

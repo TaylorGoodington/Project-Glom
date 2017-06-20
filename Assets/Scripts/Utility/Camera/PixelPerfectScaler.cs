@@ -2,11 +2,16 @@
 
 public class PixelPerfectScaler : MonoBehaviour
 {
-    private int screenVerticalPixels = 270;
+    private int screenVerticalPixels;
     public bool preferUncropped = true;
 
     private float screenPixelsY = 0;
     private bool currentCropped = false;
+
+    void Start ()
+    {
+        screenVerticalPixels = (int)GetComponent<Camera>().orthographicSize / 2;
+    }
 
     void Update()
     {

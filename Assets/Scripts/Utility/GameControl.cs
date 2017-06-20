@@ -7,6 +7,7 @@ public class GameControl : MonoBehaviour
     public static bool playerHasControl;
     public static int playerCurrentHP;
     public static bool inMenus;
+    public static int currentLevel;
 
     void Awake()
     {
@@ -23,5 +24,6 @@ public class GameControl : MonoBehaviour
     {
         playerHasControl = false;
         playerCurrentHP = 10;
+        currentLevel = 1;
     }
 }
