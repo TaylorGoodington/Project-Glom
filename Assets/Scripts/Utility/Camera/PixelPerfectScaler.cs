@@ -10,7 +10,7 @@ public class PixelPerfectScaler : MonoBehaviour
 
     void Start ()
     {
-        screenVerticalPixels = (int)GetComponent<Camera>().orthographicSize / 2;
+        screenVerticalPixels = (int)GetComponent<Camera>().orthographicSize * 2;
     }
 
     void Update()
