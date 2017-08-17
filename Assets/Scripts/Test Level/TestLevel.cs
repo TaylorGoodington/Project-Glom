@@ -12,7 +12,7 @@ public class TestLevel : MonoBehaviour
     void Start ()
     {
         GameControl.playerHasControl = true;
-        GenerateLevel();
+        //GenerateLevel();
     }
 
     private void GenerateLevel()

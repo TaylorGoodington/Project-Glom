@@ -431,7 +431,7 @@ public class Player : MonoBehaviour
         {
             controller.characterState = Controller2D.CharacterStates.Jumping;
         }
-        else if (input == Vector2.zero && controller.collisions.below)
+        else if (input.x == 0 && controller.collisions.below)
         {
             controller.characterState = Controller2D.CharacterStates.Standing;
         }
@@ -450,6 +450,7 @@ public class Player : MonoBehaviour
     {
         if (controller.characterState == Controller2D.CharacterStates.Dying)
         {
+            UnPauseAnimators();
             GameControl.playerHasControl = false;
 
             if (controller.collisions.below)
@@ -464,6 +465,8 @@ public class Player : MonoBehaviour
         }
         else if (controller.characterState == Controller2D.CharacterStates.Standing)
         {
+            UnPauseAnimators();
+
             if (velocity.x > 0)
             {
                 velocity.x -= 0.1f;
@@ -534,6 +537,7 @@ public class Player : MonoBehaviour
         }
         else if (controller.characterState == Controller2D.CharacterStates.Summiting)
         {
+            UnPauseAnimators();
             velocity = Vector2.zero;
             GameControl.playerHasControl = false;
         }
