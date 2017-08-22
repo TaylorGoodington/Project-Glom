@@ -4,11 +4,9 @@ using System.Collections;
 public class PlayerAnimationController : MonoBehaviour
 {
     public Animator bodyAnimator;
-    //public Animator weaponAnimator;
-    //public Animator equipmentAnimator;
-    //public Animator backgroundEffectsAnimator;
-    //int equippedWeaponID;
-    //int equippedEquipmentID;
+    public Animator castingAnimator;
+    public Animator scarAnimator;
+    public Animator spellAnimator;
 
     public void PlayAnimation(string animation, float facingDirecion)
     {
@@ -18,17 +16,6 @@ public class PlayerAnimationController : MonoBehaviour
         {
             StartCoroutine(Summit());
         }
-
-        //PlayEquipmentAnimation(animation);
-        //PlayWeaponAnimation(animation);
-        //if (animation == Animations.Buff || animation == Animations.Ability || animation == Animations.MovementAbility || animation == Animations.Ultimate)
-        //{
-        //    PlayBackgroundEffectsAnimation(animation);
-        //}
-        //else
-        //{
-        //    backgroundEffectsAnimator.Play("Nothing");
-        //}
     }
 
     private IEnumerator Summit ()
@@ -40,23 +27,90 @@ public class PlayerAnimationController : MonoBehaviour
         GameControl.playerHasControl = true;
     }
 
-    private void PlayBodyAnimation(string animation, float facingDirecion)
+    private void PlayBodyAnimation(string animation, float direction)
     {
         if (animation != "Climbing")
         {
-            if (facingDirecion == -1)
+            if (direction == -1)
             {
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = true;
-                GetComponent<BoxCollider2D>().offset = new Vector2(1.5f, -4.5f);
+                castingAnimator.GetComponent<SpriteRenderer>().flipX = true;
+                scarAnimator.GetComponent<SpriteRenderer>().flipX = true;
+                spellAnimator.GetComponent<SpriteRenderer>().flipX = true;
             }
-            else if (facingDirecion == 1)
+            else if (direction == 1)
             {
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = false;
-                GetComponent<BoxCollider2D>().offset = new Vector2(-1.5f, -4.5f);
+                castingAnimator.GetComponent<SpriteRenderer>().flipX = false;
+                scarAnimator.GetComponent<SpriteRenderer>().flipX = false;
+                spellAnimator.GetComponent<SpriteRenderer>().flipX = false;
             }
         }
-        
+
+        if (animation == "AerialCasting")
+        {
+            castingAnimator.transform.localPosition = new Vector2(0, 2);
+            spellAnimator.transform.localPosition = new Vector2(0, 2);
+        }
+        else
+        {
+            castingAnimator.transform.localPosition = new Vector2(0, 0);
+            spellAnimator.transform.localPosition = new Vector2(0, 0);
+        }
+
         bodyAnimator.Play(animation);
+        scarAnimator.Play(animation);
+        ChangeScarColor();
+    }
+
+    public void PlaySpellAnimation (int spellId)
+    {
+        castingAnimator.Play("Casting");
+        spellAnimator.Play(SpellDatabase.spells[spellId].name);
+        StartCoroutine(InstantiateSpell(spellId));
+    }
+
+    private IEnumerator InstantiateSpell (int spellId)
+    {
+        GameObject prefab = SpellDatabase.spellProjectiles[spellId];
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(spellAnimator.GetCurrentAnimatorStateInfo(0).length);
+        Vector3 position = transform.localPosition;
+        position.z = -1;
+
+        if (castingAnimator.transform.localPosition.y == 2)
+        {
+            position.y += 2;
+        }
+
+        GameObject spell = Instantiate(prefab, position, Quaternion.identity);
+        spell.GetComponent<ProjectileMovement>().spellId = spellId;
+
+        if (bodyAnimator.GetComponent<SpriteRenderer>().flipX == true)
+        {
+            spell.GetComponent<SpriteRenderer>().flipX = true;
+            spell.GetComponent<BoxCollider2D>().offset = new Vector2(spell.GetComponent<BoxCollider2D>().offset.x * -1, spell.GetComponent<BoxCollider2D>().offset.y);
+        }
+        else if (bodyAnimator.GetComponent<SpriteRenderer>().flipX == false)
+        {
+            spell.GetComponent<SpriteRenderer>().flipX = false;
+        }
+    }
+
+    private void ChangeScarColor ()
+    {
+        if (castingAnimator.gameObject.GetComponent<CastingAnimationController>().castingPhase == 1)
+        {
+            scarAnimator.GetComponent<SpriteRenderer>().color = new Color32(118, 128, 110, 255);
+        }
+        else if (castingAnimator.gameObject.GetComponent<CastingAnimationController>().castingPhase == 2)
+        {
+            scarAnimator.GetComponent<SpriteRenderer>().color = new Color32(202, 232, 176, 255);
+        }
+        else
+        {
+            scarAnimator.GetComponent<SpriteRenderer>().color = new Color32(66, 64, 69, 255);
+        }
     }
 
     //public void PlayWeaponAnimation(Animations animation)

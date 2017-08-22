@@ -240,8 +240,12 @@ public class Controller2D : RaycastController
     public enum CharacterStates
     {
         Standing,
+        StandCasting,
         Running,
+        RunCasting,
         Jumping,
+        AerialCasting,
+        Falling,
         Climbing,
         Summiting,
         Attacking,

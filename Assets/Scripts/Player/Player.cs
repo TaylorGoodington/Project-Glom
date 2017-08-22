@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 [RequireComponent(typeof(Controller2D))]
 public class Player : MonoBehaviour
@@ -12,8 +14,6 @@ public class Player : MonoBehaviour
     public float initialMinJumpHeight;
     private float minJumpHeight;
     public float timeToJumpApex;
-    private bool verticalAcceleration;
-
     public float InitialMoveSpeed;
     private float moveSpeed;
     public float InitialClimbSpeed;
@@ -22,31 +22,26 @@ public class Player : MonoBehaviour
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
     private Vector2 input;
-    //private bool attackLaunched;
     private bool isClimbable;
     private bool summiting;
+    public bool casting;
+    public int selectedSpell;
 
     //private bool uninteruptable;
 
-    [HideInInspector]
-    public int knockBackForce;
-
-    public float climbingUpPosition;
+    [HideInInspector] public int knockBackForce;
+    [HideInInspector] public float climbingUpPosition;
 
     private PlayerAnimationController animator;
     private Controller2D controller;
-    //private BoxCollider2D playerCollider;
 
     private float gravity;
     private float maxJumpVelocity;
     private float minJumpVelocity;
     private Vector3 velocity;
     private float velocityXSmoothing;
-    
-    //private float targetXMovement;
-    //private int movementAbilityDirection;
 
-    //public WeaponColliders weaponCollider;
+    public Dictionary<int, float> cooldownList;
     #endregion
 
     void Start()
@@ -54,11 +49,11 @@ public class Player : MonoBehaviour
         GameControl.playerCurrentHP = 10;
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
-        //playerCollider = GetComponent<BoxCollider2D>();
-        
+        cooldownList = new Dictionary<int, float>();
+        casting = false;
+
         ResetCharacterPhysics();
         controller.characterState = Controller2D.CharacterStates.Standing;
-        //attackLaunched = false;
     }
 
     void Update()
@@ -70,7 +65,8 @@ public class Player : MonoBehaviour
             DetermineState(input);
             controller.Move(StateResult(input));
         }
-        
+
+        UpdateCoolDownList();
 
         #region Old
 
@@ -414,40 +410,67 @@ public class Player : MonoBehaviour
 
     private void DetermineState (Vector2 input)
     {
+        //Dying
         if (GameControl.playerCurrentHP <= 0)
         {
             controller.characterState = Controller2D.CharacterStates.Dying;
         }
-        else if (isClimbable && Input.GetButtonDown("Interact"))
+        //Climbing
+        else if (Input.GetButtonDown("Interact") && isClimbable && !casting)
         {
             controller.characterState = Controller2D.CharacterStates.Climbing;
         }
-        else if ((Input.GetButtonDown("Jump")) && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
-        {
-            verticalAcceleration = true;
-            controller.characterState = Controller2D.CharacterStates.Jumping;
-        }
-        else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
-        {
-            controller.characterState = Controller2D.CharacterStates.Jumping;
-        }
-        else if (input.x == 0 && controller.collisions.below)
-        {
-            controller.characterState = Controller2D.CharacterStates.Standing;
-        }
-        else if (controller.collisions.below && input.x != 0)
-        {
-            controller.characterState = Controller2D.CharacterStates.Running;
-        }
+        //Summiting
         else if (summiting && controller.characterState == Controller2D.CharacterStates.Climbing)
         {
             controller.characterState = Controller2D.CharacterStates.Summiting;
-            climbingUpPosition = transform.position.y + 10;
+        }
+        //Jumping
+        else if ((Input.GetButtonDown("Jump")) && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
+        {
+            controller.characterState = Controller2D.CharacterStates.Jumping;
+        }
+        //Falling
+        else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
+        {
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            {
+                controller.characterState = Controller2D.CharacterStates.AerialCasting;
+            }
+            else
+            {
+                controller.characterState = Controller2D.CharacterStates.Falling;
+            }
+        }
+        //Running
+        else if (controller.collisions.below && input.x != 0)
+        {
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            {
+                controller.characterState = Controller2D.CharacterStates.RunCasting;
+            }
+            else
+            {
+                controller.characterState = Controller2D.CharacterStates.Running;
+            }
+        }
+        //Standing
+        else if (input.x == 0 && controller.collisions.below)
+        {
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            {
+                controller.characterState = Controller2D.CharacterStates.StandCasting;
+            }
+            else
+            {
+                controller.characterState = Controller2D.CharacterStates.Standing;
+            }
         }
     }
 
     private Vector2 StateResult (Vector2 input)
     {
+        #region Dying
         if (controller.characterState == Controller2D.CharacterStates.Dying)
         {
             UnPauseAnimators();
@@ -463,6 +486,8 @@ public class Player : MonoBehaviour
                 velocity.y += gravity * Time.deltaTime;
             }
         }
+        #endregion
+        #region Standing
         else if (controller.characterState == Controller2D.CharacterStates.Standing)
         {
             UnPauseAnimators();
@@ -484,6 +509,8 @@ public class Player : MonoBehaviour
             velocity.y = 0;
             velocity.y += gravity * Time.deltaTime;
         }
+        #endregion
+        #region Running
         else if (controller.characterState == Controller2D.CharacterStates.Running)
         {
             UnPauseAnimators();
@@ -492,15 +519,19 @@ public class Player : MonoBehaviour
             velocity.y += gravity * Time.deltaTime;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         }
+        #endregion
+        #region Jumping
         else if (controller.characterState == Controller2D.CharacterStates.Jumping)
         {
             UnPauseAnimators();
-
-            if (verticalAcceleration)
-            {
-                velocity.y = maxJumpVelocity;
-                verticalAcceleration = false;
-            }
+            velocity.y = maxJumpVelocity;
+            velocity.y += gravity * Time.deltaTime;
+        }
+        #endregion
+        #region Falling
+        else if (controller.characterState == Controller2D.CharacterStates.Falling)
+        {
+            UnPauseAnimators();
 
             if (Input.GetButtonUp("Jump"))
             {
@@ -518,6 +549,8 @@ public class Player : MonoBehaviour
             velocity.y += gravity * Time.deltaTime;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         }
+        #endregion
+        #region Climbing
         else if (controller.characterState == Controller2D.CharacterStates.Climbing)
         {
             velocity.y = input.y * climbSpeed;
@@ -535,12 +568,80 @@ public class Player : MonoBehaviour
 
             return velocity;
         }
+        #endregion
+        #region Summiting
         else if (controller.characterState == Controller2D.CharacterStates.Summiting)
         {
+            climbingUpPosition = transform.position.y + 10;
+            CancelInvoke("PauseAnimators");
             UnPauseAnimators();
             velocity = Vector2.zero;
             GameControl.playerHasControl = false;
         }
+        #endregion
+        #region Stand Casting
+        else if (controller.characterState == Controller2D.CharacterStates.StandCasting)
+        {
+            UnPauseAnimators();
+
+            if (!casting)
+            {
+                casting = true;
+                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
+                animator.PlaySpellAnimation(selectedSpell);
+            }
+
+            if (velocity.x > 0)
+            {
+                velocity.x -= 0.1f;
+            }
+            else if (velocity.x < 0)
+            {
+                velocity.x += 0.1f;
+            }
+
+            if (velocity.x > -0.1 && velocity.x < 0.1)
+            {
+                velocity.x = 0;
+            }
+
+            velocity.y = 0;
+            velocity.y += gravity * Time.deltaTime;
+        }
+        #endregion
+        #region Run Casting
+        else if (controller.characterState == Controller2D.CharacterStates.RunCasting)
+        {
+            UnPauseAnimators();
+
+            if (!casting)
+            {
+                casting = true;
+                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
+                animator.PlaySpellAnimation(selectedSpell);
+            }
+
+            velocity.y = 0;
+            velocity.y += gravity * Time.deltaTime;
+            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+        }
+        #endregion
+        #region Aerial Casting
+        else if (controller.characterState == Controller2D.CharacterStates.AerialCasting)
+        {
+            UnPauseAnimators();
+
+            if (!casting)
+            {
+                casting = true;
+                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
+                animator.PlaySpellAnimation(selectedSpell);
+            }
+
+            velocity.y += gravity * Time.deltaTime;
+            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+        }
+        #endregion
 
         PlayAnimation(input.x);
         return velocity;
@@ -570,55 +671,16 @@ public class Player : MonoBehaviour
 
     private void PlayAnimation (float input)
     {
-        animator.PlayAnimation(controller.characterState.ToString(), input);
+        string state = controller.characterState.ToString();
+
+        //Falling and Jumping are the same animation.
+        if (state == "Falling")
+        {
+            state = "Jumping";
+        }
+
+        animator.PlayAnimation(state, input);
     }
-
-    //private void ActivateAbility()
-    //{
-    //    int skillID = SkillsController.skillsController.selectedSkill.skillID;
-
-    //    if (!callingActivateAbility)
-    //    {
-    //        callingActivateAbility = true;
-    //        SkillsController.skillsController.ActivateAbilityTest(skillID);
-    //    }
-    //    else
-    //    {
-    //        if (SkillsController.skillsController.activatingAbility && SkillsDatabase.skillsDatabase.skills[skillID].animationType != Skills.AnimationType.None)
-    //        {
-    //            input = Vector2.zero;
-    //            isAttacking = false;
-    //            attackLaunched = false;
-    //            if (SkillsController.skillsController.selectedSkill.animationType == Skills.AnimationType.Ability)
-    //            {
-    //                animator.PlayAnimation(PlayerAnimationController.Animations.Ability);
-    //            }
-    //            else if (SkillsController.skillsController.selectedSkill.animationType == Skills.AnimationType.Buff)
-    //            {
-    //                animator.PlayAnimation(PlayerAnimationController.Animations.Buff);
-    //            }
-    //            else if (SkillsController.skillsController.selectedSkill.animationType == Skills.AnimationType.MovementAbility)
-    //            {
-    //                Skills skill = SkillsController.skillsController.selectedSkill;
-    //                targetXMovement = transform.position.x + (skill.knockbackForce * controller.collisions.faceDir);
-    //                animator.PlayAnimation(PlayerAnimationController.Animations.MovementAbility);
-    //                movementAbilityDirection = controller.collisions.faceDir;
-    //            }
-    //            else
-    //            {
-    //                animator.PlayAnimation(PlayerAnimationController.Animations.Ultimate);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            Debug.Log("no animation/requirements not met.");
-    //            callingActivateAbility = false;
-    //            SkillsController.skillsController.activatingAbility = false;
-    //        }
-    //    }
-    //}
-
-    //Called from combat engine.
 
     public void Death()
     {
@@ -681,48 +743,22 @@ public class Player : MonoBehaviour
         }
     }
 
-    //called from attacking animation at the begining and end.
-    public void IsAttacking()
-    {
-        //isAttacking = !isAttacking;
-    }
-
-    //Resets the ability to attack & calls the combo countdown, called by the animation.
-    public void EndOfAttack()
-    {
-        //attackLaunched = false;
-        //CombatEngine.combatEngine.runComboClock = true;
-        //CombatEngine.combatEngine.comboCountDown = CombatEngine.combatEngine.comboWindow;
-        //Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        //if (CombatEngine.combatEngine.comboCount < CombatEngine.combatEngine.maxCombos && player.controller.collisions.below)
-        //{
-        //    CombatEngine.combatEngine.comboCount++;
-        //}
-        //else
-        //{
-        //    CombatEngine.combatEngine.comboCount = 1;
-        //}
-        //weaponCollider.DisableActiveCollider();
-    }
-
     public void PauseAnimators()
     {
         animator.enabled = false;
-        //animator.hairAnimator.gameObject.GetComponent<Animator>().enabled = false;
+        animator.spellAnimator.gameObject.GetComponent<Animator>().enabled = false;
         animator.bodyAnimator.gameObject.GetComponent<Animator>().enabled = false;
-        //animator.equipmentAnimator.gameObject.GetComponent<Animator>().enabled = false;
-        //animator.weaponAnimator.gameObject.GetComponent<Animator>().enabled = false;
-        //animator.backgroundEffectsAnimator.gameObject.GetComponent<Animator>().enabled = false;
+        animator.scarAnimator.gameObject.GetComponent<Animator>().enabled = false;
+        animator.castingAnimator.gameObject.GetComponent<Animator>().enabled = false;
     }
 
     public void UnPauseAnimators()
     {
         animator.enabled = true;
-        //animator.hairAnimator.gameObject.GetComponent<Animator>().enabled = true;
+        animator.spellAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.bodyAnimator.gameObject.GetComponent<Animator>().enabled = true;
-        //animator.equipmentAnimator.gameObject.GetComponent<Animator>().enabled = true;
-        //animator.weaponAnimator.gameObject.GetComponent<Animator>().enabled = true;
-        //animator.backgroundEffectsAnimator.gameObject.GetComponent<Animator>().enabled = true;
+        animator.scarAnimator.gameObject.GetComponent<Animator>().enabled = true;
+        animator.castingAnimator.gameObject.GetComponent<Animator>().enabled = true;
     }
 
     //called by the animator.
@@ -731,40 +767,20 @@ public class Player : MonoBehaviour
         //deathStanding = false;
     }
 
-
-    //called from the animations for attacking.
-    public void Attack()
+    public void UpdateCoolDownList()
     {
-        //knockBackForce = EquipmentDatabase.equipmentDatabase.equipment[GameControl.gameControl.profile1Weapon].knockbackForce;
-        //CombatEngine.combatEngine.enemyKnockBackDirection = controller.collisions.faceDir;
-
-        ////Wizards(4) and Rangers(3) fire a projectile that calls attack on contact.
-        //int projectileNumber = EquipmentDatabase.equipmentDatabase.equipment[GameControl.gameControl.profile1Weapon].equipmentTier - 1;
-        //if (GameControl.gameControl.playerClass == 3)
-        //{
-        //    if (controller.collisions.below)
-        //    {
-        //        Instantiate(ClassesDatabase.classDatabase.arrows[projectileNumber], transform.position, Quaternion.identity);
-        //    }
-        //    else
-        //    {
-        //        Instantiate(ClassesDatabase.classDatabase.arrows[projectileNumber], new Vector3(transform.position.x, transform.position.y + 9), Quaternion.identity);
-        //    }
-        //}
-        //else if (GameControl.gameControl.playerClass == 4)
-        //{
-        //    if (controller.collisions.below)
-        //    {
-        //        Instantiate(ClassesDatabase.classDatabase.magicMissles[projectileNumber], transform.position, Quaternion.identity);
-        //    }
-        //    else
-        //    {
-        //        Instantiate(ClassesDatabase.classDatabase.magicMissles[projectileNumber], new Vector3(transform.position.x, transform.position.y + 9), Quaternion.identity);
-        //    }
-        //}
-        //else
-        //{
-        //    weaponCollider.ActivateWeaponCollider(controller.collisions.below);
-        //}
+        for (int i = 0; i < cooldownList.Count; i++)
+        {
+            var key = cooldownList.ElementAt(i);
+            int itemKey = key.Key;
+            if (cooldownList[itemKey] <= 0)
+            {
+                cooldownList.Remove(itemKey);
+            }
+            else
+            {
+                cooldownList[itemKey] -= Time.deltaTime;
+            }
+        }
     }
 }
