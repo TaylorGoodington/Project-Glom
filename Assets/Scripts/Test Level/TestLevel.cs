@@ -7,7 +7,11 @@ public class TestLevel : MonoBehaviour
     public List<GameObject> lRComponents;
     public List<GameObject> rLComponents;
     public List<GameObject> rRComponents;
-    public int levelSize;
+    public List<GameObject> bLComponents;
+    public List<GameObject> bRComponents;
+    public GameObject bottomComponent;
+    public GameObject bossComponent;
+    public int levelBlocks;
 
     void Start ()
     {
@@ -18,9 +22,9 @@ public class TestLevel : MonoBehaviour
     private void GenerateLevel()
     {
         int blockSize = 128;
-        int blocks = levelSize / blockSize;
         int currentPosition = 0;
         int finishingSide = 0;
+        GameObject block;
 
         List<LevelComponents> levelComponents = new List<LevelComponents>();
         levelComponents.Add(new LevelComponents(0, 0, 0, lLComponents));
@@ -28,39 +32,55 @@ public class TestLevel : MonoBehaviour
         levelComponents.Add(new LevelComponents(0, 1, 0, rLComponents));
         levelComponents.Add(new LevelComponents(0, 1, 1, rRComponents));
 
-        for (int i = 0; i <= blocks; i++)
+        //Insert Entry block.
+        block = Instantiate(bottomComponent, new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+        block.transform.SetParent(gameObject.transform);
+        currentPosition += blockSize;
+
+        //Insert Starting block.
+        int startingSide = Random.Range(0, 2);
+        if (startingSide == 0)
         {
-            int component;
-            GameObject block;
+            int section = Random.Range(0, bLComponents.Count);
+            block = Instantiate(bLComponents[section], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+            block.transform.SetParent(gameObject.transform);
+            finishingSide = 0;
 
-            if (i == 0)
-            {
-                int startingCategory = Random.Range(0, levelComponents.Count);
-                component = Random.Range(0, levelComponents[startingCategory].blocks.Count);
-                finishingSide = levelComponents[startingCategory].finishSide;
-                block = Instantiate(levelComponents[startingCategory].blocks[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
-            }
-            else
-            {
-                List<LevelComponents> tempList = new List<LevelComponents>();
+        }
+        else
+        {
+            int section = Random.Range(0, bRComponents.Count);
+            block = Instantiate(bRComponents[section], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+            block.transform.SetParent(gameObject.transform);
+            finishingSide = 0;
+        }
+        currentPosition += blockSize;
 
-                foreach (var item in levelComponents)
+        //All middle blocks.
+        for (int i = 0; i <= levelBlocks; i++)
+        {
+            int component;            
+            List<LevelComponents> tempList = new List<LevelComponents>();
+
+            foreach (var item in levelComponents)
+            {
+                if (item.startSide == finishingSide)
                 {
-                    if (item.startSide == finishingSide)
-                    {
-                        tempList.Add(item);
-                    }
+                    tempList.Add(item);
                 }
-
-                int category = Random.Range(0, tempList.Count);
-                component = Random.Range(0, tempList[category].blocks.Count);
-                finishingSide = tempList[category].finishSide;
-                block = Instantiate(tempList[category].blocks[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
             }
-                
+
+            int category = Random.Range(0, tempList.Count);
+            component = Random.Range(0, tempList[category].blocks.Count);
+            finishingSide = tempList[category].finishSide;
+            block = Instantiate(tempList[category].blocks[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
             block.transform.SetParent(gameObject.transform);
             currentPosition += blockSize;
         }
+
+        //Insert Boss Block.
+        block = Instantiate(bossComponent, new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+        block.transform.SetParent(gameObject.transform);
     }
 }
 
