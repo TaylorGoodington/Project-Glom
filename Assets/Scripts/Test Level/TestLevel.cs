@@ -9,6 +9,8 @@ public class TestLevel : MonoBehaviour
     public List<GameObject> rRComponents;
     public List<GameObject> bLComponents;
     public List<GameObject> bRComponents;
+    public List<GameObject> tLComponents;
+    public List<GameObject> tRComponents;
     public GameObject bottomComponent;
     public GameObject bossComponent;
     public int levelBlocks;
@@ -77,6 +79,8 @@ public class TestLevel : MonoBehaviour
             block.transform.SetParent(gameObject.transform);
             currentPosition += blockSize;
         }
+
+        //Insert Top Block
 
         //Insert Boss Block.
         block = Instantiate(bossComponent, new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
