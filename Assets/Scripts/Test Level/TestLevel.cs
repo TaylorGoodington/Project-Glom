@@ -27,6 +27,7 @@ public class TestLevel : MonoBehaviour
         int currentPosition = 0;
         int finishingSide = 0;
         GameObject block;
+        int component;
 
         List<LevelComponents> levelComponents = new List<LevelComponents>();
         levelComponents.Add(new LevelComponents(0, 0, 0, lLComponents));
@@ -45,7 +46,6 @@ public class TestLevel : MonoBehaviour
         {
             int section = Random.Range(0, bLComponents.Count);
             block = Instantiate(bLComponents[section], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
-            block.transform.SetParent(gameObject.transform);
             finishingSide = 0;
 
         }
@@ -53,15 +53,14 @@ public class TestLevel : MonoBehaviour
         {
             int section = Random.Range(0, bRComponents.Count);
             block = Instantiate(bRComponents[section], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
-            block.transform.SetParent(gameObject.transform);
-            finishingSide = 0;
+            finishingSide = 1;
         }
+        block.transform.SetParent(gameObject.transform);
         currentPosition += blockSize;
 
         //All middle blocks.
         for (int i = 0; i <= levelBlocks; i++)
         {
-            int component;            
             List<LevelComponents> tempList = new List<LevelComponents>();
 
             foreach (var item in levelComponents)
@@ -81,6 +80,19 @@ public class TestLevel : MonoBehaviour
         }
 
         //Insert Top Block
+        if (finishingSide == 1)
+        {
+            component = Random.Range(0, tRComponents.Count);
+            block = Instantiate(tRComponents[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+        }
+        else
+        {
+            component = Random.Range(0, tLComponents.Count);
+            block = Instantiate(tLComponents[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
+        }
+
+        block.transform.SetParent(gameObject.transform);
+        currentPosition += blockSize;
 
         //Insert Boss Block.
         block = Instantiate(bossComponent, new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
