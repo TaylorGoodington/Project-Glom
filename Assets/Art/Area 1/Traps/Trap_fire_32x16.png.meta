@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 56c165404b7ea2f438551a06d69c9044
-timeCreated: 1505779846
+timeCreated: 1507662728
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -113,10 +113,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 32
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
@@ -124,12 +124,12 @@ TextureImporter:
       name: Trap_fire_32x16_1
       rect:
         serializedVersion: 2
-        x: 32
+        x: 34
         y: 32
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
@@ -139,10 +139,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 16
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
@@ -150,12 +150,12 @@ TextureImporter:
       name: Trap_fire_32x16_3
       rect:
         serializedVersion: 2
-        x: 32
+        x: 34
         y: 16
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
@@ -165,10 +165,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
@@ -176,12 +176,12 @@ TextureImporter:
       name: Trap_fire_32x16_5
       rect:
         serializedVersion: 2
-        x: 32
+        x: 34
         y: 0
-        width: 32
+        width: 34
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0

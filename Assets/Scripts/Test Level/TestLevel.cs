@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 public class TestLevel : MonoBehaviour
 {
+    //TODO remove at some point
+    public bool generateLevel;
+
     public List<GameObject> lLComponents;
     public List<GameObject> lRComponents;
     public List<GameObject> rLComponents;
@@ -18,7 +21,10 @@ public class TestLevel : MonoBehaviour
     void Start ()
     {
         GameControl.playerHasControl = true;
-        GenerateLevel();
+        if (generateLevel)
+        {
+            GenerateLevel();
+        }
     }
 
     private void GenerateLevel()
