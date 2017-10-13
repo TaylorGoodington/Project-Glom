@@ -8,6 +8,13 @@ public class GameControl : MonoBehaviour
     public static int playerCurrentHP;
     public static bool inMenus;
     public static int currentLevel;
+    public static int difficulty;
+
+    public static int selectedSpellId;
+
+    #region Upgrades
+    public static int healthLevel;
+    #endregion
 
     void Awake()
     {
@@ -25,5 +32,7 @@ public class GameControl : MonoBehaviour
         playerHasControl = false;
         playerCurrentHP = 10;
         currentLevel = 1;
+        healthLevel = 1;
+        selectedSpellId = 1;
     }
 }
