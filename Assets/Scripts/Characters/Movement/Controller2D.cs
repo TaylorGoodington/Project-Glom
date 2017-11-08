@@ -2,8 +2,8 @@
 
 public class Controller2D : RaycastController
 {
-	public float maxClimbAngle = 80;
-	public float maxDescendAngle = 80;
+	private float maxClimbAngle = 80;
+    private float maxDescendAngle = 80;
     public CharacterStates characterState;
 
     [HideInInspector] public bool wallJumpReady = false;

@@ -29,8 +29,14 @@ public class PlayerAnimationController : MonoBehaviour
 
     private void PlayBodyAnimation(string animation, float direction)
     {
-        if (animation != "Climbing")
+        if (animation == "Climbing" || animation == "Summiting")
         {
+            scarAnimator.gameObject.SetActive(false);
+        }
+        else
+        {
+            scarAnimator.gameObject.SetActive(true);
+
             if (direction == -1)
             {
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = true;
