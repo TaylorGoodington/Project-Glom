@@ -3,9 +3,11 @@ using System.Collections;
 
 [RequireComponent(typeof(Controller2D))]
 [RequireComponent(typeof(EnemyStats))]
-public class EnemyBase : MonoBehaviour {
-    
+public class EnemyBase : MonoBehaviour
+{
     #region Variables
+    [HideInInspector] public int enemyId;
+    private bool isActive;
     private EnemyStats stats;
 
     [Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
@@ -108,6 +110,10 @@ public class EnemyBase : MonoBehaviour {
 
     public virtual void Start()
     {
+        //TODO enemyId will be set when the enemy is spawned, this is for testing.
+        enemyId = 1;
+
+        isActive = false;
         stats = GetComponent<EnemyStats>();
         patrolSpeed = stats.patrolSpeed;
         chaseSpeed = stats.chaseSpeed;
@@ -158,42 +164,51 @@ public class EnemyBase : MonoBehaviour {
         //CalculateJumpCollders();
     }
 
+    public void ActivateEnemy()
+    {
+        isActive = true;
+        CombatEngine.ActivateEnemy(enemyId, stats);
+    }
+
     public virtual void Update ()
     {
-        RageManagement();
-
-        //if (!beingAttacked)
-        //{
-        //    controller.enemyFaceDirection = controller.collisions.faceDir;
-        //}
-
-        //flips sprite depending on direction facing.
-        if (controller.collisions.faceDir == -1)
+        if (isActive)
         {
-            gameObject.GetComponent<SpriteRenderer>().flipX = false;
-            //eyePositionLeft = new Vector2(transform.position.x - eyePositionModifierX, transform.position.y + eyePositionModifierY);
-            //eyePosition = eyePositionLeft;
-            //jumpPoints.transform.localScale = new Vector3(1, 1, 1);
-            //freeFallPoints.transform.localScale = new Vector3(1, 1, 1);
-        }
-        else
-        {
-            gameObject.GetComponent<SpriteRenderer>().flipX = true;
-            //eyePositionRight = new Vector2(transform.position.x + eyePositionModifierX, transform.position.y + eyePositionModifierY);
-            //eyePosition = eyePositionRight;
-            //jumpPoints.transform.localScale = new Vector3(-1, 1, 1);
-            //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
-        }
+            RageManagement();
 
-        ////Creates a patrol path when we are on the ground.
-        //if ((velocity.y == 0 && transform.position.x > maxPatrolX) || (velocity.y == 0 && transform.position.x < minPatrolX))
-        //{
-        //    RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, (enemyCollider.size.y / 2) + 5, patrolMask);
-        //    if (hit)
-        //    {
-        //        CreatePatrolPath();
-        //    }
-        //}
+            //if (!beingAttacked)
+            //{
+            //    controller.enemyFaceDirection = controller.collisions.faceDir;
+            //}
+
+            //flips sprite depending on direction facing.
+            if (controller.collisions.faceDir == -1)
+            {
+                gameObject.GetComponent<SpriteRenderer>().flipX = false;
+                //eyePositionLeft = new Vector2(transform.position.x - eyePositionModifierX, transform.position.y + eyePositionModifierY);
+                //eyePosition = eyePositionLeft;
+                //jumpPoints.transform.localScale = new Vector3(1, 1, 1);
+                //freeFallPoints.transform.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                gameObject.GetComponent<SpriteRenderer>().flipX = true;
+                //eyePositionRight = new Vector2(transform.position.x + eyePositionModifierX, transform.position.y + eyePositionModifierY);
+                //eyePosition = eyePositionRight;
+                //jumpPoints.transform.localScale = new Vector3(-1, 1, 1);
+                //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
+            }
+
+            ////Creates a patrol path when we are on the ground.
+            //if ((velocity.y == 0 && transform.position.x > maxPatrolX) || (velocity.y == 0 && transform.position.x < minPatrolX))
+            //{
+            //    RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, (enemyCollider.size.y / 2) + 5, patrolMask);
+            //    if (hit)
+            //    {
+            //        CreatePatrolPath();
+            //    }
+            //}
+        }
     }
 
     public void RageManagement()

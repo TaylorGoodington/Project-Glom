@@ -1,9 +1,15 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 
 public class CombatEngine : MonoBehaviour
 {
-    //public static CombatEngine combatEngine;
+    private static Dictionary<int, EnemyStats> activeEnemies;
+    private static Dictionary<int, SyphonInfo> syphonedStats;
+    private static float initalSyphonTime = 2f;
+    public static float syphonTime;
+    public static CombatEngine instance;
+    private static Player player;
     //public int attackDamage;
     //public float critRate;
     //[HideInInspector] public int maxCombos;
@@ -18,26 +24,77 @@ public class CombatEngine : MonoBehaviour
 
     //private float maxIntelligence = 10000; //ToDo UPDATE AT SOME POINT
     //private float maxNakedCritRate = 25;
-    
-    //void Start() {
-    //    combatEngine = GetComponent<CombatEngine>();
-    //    comboCount = 1;
-    //    runComboClock = false;
 
-    //    comboWindow = 0.25f;
-    //    comboCountDown = comboWindow;
-    //}
+    void Awake()
+    {
+        instance = this;
+    }
 
-    ////Update used to increment combos.
-    //void Update()
-    //{
-    //    maxCombos = GameControl.gameControl.maxCombos;
+    void Start()
+    {
+        activeEnemies = new Dictionary<int, EnemyStats>();
+        syphonTime = initalSyphonTime;
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        syphonedStats = new Dictionary<int, SyphonInfo>();
 
-    //    if (runComboClock)
-    //    {
-    //        RunComboClock();
-    //    }
-    //}
+        //comboCount = 1;
+        //runComboClock = false;
+        //comboWindow = 0.25f;
+        //comboCountDown = comboWindow;
+    }
+
+    void Update()
+    {
+        //maxCombos = GameControl.gameControl.maxCombos;
+        //if (runComboClock)
+        //{
+        //    RunComboClock();
+        //}
+    }
+
+    public static void ActivateEnemy(int id, EnemyStats stats)
+    {
+        activeEnemies.Add(id, stats);
+        instance.StopCoroutine("TriggerSyphons");
+        instance.StartCoroutine("TriggerSyphons");
+    }
+
+    private IEnumerator TriggerSyphons ()
+    {
+        while (true)
+        {
+            foreach (var enemy in activeEnemies)
+            {
+                if (enemy.Value.syphonType == EnemyStats.SyphonType.health)
+                {
+                    GameControl.playerCurrentHP -= enemy.Value.syphonAmount;
+
+                }
+                else
+                {
+                    player.moveSpeed -= enemy.Value.syphonAmount;
+                    player.climbSpeed -= enemy.Value.syphonAmount;
+                }
+
+                UpdateSyphonnedStats(enemy.Key, enemy.Value.syphonType, enemy.Value.syphonAmount);
+            }
+
+            UserInterface.UpdateHealth();
+            yield return new WaitForSeconds(syphonTime);
+        }
+    }
+
+    private void UpdateSyphonnedStats (int id, EnemyStats.SyphonType type, float amount)
+    {
+        if (syphonedStats.ContainsKey(id))
+        {
+            syphonedStats[id].syphonedAmount += amount;
+        }
+        else
+        {
+            syphonedStats.Add(id, new SyphonInfo(type, amount));
+        }
+    }
 
     //public void RunComboClock()
     //{
@@ -245,5 +302,17 @@ public class CombatEngine : MonoBehaviour
     {
         Player,
         Enemy
+    }
+}
+
+public class SyphonInfo
+{
+    public EnemyStats.SyphonType syphonType;
+    public float syphonedAmount;
+
+    public SyphonInfo (EnemyStats.SyphonType type, float amount)
+    {
+        syphonType = type;
+        syphonedAmount = amount;
     }
 }

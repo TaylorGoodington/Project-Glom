@@ -8,7 +8,7 @@ public class GameControl : MonoBehaviour
     public static int playerCurrentHP;
     public static bool inMenus;
     public static int currentLevel;
-    public static int difficulty;
+    public static int difficulty = 1;
 
     public static int selectedSpellId;
 
@@ -34,5 +34,6 @@ public class GameControl : MonoBehaviour
         currentLevel = 1;
         healthLevel = 1;
         selectedSpellId = 1;
+        difficulty = 1;
     }
 }

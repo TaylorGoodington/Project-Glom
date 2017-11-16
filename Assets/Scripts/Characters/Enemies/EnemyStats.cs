@@ -6,7 +6,7 @@ public class EnemyStats : MonoBehaviour
     public int maxHP;
     public int pointsGranted;
     public SyphonType syphonType;
-    public int syphonAmmount;
+    public int syphonAmount;
     public int attackDamage;
     public int attackRange;
     public float jumpHeight;
@@ -29,6 +29,6 @@ public class EnemyStats : MonoBehaviour
         maxHP *= GameControl.difficulty;
         currentHp *= GameControl.difficulty;
         attackDamage *= GameControl.difficulty;
-        syphonAmmount *= GameControl.difficulty;
+        syphonAmount *= GameControl.difficulty;
     }
 }

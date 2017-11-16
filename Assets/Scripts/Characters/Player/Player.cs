@@ -15,9 +15,9 @@ public class Player : MonoBehaviour
     private float minJumpHeight;
     public float timeToJumpApex;
     public float InitialMoveSpeed;
-    private float moveSpeed;
+    public float moveSpeed;
     public float InitialClimbSpeed;
-    private float climbSpeed;
+    public float climbSpeed;
     
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
