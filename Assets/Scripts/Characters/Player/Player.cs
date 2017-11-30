@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
     private float gravity;
     private float maxJumpVelocity;
     private float minJumpVelocity;
-    private Vector3 velocity;
+    private Vector2 velocity;
     private float velocityXSmoothing;
 
     public Dictionary<int, float> cooldownList;
@@ -63,7 +63,8 @@ public class Player : MonoBehaviour
             input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
             DetermineState(input);
-            controller.Move(StateResult(input));
+            velocity = StateResult(input);
+            controller.Move(velocity, input);
         }
 
         UpdateCoolDownList();

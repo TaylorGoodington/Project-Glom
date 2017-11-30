@@ -67,7 +67,7 @@ public class CombatEngine : MonoBehaviour
             {
                 if (enemy.Value.syphonType == EnemyStats.SyphonType.health)
                 {
-                    GameControl.playerCurrentHP -= enemy.Value.syphonAmount;
+                    GameControl.DealDamageToPlayer(enemy.Value.syphonAmount);
 
                 }
                 else
@@ -79,7 +79,6 @@ public class CombatEngine : MonoBehaviour
                 UpdateSyphonnedStats(enemy.Key, enemy.Value.syphonType, enemy.Value.syphonAmount);
             }
 
-            UserInterface.UpdateHealth();
             yield return new WaitForSeconds(syphonTime);
         }
     }

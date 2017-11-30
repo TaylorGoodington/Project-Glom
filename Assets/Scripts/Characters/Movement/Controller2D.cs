@@ -17,8 +17,9 @@ public class Controller2D : RaycastController
 		collisions.faceDir = 1;
 	}
 	
-	public void Move(Vector3 velocity, bool standingOnPlatform = false)
+	public void Move(Vector3 velocity, Vector2 input, bool standingOnPlatform = false)
     {
+        playerInput = input;
 		UpdateRaycastOrigins ();
 		collisions.Reset ();
 		collisions.velocityOld = velocity;

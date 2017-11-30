@@ -34,7 +34,7 @@ public class PlayerDetection : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 12)
+        if (collision.gameObject.layer == (int)GameControl.GameLayers.player)
         {
             isPlayerDetected = true;
         }
@@ -42,7 +42,7 @@ public class PlayerDetection : MonoBehaviour
 
     public void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == 12)
+        if (collision.gameObject.layer == (int)GameControl.GameLayers.player)
         {
             isPlayerDetected = false;
         }

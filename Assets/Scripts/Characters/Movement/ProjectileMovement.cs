@@ -35,7 +35,7 @@ public class ProjectileMovement : MonoBehaviour
         }
         else
         {
-            controller.Move(velocity);
+            controller.Move(velocity, Vector2.zero);
 
             if (transform.position.x < -10 || transform.position.x > 180)
             {

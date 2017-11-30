@@ -36,4 +36,22 @@ public class GameControl : MonoBehaviour
         selectedSpellId = 1;
         difficulty = 1;
     }
+
+    public static void DealDamageToPlayer(int damage)
+    {
+        playerCurrentHP -= damage;
+        UserInterface.UpdateHealth();
+    }
+
+    public enum GameLayers
+    {
+        levelBounds = 8,
+        ground = 9,
+        platforms = 10,
+        enemy = 11,
+        player = 12,
+        ladder = 13,
+        ladderTop = 14,
+        hazzard = 15
+    }
 }

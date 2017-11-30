@@ -110,8 +110,7 @@ public class EnemyBase : MonoBehaviour
 
     public virtual void Start()
     {
-        //TODO enemyId will be set when the enemy is spawned, this is for testing.
-        enemyId = 1;
+        enemyId = GetInstanceID();
 
         isActive = false;
         stats = GetComponent<EnemyStats>();

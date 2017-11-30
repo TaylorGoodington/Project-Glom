@@ -36,19 +36,21 @@ public class TrapGeneration : MonoBehaviour
         {
             pixelColor = heightMap.GetPixel(currentColumn, currentRow);
 
-            if (pixelColor.a == 1 && IsPixelBottomLeftCorner(currentColumn, currentRow))
+            if (pixelColor.a == 1)
             {
                 directions = TrapDirections(pixelColor, currentColumn, currentRow);
 
-                //add to trap info with directions and position.
-                if (pixelColor == blue)
+                if (directions.Count >= 1)
                 {
-
-                }
-                else
-                {
-
-                }
+                    if (pixelColor == blue)
+                    {
+                        trapInfo.Add(new TrapInfo(directions, TrapInfo.TrapType.Spike, new Vector2(currentColumn + blueOffset, currentRow + blueOffset)));
+                    }
+                    else
+                    {
+                        trapInfo.Add(new TrapInfo(directions, TrapInfo.TrapType.Fire, new Vector2(currentColumn + redXOffset, currentRow + redYOffset)));
+                    }
+                }                
             }
 
             //Deals with the next pixel to check.
@@ -64,61 +66,127 @@ public class TrapGeneration : MonoBehaviour
         }
     }
 
-    //TODO Finish
-    private bool IsPixelBottomLeftCorner (int x, int y)
-    {
-        return true;
-    }
-
     private List<TrapInfo.Directions> TrapDirections(Color color, int x, int y)
     {
-        Vector2 northColorPixel;
-        Vector2 southColorPixel;
-        Vector2 eastColorPixel;
-        Vector2 westColorPixel;
+        List<TrapInfo.Directions> directions = new List<TrapInfo.Directions>();
 
-        //check for direction of trap
-        northColorPixel = new Vector2(x + blueOffset, y + blueOffset * 2);
-        southColorPixel = new Vector2(x + blueOffset, y);
-        eastColorPixel = new Vector2(x + blueOffset * 2, y + blueOffset);
-        westColorPixel = new Vector2(x, y + blueOffset);
+        Color northColorPixel;
+        Color southColorPixel;
+        Color eastColorPixel;
+        Color westColorPixel;
 
-        //TODO change with actual list.
-        return new List<TrapInfo.Directions>();
+        int xOffset = 0;
+        int yOffset = 0;
+
+        if (color == blue)
+        {
+            xOffset = blueOffset;
+            yOffset = blueOffset;
+        }
+        else if (color == red)
+        {
+            xOffset = redXOffset;
+            yOffset = redYOffset;
+        }
+
+        //Checks for if the Pixel is on the map.
+        if ((x + xOffset * 2) <= length && (y + yOffset * 2) <= height)
+        {
+            northColorPixel = heightMap.GetPixel(x + xOffset, y + (yOffset * 2) - 1);
+            southColorPixel = heightMap.GetPixel(x + xOffset, y);
+            eastColorPixel = heightMap.GetPixel(x + (xOffset * 2) - 1, y + yOffset);
+            westColorPixel = heightMap.GetPixel(x, y + yOffset);
+
+            if (northColorPixel.a == 1 && southColorPixel.a == 1 && eastColorPixel.a == 1 && westColorPixel.a == 1)
+            {
+                if (color == blue)
+                {
+                    //if (northColorPixel.a == 1 && northColorPixel != blue)
+                    //{
+                    //    directions.Add(TrapInfo.Directions.North);
+                    //}
+
+                    //if (southColorPixel.a == 1 && southColorPixel != blue)
+                    //{
+                    //    directions.Add(TrapInfo.Directions.South);
+                    //}
+
+                    //if (eastColorPixel.a == 1 && eastColorPixel != blue)
+                    //{
+                    //    directions.Add(TrapInfo.Directions.East);
+                    //}
+
+                    //if (westColorPixel.a == 1 && westColorPixel != blue)
+                    //{
+                    //    directions.Add(TrapInfo.Directions.West);
+                    //}
+
+                    directions.Add(TrapInfo.Directions.South);
+                }
+                else if (color == red)
+                {
+                    if (northColorPixel.a == 1 && northColorPixel != red)
+                    {
+                        directions.Add(TrapInfo.Directions.North);
+                    }
+
+                    if (southColorPixel.a == 1 && southColorPixel != red)
+                    {
+                        directions.Add(TrapInfo.Directions.South);
+                    }
+
+                    if (eastColorPixel.a == 1 && eastColorPixel != red)
+                    {
+                        directions.Add(TrapInfo.Directions.East);
+                    }
+
+                    if (westColorPixel.a == 1 && westColorPixel != red)
+                    {
+                        directions.Add(TrapInfo.Directions.West);
+                    }
+                }
+            }
+        }
+                
+        return directions;
     }
 
     //TODO Finish
     private void SpawnTraps()
     {
+        int trapsToSpawn = GameControl.difficulty + GameControl.currentLevel;
+        List<int> trapsList = new List<int>();
 
-    }
-}
+        for (int i = 0; i < trapInfo.Count; i++)
+        {
+            trapsList.Add(i);
+        }
 
-[System.Serializable]
-public class TrapInfo
-{
-    public TrapType type;
-    public Vector2 location;
-    public List<Directions> possibleDirections;
+        for (int i = 0; i < trapsToSpawn; i++)
+        {
+            int position = trapsList[Random.Range(0, trapsList.Count)];
+            GameObject trap = Instantiate(TrapsDatabase.staticTraps[(int)trapInfo[position].type], trapInfo[position].location + (Vector2)transform.position, Quaternion.identity);
+            trap.transform.SetParent(transform);
+            TrapInfo.Directions trapDirection = trapInfo[position].possibleDirections[Random.Range(0, trapInfo[position].possibleDirections.Count)];
 
-    public TrapInfo(List<Directions> trapDirection, TrapType trapType, Vector2 trapLocation)
-    {
-        type = trapType;
-        location = trapLocation;
-        possibleDirections = trapDirection;
-    }
+            if (trapDirection == TrapInfo.Directions.North)
+            {
+                trap.GetComponent<SpriteRenderer>().flipY = true;
+            }
+            else if (trapDirection == TrapInfo.Directions.South)
+            {
+                trap.GetComponent<SpriteRenderer>().flipY = false;
+            }
+            else if (trapDirection == TrapInfo.Directions.East)
+            {
+                trap.GetComponent<SpriteRenderer>().flipX = false;
+            }
+            else if (trapDirection == TrapInfo.Directions.West)
+            {
+                trap.GetComponent<SpriteRenderer>().flipX = true;
+            }
 
-    public enum Directions
-    {
-        North,
-        East,
-        South,
-        West
-    }
-
-    public enum TrapType
-    {
-        Fire,
-        Spike
+            trapsList.Remove(position);
+        }
     }
 }
