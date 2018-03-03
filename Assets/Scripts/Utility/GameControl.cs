@@ -30,7 +30,7 @@ public class GameControl : MonoBehaviour
     void Start ()
     {
         playerHasControl = false;
-        playerCurrentHP = 10;
+        playerCurrentHP = 36;
         currentLevel = 1;
         healthLevel = 1;
         selectedSpellId = 1;

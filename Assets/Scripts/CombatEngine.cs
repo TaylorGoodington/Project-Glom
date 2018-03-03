@@ -6,7 +6,7 @@ public class CombatEngine : MonoBehaviour
 {
     private static Dictionary<int, EnemyStats> activeEnemies;
     private static Dictionary<int, SyphonInfo> syphonedStats;
-    private static float initalSyphonTime = 2f;
+    private static float initalSyphonTime = 0.5f;
     public static float syphonTime;
     public static CombatEngine instance;
     private static Player player;

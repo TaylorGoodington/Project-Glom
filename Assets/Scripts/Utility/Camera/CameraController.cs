@@ -66,6 +66,8 @@ public class CameraController : MonoBehaviour
             float cameraPositionX = Mathf.Clamp(focusPosition.x, (minXCameraClamp + cameraWidth), maxXCameraClamp - cameraWidth);
             float cameraPositionY = Mathf.Clamp(focusPosition.y, (minYCameraClamp + cameraHeight), (maxYCameraClamp - cameraHeight));
             transform.position = new Vector3(Mathf.Round(cameraPositionX), Mathf.Round(cameraPositionY), -10);
+
+            FindObjectOfType<Parallax>().GetComponent<Parallax>().Scrolling(transform.position);
         }
     }
 
