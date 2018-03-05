@@ -26,7 +26,7 @@ public class Parallax : MonoBehaviour
             float backgroundSizeX = backgrounds[i].GetComponent<SpriteRenderer>().bounds.size.x * 1;
             float backgroundSizeY = backgrounds[i].GetComponent<SpriteRenderer>().bounds.size.y * 1;
 
-            float maxBackgroundPositionY = levelSizeY - backgroundSizeY;
+            //float maxBackgroundPositionY = levelSizeY - backgroundSizeY;
             float distanceToMoveX = levelSizeX - cameraWidth;
             float distanceToMoveY = levelSizeY - (cameraWidth / 2);
 

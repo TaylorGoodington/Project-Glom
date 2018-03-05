@@ -12,19 +12,9 @@ public class TrapGeneration : MonoBehaviour
     private Color blue = Color.blue;
     private int blueOffset = 8;
 
-    public List<TrapInfo> trapInfo;
-
-    void Start ()
+    private List<TrapInfo> MapTraps()
     {
-        trapInfo = new List<TrapInfo>();
-        heightMap = GetComponent<SpriteRenderer>().sprite.texture;
-
-        MapTraps();
-        SpawnTraps();
-	}
-
-    private void MapTraps()
-    {
+        List<TrapInfo> trapInfo = new List<TrapInfo>();
         int area = height * length;
         Color pixelColor;
         int currentRow = 0;
@@ -64,6 +54,8 @@ public class TrapGeneration : MonoBehaviour
                 currentColumn += 1;
             }
         }
+
+        return trapInfo;
     }
 
     private List<TrapInfo.Directions> TrapDirections(Color color, int x, int y)
@@ -151,18 +143,25 @@ public class TrapGeneration : MonoBehaviour
         return directions;
     }
 
-    //TODO Finish
-    private void SpawnTraps()
+    //TODO Finish by incorporating position for difficulty
+    public int SpawnTraps(int allowance)
     {
-        int trapsToSpawn = GameControl.difficulty + GameControl.currentLevel;
+        List<TrapInfo> trapInfo = new List<TrapInfo>();
+        heightMap = GetComponent<SpriteRenderer>().sprite.texture;
+        trapInfo = MapTraps();
         List<int> trapsList = new List<int>();
+        int remainder = 0;
 
         for (int i = 0; i < trapInfo.Count; i++)
         {
             trapsList.Add(i);
         }
 
-        for (int i = 0; i < trapsToSpawn; i++)
+        //Figure out if were gonna use Quality or Quantity as the primary factor.
+        //Will do so by seeing if Quantity is viable based on the number of potential positions
+        //Next the block will "buy" appropriate traps based on the outcome.
+
+        for (int i = 0; i < allowance; i++)
         {
             int position = trapsList[Random.Range(0, trapsList.Count)];
             GameObject trap = Instantiate(TrapsDatabase.staticTraps[(int)trapInfo[position].type], trapInfo[position].location + (Vector2)transform.position, Quaternion.identity);
@@ -188,5 +187,7 @@ public class TrapGeneration : MonoBehaviour
 
             trapsList.Remove(position);
         }
+
+        return remainder;
     }
 }

@@ -21,6 +21,7 @@ public class TestLevel : MonoBehaviour
     void Start ()
     {
         GameControl.playerHasControl = true;
+
         if (generateLevel)
         {
             GenerateLevel();
@@ -34,6 +35,7 @@ public class TestLevel : MonoBehaviour
         int finishingSide = 0;
         GameObject block;
         int component;
+        int position = 1;
 
         List<LevelComponents> levelComponents = new List<LevelComponents>();
         levelComponents.Add(new LevelComponents(0, 0, 0, lLComponents));
@@ -61,8 +63,8 @@ public class TestLevel : MonoBehaviour
             block = Instantiate(bRComponents[section], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
             finishingSide = 1;
         }
-        block.transform.SetParent(gameObject.transform);
-        currentPosition += blockSize;
+
+        BlockChildingAndObstacleSpawning(blockSize, ref currentPosition, block, ref position);
 
         //All middle blocks.
         for (int i = 0; i <= levelBlocks; i++)
@@ -81,8 +83,7 @@ public class TestLevel : MonoBehaviour
             component = Random.Range(0, tempList[category].blocks.Count);
             finishingSide = tempList[category].finishSide;
             block = Instantiate(tempList[category].blocks[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
-            block.transform.SetParent(gameObject.transform);
-            currentPosition += blockSize;
+            BlockChildingAndObstacleSpawning(blockSize, ref currentPosition, block, ref position);
         }
 
         //Insert Top Block
@@ -97,12 +98,26 @@ public class TestLevel : MonoBehaviour
             block = Instantiate(tLComponents[component], new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
         }
 
-        block.transform.SetParent(gameObject.transform);
-        currentPosition += blockSize;
+        BlockChildingAndObstacleSpawning(blockSize, ref currentPosition, block, ref position);
 
         //Insert Boss Block.
         block = Instantiate(bossComponent, new Vector3(0, currentPosition, -0.5f), Quaternion.identity);
         block.transform.SetParent(gameObject.transform);
+    }
+
+    private void BlockChildingAndObstacleSpawning(int blockSize, ref int currentPosition, GameObject block, ref int position)
+    {
+        block.transform.SetParent(gameObject.transform);
+        currentPosition += blockSize;
+        position++;
+
+        int currentObstacleAllowance = GameControl.difficulty + GameControl.currentLevel + Mathf.FloorToInt(position / 3);
+        float trapAllowance = Random.Range(1, 11);
+        int currentTrapAllowance = Mathf.RoundToInt((trapAllowance / 10) * currentObstacleAllowance);
+        int currentEnemyAllowance = Mathf.RoundToInt(((10 - trapAllowance) * 10) * currentObstacleAllowance);
+        
+        int remainder = block.transform.GetChild(block.transform.childCount - 1).GetComponent<TrapGeneration>().SpawnTraps(currentTrapAllowance);
+        block.GetComponent<EnemySpawner>().SpawnEnemies(currentEnemyAllowance + remainder);
     }
 }
 
