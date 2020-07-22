@@ -157,11 +157,21 @@ public class TrapGeneration : MonoBehaviour
             trapsList.Add(i);
         }
 
+        int trapSlots;
         //Figure out if were gonna use Quality or Quantity as the primary factor.
         //Will do so by seeing if Quantity is viable based on the number of potential positions
         //Next the block will "buy" appropriate traps based on the outcome.
 
-        for (int i = 0; i < allowance; i++)
+        if (trapsList.Count <= allowance)
+        {
+            trapSlots = trapsList.Count;
+        }
+        else
+        {
+            trapSlots = allowance;
+        }
+
+        for (int i = 0; i < trapSlots; i++)
         {
             int position = trapsList[Random.Range(0, trapsList.Count)];
             GameObject trap = Instantiate(TrapsDatabase.staticTraps[(int)trapInfo[position].type], trapInfo[position].location + (Vector2)transform.position, Quaternion.identity);

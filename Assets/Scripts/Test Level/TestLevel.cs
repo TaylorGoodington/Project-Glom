@@ -117,7 +117,7 @@ public class TestLevel : MonoBehaviour
         int currentEnemyAllowance = Mathf.RoundToInt(((10 - trapAllowance) * 10) * currentObstacleAllowance);
         
         int remainder = block.transform.GetChild(block.transform.childCount - 1).GetComponent<TrapGeneration>().SpawnTraps(currentTrapAllowance);
-        block.GetComponent<EnemySpawner>().SpawnEnemies(currentEnemyAllowance + remainder);
+        //block.GetComponent<EnemySpawner>().SpawnEnemies(currentEnemyAllowance + remainder);
     }
 }
 
