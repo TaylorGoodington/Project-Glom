@@ -9,8 +9,9 @@ public class GameControl : MonoBehaviour
     public static bool inMenus;
     public static int currentLevel;
     public static int difficulty = 1;
-
     public static int selectedSpellId;
+
+    public static Camera mainCamera;
 
     #region Upgrades
     public static int healthLevel;
@@ -35,6 +36,10 @@ public class GameControl : MonoBehaviour
         healthLevel = 1;
         selectedSpellId = 1;
         difficulty = 1;
+        mainCamera = GetComponentInChildren<Camera>();
+
+        //TODO Remove later
+        playerHasControl = true;
     }
 
     public static void DealDamageToPlayer(int damage)

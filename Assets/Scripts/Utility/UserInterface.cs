@@ -28,6 +28,7 @@ public class UserInterface : MonoBehaviour
         staticHealthBars = healthBars;
         parent = transform;
         UpdateUserInterface();
+        GetComponent<Canvas>().worldCamera = GameControl.mainCamera;
 	}
 
     //Updates all pieces of the UI, used at the begining of a level.

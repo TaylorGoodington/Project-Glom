@@ -9,14 +9,20 @@ public class Parallax : MonoBehaviour
     private float levelSizeX;
     private float levelSizeY;
     private float cameraWidth;
+    private float cameraHeight;
+    private float cameraMaxPositionX;
+    private float cameraMaxPositionY;
 
     void Start()
     {
         parallax = GetComponent<Parallax>();
-        cameraWidth = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().orthographicSize * 2 * 2;
+        cameraWidth = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().targetTexture.width;
+        cameraHeight = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().targetTexture.height;
         levelCollider = this.GetComponent<Collider2D>();
         levelSizeX = levelCollider.bounds.size.x;
+        cameraMaxPositionX = levelSizeX - cameraWidth;
         levelSizeY = levelCollider.bounds.size.y;
+        cameraMaxPositionY = levelSizeY - cameraHeight;
     }
 
     public void Scrolling(Vector2 cameraPosition)
@@ -25,24 +31,40 @@ public class Parallax : MonoBehaviour
         {
             float backgroundSizeX = backgrounds[i].GetComponent<SpriteRenderer>().bounds.size.x * 1;
             float backgroundSizeY = backgrounds[i].GetComponent<SpriteRenderer>().bounds.size.y * 1;
+            float maxPositionX = levelSizeX - backgroundSizeX;
+            float maxPositionY = levelSizeY - backgroundSizeY;
+            float distanceToMoveX = cameraMaxPositionX - maxPositionX;
+            float distanceToMoveY = cameraMaxPositionY - maxPositionY;
 
-            //float maxBackgroundPositionY = levelSizeY - backgroundSizeY;
-            float distanceToMoveX = levelSizeX - cameraWidth;
-            float distanceToMoveY = levelSizeY - (cameraWidth / 2);
+            float rateOfMovementX;
 
-            float rateOfMovementX = (backgroundSizeX - cameraWidth) / distanceToMoveX;
-            float rateOfMovementY = (backgroundSizeY - (cameraWidth / 2)) / distanceToMoveY;
+            if (distanceToMoveX == 0)
+            {
+                rateOfMovementX = 0;
+            }
+            else
+            {
+                rateOfMovementX = distanceToMoveX / cameraMaxPositionX;
+            }
 
-            float backgroundTargetPositionX = Mathf.Round(((cameraPosition.x - cameraWidth / 2) + (rateOfMovementX * (cameraWidth / 2))) - (cameraPosition.x * (rateOfMovementX)));
-            float backgroundTargetPositionY = Mathf.Round(((cameraPosition.y - cameraWidth / 4) + (rateOfMovementY * (cameraWidth / 4))) - (cameraPosition.y * (rateOfMovementY)));
+            float rateOfMovementY;
 
-            backgrounds[i].position = new Vector3(backgroundTargetPositionX, backgroundTargetPositionY, 1);
+            if (distanceToMoveY == 0)
+            {
+                rateOfMovementY = 0;
+            }
+            else
+            {
+                rateOfMovementY = distanceToMoveY / cameraMaxPositionY;
+            }
 
-            //backgrounds[i].position = Vector3.Lerp(
-            //    //From:
-            //    backgrounds[i].position,
-            //    //To:
-            //    new Vector3(backgroundTargetPositionX, Mathf.Clamp(backgroundTargetPositionY, 0, maxBackgroundPositionY), backgrounds[i].position.z), 1);
+            float adjustedCameraPositionX = cameraPosition.x - (cameraWidth / 2);
+            float adjustedCameraPositionY = cameraPosition.y - (cameraHeight / 2);
+
+            float backgroundTargetPositionX = Mathf.Round(adjustedCameraPositionX - adjustedCameraPositionX * rateOfMovementX);
+            float backgroundTargetPositionY = Mathf.Round(adjustedCameraPositionY - adjustedCameraPositionY * rateOfMovementY);
+
+            backgrounds[i].position = new Vector3(backgroundTargetPositionX, backgroundTargetPositionY, backgrounds[i].transform.position.z);
         }
     }
 }
