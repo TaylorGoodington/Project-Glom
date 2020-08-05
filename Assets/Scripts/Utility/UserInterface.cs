@@ -34,7 +34,7 @@ public class UserInterface : MonoBehaviour
     //Updates all pieces of the UI, used at the begining of a level.
     private static void UpdateUserInterface ()
     {
-        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId - 1];
+        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId];
         staticUserInterface.GetComponent<SpriteRenderer>().sprite = staticUserInterfaces[GameControl.healthLevel - 1];
         Destroy(healthBar);
         healthBar = Instantiate(staticHealthBars[GameControl.healthLevel - 1], parent);
@@ -47,6 +47,6 @@ public class UserInterface : MonoBehaviour
 
     public static void UpdateSelectedSpell ()
     {
-        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId - 1];
+        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId ];
     }
 }

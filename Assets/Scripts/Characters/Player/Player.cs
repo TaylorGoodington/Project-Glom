@@ -25,7 +25,6 @@ public class Player : MonoBehaviour
     private bool isClimbable;
     private bool summiting;
     public bool casting;
-    public int selectedSpell;
 
     //private bool uninteruptable;
 
@@ -65,6 +64,11 @@ public class Player : MonoBehaviour
             DetermineState(input);
             velocity = StateResult(input);
             controller.Move(velocity, input);
+        }
+
+        if (Input.GetButtonDown("Cycle"))
+        {
+            GameControl.CycleActiveSpell();
         }
 
         UpdateCoolDownList();
@@ -151,7 +155,7 @@ public class Player : MonoBehaviour
         //Falling
         else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.AerialCasting;
             }
@@ -163,7 +167,7 @@ public class Player : MonoBehaviour
         //Running
         else if (controller.collisions.below && input.x != 0)
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.RunCasting;
             }
@@ -175,7 +179,7 @@ public class Player : MonoBehaviour
         //Standing
         else if (input.x == 0 && controller.collisions.below)
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(selectedSpell)) || casting)
+            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.StandCasting;
             }
@@ -305,8 +309,8 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
-                animator.PlaySpellAnimation(selectedSpell);
+                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
+                animator.PlaySpellAnimation(GameControl.selectedSpellId);
             }
 
             if (velocity.x > 0)
@@ -335,8 +339,8 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
-                animator.PlaySpellAnimation(selectedSpell);
+                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
+                animator.PlaySpellAnimation(GameControl.selectedSpellId);
             }
 
             velocity.y = 0;
@@ -352,8 +356,8 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(selectedSpell, SpellDatabase.spells[selectedSpell].cooldown);
-                animator.PlaySpellAnimation(selectedSpell);
+                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
+                animator.PlaySpellAnimation(GameControl.selectedSpellId);
             }
 
             velocity.y += gravity * Time.deltaTime;

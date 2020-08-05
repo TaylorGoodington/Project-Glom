@@ -10,7 +10,9 @@ public class SpellDatabase : MonoBehaviour
 	void Start ()
     {
         spells = new List<Spells>();
-        spells.Add(new Spells(0, "main", 5, 0, 3));
+        spells.Add(new Spells(0, "Blast", true, 5, 0, 3));
+        spells.Add(new Spells(1, "Aura", false, 5, 2, 0));
+        spells.Add(new Spells(2, "Poof", false, 0, 3, 0));
 
         spellProjectiles = new List<GameObject>();
         spellProjectiles = initalSpellProjectiles;
@@ -22,16 +24,18 @@ public class Spells
 {
     public int id;
     public string name;
+    public bool hasProjectile;
     public float baseDamage;
     public float cooldown;
     public float projectileSpeed;
 
-    public Spells (int spellId, string spellName, float spellBaseDamage, float spellCooldown, float speed)
+    public Spells(int id, string name, bool hasProjectile, float baseDamage, float cooldown, float projectileSpeed)
     {
-        id = spellId;
-        name = spellName;
-        baseDamage = spellBaseDamage;
-        cooldown = spellCooldown;
-        projectileSpeed = speed;
+        this.id = id;
+        this.name = name;
+        this.hasProjectile = hasProjectile;
+        this.baseDamage = baseDamage;
+        this.cooldown = cooldown;
+        this.projectileSpeed = projectileSpeed;
     }
 }

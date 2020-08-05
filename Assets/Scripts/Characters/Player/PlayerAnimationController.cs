@@ -73,7 +73,10 @@ public class PlayerAnimationController : MonoBehaviour
     {
         castingAnimator.Play("Casting");
         spellAnimator.Play(SpellDatabase.spells[spellId].name);
-        StartCoroutine(InstantiateSpell(spellId));
+        if (SpellDatabase.spells[spellId].hasProjectile)
+        {
+            StartCoroutine(InstantiateSpell(spellId));
+        }
     }
 
     private IEnumerator InstantiateSpell (int spellId)

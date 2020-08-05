@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Boo.Lang;
+using UnityEngine;
 
 public class GameControl : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameControl : MonoBehaviour
     public static int currentLevel;
     public static int difficulty = 1;
     public static int selectedSpellId;
+    public static List<int> availableSpellIds;
 
     public static Camera mainCamera;
 
@@ -34,12 +36,14 @@ public class GameControl : MonoBehaviour
         playerCurrentHP = 36;
         currentLevel = 1;
         healthLevel = 1;
-        selectedSpellId = 1;
+        selectedSpellId = 0;
         difficulty = 1;
         mainCamera = GetComponentInChildren<Camera>();
-
-        //TODO Remove later
         playerHasControl = true;
+        availableSpellIds = new List<int>();
+        availableSpellIds.Add(0);
+        availableSpellIds.Add(1);
+        availableSpellIds.Add(2);
     }
 
     public static void DealDamageToPlayer(int damage)
@@ -58,5 +62,21 @@ public class GameControl : MonoBehaviour
         ladder = 13,
         ladderTop = 14,
         hazzard = 15
+    }
+
+    public static void CycleActiveSpell ()
+    {
+        int currentListPosition = availableSpellIds.IndexOf(selectedSpellId);
+
+        if (currentListPosition == ( availableSpellIds.Count - 1))
+        {
+            selectedSpellId = availableSpellIds[0];
+        }
+        else
+        {
+            selectedSpellId = availableSpellIds[currentListPosition + 1];
+        }
+
+        UserInterface.UpdateSelectedSpell();
     }
 }
