@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
     private bool summiting;
     public bool casting;
 
+    private int faceDirection = 1;
+
     //private bool uninteruptable;
 
     [HideInInspector] public int knockBackForce;
@@ -60,6 +62,15 @@ public class Player : MonoBehaviour
         if (GameControl.playerHasControl)
         {
             input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+            if (input.x == 1)
+            {
+                faceDirection = 1;
+            }
+            else if (input.x == -1)
+            {
+                faceDirection = -1;
+            }
 
             DetermineState(input);
             velocity = StateResult(input);
@@ -309,8 +320,7 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
-                animator.PlaySpellAnimation(GameControl.selectedSpellId);
+                ExecuteSpellPoperties();
             }
 
             if (velocity.x > 0)
@@ -339,8 +349,7 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
-                animator.PlaySpellAnimation(GameControl.selectedSpellId);
+                ExecuteSpellPoperties();
             }
 
             velocity.y = 0;
@@ -356,8 +365,7 @@ public class Player : MonoBehaviour
             if (!casting)
             {
                 casting = true;
-                cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
-                animator.PlaySpellAnimation(GameControl.selectedSpellId);
+                ExecuteSpellPoperties();
             }
 
             velocity.y += gravity * Time.deltaTime;
@@ -389,6 +397,127 @@ public class Player : MonoBehaviour
         gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+    }
+
+    private void ExecuteSpellPoperties()
+    {
+        cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
+        animator.PlaySpellAnimation(GameControl.selectedSpellId);
+
+        //Blast
+        if (GameControl.selectedSpellId == 0)
+        {
+            //move projectile instantiation from player animation controller.
+        }
+
+        //Aura
+        else if (GameControl.selectedSpellId == 1)
+        {
+            //Figure this out once nick gets back to me.
+        }
+
+        //Poof
+        else if (GameControl.selectedSpellId == 2)
+        {
+            PoofSpell();
+        }
+    }
+
+    private void PoofSpell()
+    {
+        float closestDistance = 1001f;
+        float rayLength = 1000;
+        Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y);
+        Vector2 bottomRight = new Vector2(GetComponent<Collider2D>().bounds.max.x, GetComponent<Collider2D>().bounds.min.y);
+        Vector2 topLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.max.y);
+        float horizontalRaySpacing = (GetComponent<Collider2D>().bounds.size.y) / 3;
+        float verticalRaySpacing = (GetComponent<Collider2D>().bounds.size.x) / 3;
+
+        if (input.y != 0)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 rayOrigin = (input.y == -1) ? bottomLeft : topLeft;
+                rayOrigin += Vector2.right * (verticalRaySpacing * i + input.x);
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * input.y, rayLength, 1 << 9);
+
+                if (hit)
+                {
+                    if (hit.distance < closestDistance)
+                    {
+                        closestDistance = hit.distance;
+                    }
+                }
+            }
+
+            float newPositionY;
+
+            if (input.y == 1)
+            {
+                newPositionY = transform.position.y + closestDistance;
+            }
+            else
+            {
+                newPositionY = transform.position.y - closestDistance;
+            }
+
+            Vector2 poofDestination = new Vector2(transform.position.x, newPositionY);
+            transform.position = poofDestination;
+        }
+        else 
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 rayOrigin = (faceDirection == -1) ? bottomLeft : bottomRight;
+                rayOrigin += Vector2.up * (horizontalRaySpacing * i);
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * faceDirection, rayLength, controller.collisionMask);
+
+                if (hit)
+                {
+                    // this section is for moving through the side of platforms that can be fallen through.
+                     if (hit.collider.tag == "Through")
+                        {
+                            if (input.y != 0)
+                            {
+                                continue;
+                            }
+                        }
+
+                    //this section is for moving through the side of platforms that can't be fallen through.
+                    if (hit.collider.tag == "3Sides")
+                    {
+                        if (input.y != 0)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (hit.distance == 0)
+                    {
+                        continue;
+                    }
+
+                    if (hit.distance < closestDistance)
+                    {
+                        closestDistance = hit.distance;
+                    }
+                }
+            }
+
+            float newPositionX;
+
+            if (faceDirection == 1)
+            {
+                newPositionX = transform.position.x + closestDistance;
+            }
+            else
+            {
+                newPositionX = transform.position.x - closestDistance;
+            }
+
+            Vector2 poofDestination = new Vector2(newPositionX, transform.position.y);
+            transform.position = poofDestination;
+        }
     }
 
     private void PlayAnimation (float input)

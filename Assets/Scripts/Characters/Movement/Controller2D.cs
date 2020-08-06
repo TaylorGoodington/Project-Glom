@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Controller2D : RaycastController
 {
@@ -24,7 +25,7 @@ public class Controller2D : RaycastController
 		collisions.Reset ();
 		collisions.velocityOld = velocity;
 
-		HorizontalCollisions(ref velocity);
+        HorizontalCollisions(ref velocity);
 
         VerticalCollisions (ref velocity);
 
@@ -35,25 +36,27 @@ public class Controller2D : RaycastController
 			collisions.below = true;
 		}
 	}
-	
-	void HorizontalCollisions(ref Vector3 velocity)
+
+    public void HorizontalCollisions(ref Vector3 velocity)
     {
-		//float directionX = collisions.faceDir;
-        float directionX = (velocity.x > 0) ? 1: -1;
-        float rayLength = Mathf.Abs (velocity.x) + skinWidth;
+        //float directionX = collisions.faceDir;
+        float directionX = (velocity.x > 0) ? 1 : -1;
+        float rayLength = Mathf.Abs(velocity.x) + skinWidth;
 
-        if (Mathf.Abs(velocity.x) < skinWidth) {
-			rayLength = 2*skinWidth;
-		}
+        if (Mathf.Abs(velocity.x) < skinWidth)
+        {
+            rayLength = 2 * skinWidth;
+        }
 
-        for (int i = 0; i < horizontalRayCount; i ++) {
-			Vector2 rayOrigin = (directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.bottomRight;
-			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
-			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);			
-			
-			Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength,Color.red);
+        for (int i = 0; i < horizontalRayCount; i++)
+        {
+            Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
+            rayOrigin += Vector2.up * (horizontalRaySpacing * i);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
 
-			if (hit)
+            Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
+
+            if (hit)
             {
                 //this section is for moving through the side of platforms that can be fallen through.
                 if (hit.collider.tag == "Through")
@@ -72,11 +75,11 @@ public class Controller2D : RaycastController
                         continue;
                     }
                 }
-				
-				if (hit.distance == 0)
+
+                if (hit.distance == 0)
                 {
-					continue;
-				}
+                    continue;
+                }
 
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
 
@@ -111,9 +114,10 @@ public class Controller2D : RaycastController
                     collisions.right = directionX == 1;
                 }
             }
-		}
-	}
+        }
+    }
 
+    
     void VerticalCollisions(ref Vector3 velocity)
     {
 		float directionY = Mathf.Sign (velocity.y);
