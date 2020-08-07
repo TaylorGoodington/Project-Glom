@@ -427,11 +427,11 @@ public class Player : MonoBehaviour
     {
         float closestDistance = 1001f;
         float rayLength = 1000;
-        Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y);
-        Vector2 bottomRight = new Vector2(GetComponent<Collider2D>().bounds.max.x, GetComponent<Collider2D>().bounds.min.y);
-        Vector2 topLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.max.y);
-        float horizontalRaySpacing = (GetComponent<Collider2D>().bounds.size.y) / 3;
-        float verticalRaySpacing = (GetComponent<Collider2D>().bounds.size.x) / 3;
+        Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y + .5f);
+        Vector2 bottomRight = new Vector2(GetComponent<Collider2D>().bounds.max.x, GetComponent<Collider2D>().bounds.min.y + .5f);
+        Vector2 topLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.max.y - .5f);
+        float horizontalRaySpacing = (GetComponent<Collider2D>().bounds.size.y - 1) / 3;
+        float verticalRaySpacing = (GetComponent<Collider2D>().bounds.size.x - 1) / 3;
 
         if (input.y != 0)
         {
