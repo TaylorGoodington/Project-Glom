@@ -413,7 +413,7 @@ public class Player : MonoBehaviour
         //Aura
         else if (GameControl.selectedSpellId == 1)
         {
-            //Figure this out once nick gets back to me.
+            AuraSpell();
         }
 
         //Poof
@@ -421,6 +421,11 @@ public class Player : MonoBehaviour
         {
             PoofSpell();
         }
+    }
+
+    private void AuraSpell()
+    {
+        Instantiate(SpellDatabase.Instance.ReturnSpellProjectile(1),transform.position, Quaternion.identity, SpellDatabase.Instance.transform);
     }
 
     private void PoofSpell()

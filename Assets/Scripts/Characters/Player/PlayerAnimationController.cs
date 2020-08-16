@@ -81,7 +81,7 @@ public class PlayerAnimationController : MonoBehaviour
 
     private IEnumerator InstantiateSpell (int spellId)
     {
-        GameObject prefab = SpellDatabase.spellProjectiles[spellId];
+        GameObject prefab = SpellDatabase.Instance.ReturnSpellProjectile(spellId);
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(spellAnimator.GetCurrentAnimatorStateInfo(0).length);
         Vector3 position = transform.localPosition;
