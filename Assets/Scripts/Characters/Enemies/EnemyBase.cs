@@ -7,7 +7,6 @@ public class EnemyBase : MonoBehaviour
 {
     #region Variables
     [HideInInspector] public int enemyId;
-    private bool isActive;
     private EnemyStats stats;
 
     [Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
@@ -39,7 +38,7 @@ public class EnemyBase : MonoBehaviour
 
     //private bool isAttacking;
     //private bool beingAttacked;
-    //private Animator enemyAnimationController;
+    public Animator enemyAnimationController;
     //private Vector3 targetPosition;
     //private Vector2 eyePositionLeft;
     //private Vector2 eyePositionRight;
@@ -112,7 +111,6 @@ public class EnemyBase : MonoBehaviour
     {
         enemyId = GetInstanceID();
 
-        isActive = false;
         stats = GetComponent<EnemyStats>();
         patrolSpeed = stats.patrolSpeed;
         chaseSpeed = stats.chaseSpeed;
@@ -127,7 +125,7 @@ public class EnemyBase : MonoBehaviour
         controller.characterState = Controller2D.CharacterStates.Standing;
         ResetCharacterPhysics();
 
-        //enemyAnimationController = GetComponent<Animator>();
+        enemyAnimationController = GetComponent<Animator>();
         //enemyCollider = GetComponent<BoxCollider2D>();
         //playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
         //jumpPoints = transform.GetChild(1).gameObject;
@@ -165,15 +163,19 @@ public class EnemyBase : MonoBehaviour
 
     public void ActivateEnemy()
     {
-        isActive = true;
         CombatEngine.ActivateEnemy(enemyId, stats);
     }
 
-    public virtual void Update ()
+    public void EnemyUpdate ()
     {
-        if (isActive)
+        
+        if (stats.currentHp <= 0)
         {
-            RageManagement();
+            CombatEngine.EnemyDeath(enemyId);
+        }
+        else
+        {
+            //RageManagement();
 
             //if (!beingAttacked)
             //{
@@ -210,38 +212,39 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    public void RageManagement()
-    {
-        if (maxRageTimer != 0)
-        {
-            //Losing Rage
-            if (mindSet == Mindset.Patroling && currentRage > 0)
-            {
-               currentRage -= Time.deltaTime;
-            }
+    //public void RageManagement()
+    //{
+    //    if (maxRageTimer != 0)
+    //    {
+    //        //Losing Rage
+    //        if (mindSet == Mindset.Patroling && currentRage > 0)
+    //        {
+    //           currentRage -= Time.deltaTime;
+    //        }
 
-            //Condition for enraged
-            if (currentRage >= 100)
-            {
-                enraged = true;
-                currentRage -= 100;
-                currentRageTimer = maxRageTimer;
-            }
+    //        //Condition for enraged
+    //        if (currentRage >= 100)
+    //        {
+    //            enraged = true;
+    //            currentRage -= 100;
+    //            currentRageTimer = maxRageTimer;
+    //        }
             
-            //Being Enraged
-            if (enraged)
-            {
-                if (currentRageTimer <= 0)
-                {
-                    enraged = false;
-                }
-                else
-                {
-                    currentRageTimer -= Time.deltaTime;
-                }
-            }
-        }
-    }
+    //        //Being Enraged
+    //        if (enraged)
+    //        {
+    //            if (currentRageTimer <= 0)
+    //            {
+    //                enraged = false;
+    //            }
+    //            else
+    //            {
+    //                currentRageTimer -= Time.deltaTime;
+    //            }
+    //        }
+    //    }
+    //}
+
     public void AdjustCharacterPhysics(float maxJumpModifier, float minJumpModifier, float moveSpeedModifier, float chaseSpeedModifier)
     {
         maxJumpHeight *= maxJumpModifier;

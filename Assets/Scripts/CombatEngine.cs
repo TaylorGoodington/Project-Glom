@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Security.Permissions;
 
 public class CombatEngine : MonoBehaviour
 {
     private static Dictionary<int, EnemyStats> activeEnemies;
     private static Dictionary<int, SyphonInfo> syphonedStats;
-    private static float initalSyphonTime = 0.5f;
+    private static float initalSyphonTime = 1f;
     public static float syphonTime;
     public static CombatEngine instance;
     private static Player player;
@@ -55,20 +56,26 @@ public class CombatEngine : MonoBehaviour
     public static void ActivateEnemy(int id, EnemyStats stats)
     {
         activeEnemies.Add(id, stats);
+        RefreshSyphons();
+    }
+
+    private static void RefreshSyphons()
+    {
         instance.StopCoroutine("TriggerSyphons");
         instance.StartCoroutine("TriggerSyphons");
     }
 
     private IEnumerator TriggerSyphons ()
     {
-        while (true)
+        while (activeEnemies.Count > 0)
         {
+            yield return new WaitForSeconds(syphonTime);
+
             foreach (var enemy in activeEnemies)
             {
                 if (enemy.Value.syphonType == EnemyStats.SyphonType.health)
                 {
                     GameControl.DealDamageToPlayer(enemy.Value.syphonAmount);
-
                 }
                 else
                 {
@@ -78,12 +85,10 @@ public class CombatEngine : MonoBehaviour
 
                 UpdateSyphonnedStats(enemy.Key, enemy.Value.syphonType, enemy.Value.syphonAmount);
             }
-
-            yield return new WaitForSeconds(syphonTime);
         }
     }
 
-    private void UpdateSyphonnedStats (int id, EnemyStats.SyphonType type, float amount)
+    private void UpdateSyphonnedStats (int id, EnemyStats.SyphonType type, int amount)
     {
         if (syphonedStats.ContainsKey(id))
         {
@@ -93,6 +98,35 @@ public class CombatEngine : MonoBehaviour
         {
             syphonedStats.Add(id, new SyphonInfo(type, amount));
         }
+    }
+
+    private static void ReturnSyphonnedStats(int enemyId)
+    {
+        if (syphonedStats.ContainsKey(enemyId))
+        {
+            if (syphonedStats[enemyId].syphonType == EnemyStats.SyphonType.health)
+            {
+                GameControl.DealDamageToPlayer(syphonedStats[enemyId].syphonedAmount * -1);
+            }
+            else
+            {
+                player.moveSpeed += syphonedStats[enemyId].syphonedAmount;
+                player.climbSpeed += syphonedStats[enemyId].syphonedAmount;
+            }
+
+            syphonedStats.Remove(enemyId);
+        }
+    }
+
+    public static void EnemyDeath(int enemyId)
+    {
+        if (activeEnemies.ContainsKey(enemyId))
+        {
+            activeEnemies.Remove(enemyId);
+        }
+
+        ReturnSyphonnedStats(enemyId);
+        RefreshSyphons();
     }
 
     //public void RunComboClock()
@@ -307,9 +341,9 @@ public class CombatEngine : MonoBehaviour
 public class SyphonInfo
 {
     public EnemyStats.SyphonType syphonType;
-    public float syphonedAmount;
+    public int syphonedAmount;
 
-    public SyphonInfo (EnemyStats.SyphonType type, float amount)
+    public SyphonInfo (EnemyStats.SyphonType type, int amount)
     {
         syphonType = type;
         syphonedAmount = amount;

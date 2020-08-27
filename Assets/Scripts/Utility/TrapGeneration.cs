@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TrapGeneration : MonoBehaviour
@@ -151,6 +152,7 @@ public class TrapGeneration : MonoBehaviour
         trapInfo = MapTraps();
         List<int> trapsList = new List<int>();
         int remainder = 0;
+        int delayPath = 1;
 
         for (int i = 0; i < trapInfo.Count; i++)
         {
@@ -173,31 +175,62 @@ public class TrapGeneration : MonoBehaviour
 
         for (int i = 0; i < trapSlots; i++)
         {
+            if (delayPath == 3)
+            {
+                delayPath = 1;
+            }
+            else
+            {
+                delayPath += 1;
+            }
+
             int position = trapsList[Random.Range(0, trapsList.Count)];
-            GameObject trap = Instantiate(TrapsDatabase.staticTraps[(int)trapInfo[position].type], trapInfo[position].location + (Vector2)transform.position, Quaternion.identity);
-            trap.transform.SetParent(transform);
-            TrapInfo.Directions trapDirection = trapInfo[position].possibleDirections[Random.Range(0, trapInfo[position].possibleDirections.Count)];
-
-            if (trapDirection == TrapInfo.Directions.North)
-            {
-                trap.GetComponent<SpriteRenderer>().flipY = true;
-            }
-            else if (trapDirection == TrapInfo.Directions.South)
-            {
-                trap.GetComponent<SpriteRenderer>().flipY = false;
-            }
-            else if (trapDirection == TrapInfo.Directions.East)
-            {
-                trap.GetComponent<SpriteRenderer>().flipX = false;
-            }
-            else if (trapDirection == TrapInfo.Directions.West)
-            {
-                trap.GetComponent<SpriteRenderer>().flipX = true;
-            }
-
+            StartCoroutine(DelayTrap(delayPath, trapInfo, position));
             trapsList.Remove(position);
         }
 
         return remainder;
+    }
+
+    private IEnumerator DelayTrap(int delayPath, List<TrapInfo> trapInfo, int position)
+    {
+        if (delayPath == 1)
+        {
+            CreateTrap(trapInfo, position);
+        }
+        else if (delayPath == 2)
+        {
+            yield return new WaitForSeconds(1);
+            CreateTrap(trapInfo, position);
+        }
+        else
+        {
+            yield return new WaitForSeconds(2);
+            CreateTrap(trapInfo, position);
+        }
+    }
+
+    private void CreateTrap(List<TrapInfo> trapInfo, int position)
+    {
+        GameObject trap = Instantiate(TrapsDatabase.staticTraps[(int)trapInfo[position].type], trapInfo[position].location + (Vector2)transform.position, Quaternion.identity);
+        trap.transform.SetParent(transform);
+        TrapInfo.Directions trapDirection = trapInfo[position].possibleDirections[Random.Range(0, trapInfo[position].possibleDirections.Count)];
+
+        if (trapDirection == TrapInfo.Directions.North)
+        {
+            trap.GetComponent<SpriteRenderer>().flipY = true;
+        }
+        else if (trapDirection == TrapInfo.Directions.South)
+        {
+            trap.GetComponent<SpriteRenderer>().flipY = false;
+        }
+        else if (trapDirection == TrapInfo.Directions.East)
+        {
+            trap.GetComponent<SpriteRenderer>().flipX = false;
+        }
+        else if (trapDirection == TrapInfo.Directions.West)
+        {
+            trap.GetComponent<SpriteRenderer>().flipX = true;
+        }
     }
 }

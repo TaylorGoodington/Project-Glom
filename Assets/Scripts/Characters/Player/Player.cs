@@ -430,8 +430,8 @@ public class Player : MonoBehaviour
 
     private void PoofSpell()
     {
-        float closestDistance = 1001f;
-        float rayLength = 1000;
+        float closestDistance = 161;
+        float rayLength = 160;
         Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y + .5f);
         Vector2 bottomRight = new Vector2(GetComponent<Collider2D>().bounds.max.x, GetComponent<Collider2D>().bounds.min.y + .5f);
         Vector2 topLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.max.y - .5f);

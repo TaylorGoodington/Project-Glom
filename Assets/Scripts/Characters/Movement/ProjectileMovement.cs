@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 [RequireComponent(typeof(Controller2D))]
 public class ProjectileMovement : MonoBehaviour
@@ -31,7 +32,7 @@ public class ProjectileMovement : MonoBehaviour
     {
         if (velocity.x == 0)
         {
-            Deterierate();
+            StartCoroutine(Deterierate());
         }
         else
         {
@@ -48,12 +49,17 @@ public class ProjectileMovement : MonoBehaviour
     {
         if (collision.gameObject.layer == 9 || collision.gameObject.layer == 10 || collision.gameObject.layer == 11)
         {
-            velocity.x = 0;
+            if (collision is BoxCollider2D)
+            {
+                velocity.x = 0;
+                collision.GetComponent<EnemyStats>().currentHp -= (int)SpellDatabase.spells[spellId].baseDamage;
+            }
         }
     }
 
-    private void Deterierate()
+    IEnumerator Deterierate()
     {
-
+        yield return new WaitForSeconds(1);
+        Destroy(gameObject);
     }
 }
