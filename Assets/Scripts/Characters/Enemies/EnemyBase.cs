@@ -24,17 +24,16 @@ public class EnemyBase : MonoBehaviour
     private float gravity;
     private float maxJumpVelocity;
     private float minJumpVelocity;
-    //private Vector3 velocity;
     //private float velocityXSmoothing;
 
-    private Mindset mindSet;
+    public Mindset mindSet;
 
     //private float engagementCounter;
-    //private bool changingDirection;
-    //private float minPatrolX;
-    //private float maxPatrolX;
-    //private GameObject patrolPlatform;
-    //private bool patrolPathCreated;
+    private bool changingDirection;
+    private float minPatrolX;
+    private float maxPatrolX;
+    private GameObject patrolPlatform;
+    private bool patrolPathCreated;
 
     //private bool isAttacking;
     //private bool beingAttacked;
@@ -67,14 +66,12 @@ public class EnemyBase : MonoBehaviour
     //[HideInInspector]
     //public GameObject targetPlatform;
 
-    //[HideInInspector]
-    //public Vector3 velocity;
+    [HideInInspector]
+    public Vector3 velocity;
     //[HideInInspector]
     //public Vector2 input;
-    //[HideInInspector]
     private Controller2D controller;
-    //[HideInInspector]
-    //public BoxCollider2D enemyCollider;
+    private BoxCollider2D enemyCollider;
     //[HideInInspector]
     //public PlayerDetection playerDetection;
     //[HideInInspector]
@@ -104,7 +101,9 @@ public class EnemyBase : MonoBehaviour
         Chasing,
         Investigating,
         Attacking,
-        Fleeing
+        Fleeing,
+        Dying,
+        Dead
     }
 
     public virtual void Start()
@@ -126,6 +125,7 @@ public class EnemyBase : MonoBehaviour
         ResetCharacterPhysics();
 
         enemyAnimationController = GetComponent<Animator>();
+
         //enemyCollider = GetComponent<BoxCollider2D>();
         //playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
         //jumpPoints = transform.GetChild(1).gameObject;
@@ -135,7 +135,7 @@ public class EnemyBase : MonoBehaviour
         //airborne = false;
         //isAttacking = false;
         //changingDirection = false;
-        //patrolPathCreated = false;
+        patrolPathCreated = false;
         //investigating = false;
         //beingAttacked = false;
 
@@ -169,9 +169,10 @@ public class EnemyBase : MonoBehaviour
     public void EnemyUpdate ()
     {
         
-        if (stats.currentHp <= 0)
+        if (stats.currentHp <= 0 && mindSet != Mindset.Dead)
         {
             CombatEngine.EnemyDeath(enemyId);
+            mindSet = Mindset.Dying;
         }
         else
         {
@@ -200,15 +201,15 @@ public class EnemyBase : MonoBehaviour
                 //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
             }
 
-            ////Creates a patrol path when we are on the ground.
-            //if ((velocity.y == 0 && transform.position.x > maxPatrolX) || (velocity.y == 0 && transform.position.x < minPatrolX))
-            //{
-            //    RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, (enemyCollider.size.y / 2) + 5, patrolMask);
-            //    if (hit)
-            //    {
-            //        CreatePatrolPath();
-            //    }
-            //}
+            //Creates a patrol path when we are on the ground.
+            if ((velocity.y == 0 && transform.position.x > maxPatrolX) || (velocity.y == 0 && transform.position.x < minPatrolX))
+            {
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, (enemyCollider.size.y / 2) + 5, patrolMask);
+                if (hit)
+                {
+                    CreatePatrolPath();
+                }
+            }
         }
     }
 
@@ -411,34 +412,34 @@ public class EnemyBase : MonoBehaviour
     //    }
     //}
 
-    //public virtual void Patrolling()
-    //{
-    //    if (!patrolPathCreated)
-    //    {
-    //        CreatePatrolPath();
-    //    }
+    public virtual void Patrolling()
+    {
+        if (!patrolPathCreated)
+        {
+            CreatePatrolPath();
+        }
 
-    //    if ((transform.position.x >= minPatrolX && transform.position.x <= maxPatrolX))
-    //    {
-    //        changingDirection = false;
-    //        velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
-    //    }
+        if ((transform.position.x >= minPatrolX && transform.position.x <= maxPatrolX))
+        {
+            changingDirection = false;
+            velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
+        }
 
-    //    if ((transform.position.x <= minPatrolX || transform.position.x >= maxPatrolX) && changingDirection == false)
-    //    {
-    //        //check if the current direction puts the enemy off the platform.
-    //        if (((transform.position.x + ((1 * controller.collisions.faceDir) * 5) > maxPatrolX) || (transform.position.x + ((1 * controller.collisions.faceDir) * 5) < minPatrolX)) && changingDirection == false)
-    //        {
-    //            velocity.x = 0;
-    //            StartCoroutine(ChangeDirection(patrolSpeed));
-    //            changingDirection = true;
-    //        }
-    //        else
-    //        {
-    //            velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
-    //        }
-    //    }
-    //}
+        if ((transform.position.x <= minPatrolX || transform.position.x >= maxPatrolX) && changingDirection == false)
+        {
+            //check if the current direction puts the enemy off the platform.
+            if (((transform.position.x + ((1 * controller.collisions.faceDir) * 5) > maxPatrolX) || (transform.position.x + ((1 * controller.collisions.faceDir) * 5) < minPatrolX)) && changingDirection == false)
+            {
+                velocity.x = 0;
+                StartCoroutine(ChangeDirection(patrolSpeed));
+                changingDirection = true;
+            }
+            else
+            {
+                velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
+            }
+        }
+    }
 
     //public virtual void Investigating()
     //{
@@ -1168,61 +1169,61 @@ public class EnemyBase : MonoBehaviour
     //    return false;
     //}
 
-    //public IEnumerator ChangeDirection(float moveSpeed)
-    //{
-    //    yield return new WaitForSeconds(pivotTime);
-    //    controller.collisions.faceDir = controller.collisions.faceDir * -1;
-    //    velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * moveSpeed, 1f);
-    //    changingDirection = false;
-    //}
+    public IEnumerator ChangeDirection(float moveSpeed)
+    {
+        yield return new WaitForSeconds(pivotTime);
+        controller.collisions.faceDir = controller.collisions.faceDir * -1;
+        velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * moveSpeed, 1f);
+        changingDirection = false;
+    }
 
-    //public void CreatePatrolPath()
-    //{
-    //    float rayLength = 5000f;
-    //    float rayOriginX = enemyCollider.bounds.center.x;
-    //    float rayOriginY = enemyCollider.bounds.center.y;
-    //    Vector2 rayOrigin = new Vector2(rayOriginX, rayOriginY);
+    public void CreatePatrolPath()
+    {
+        float rayLength = 5000f;
+        float rayOriginX = enemyCollider.bounds.center.x;
+        float rayOriginY = enemyCollider.bounds.center.y;
+        Vector2 rayOrigin = new Vector2(rayOriginX, rayOriginY);
 
-    //    RaycastHit2D bottom = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, patrolMask);
+        RaycastHit2D bottom = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, patrolMask);
 
-    //    if (bottom)
-    //    {
-    //        if (bottom.collider.gameObject.layer == 10)
-    //        {
-    //            minPatrolX = bottom.collider.bounds.min.x + (enemyCollider.size.x / 2) + 1;
-    //            maxPatrolX = bottom.collider.bounds.max.x - (enemyCollider.size.x / 2) - 1;
-    //            patrolPlatform = bottom.collider.gameObject;
-    //        }
-    //    }
+        if (bottom)
+        {
+            if (bottom.collider.gameObject.layer == 10)
+            {
+                minPatrolX = bottom.collider.bounds.min.x + (enemyCollider.size.x / 2) + 1;
+                maxPatrolX = bottom.collider.bounds.max.x - (enemyCollider.size.x / 2) - 1;
+                patrolPlatform = bottom.collider.gameObject;
+            }
+        }
 
-    //    RaycastHit2D left = Physics2D.Raycast(rayOrigin, Vector2.left, rayLength, patrolMask);
+        RaycastHit2D left = Physics2D.Raycast(rayOrigin, Vector2.left, rayLength, patrolMask);
 
-    //    if (left)
-    //    {
-    //        if (left.collider.gameObject.layer == 10)
-    //        {
-    //            if ((left.collider.bounds.max.x + 1) >= minPatrolX)
-    //            {
-    //                minPatrolX = left.collider.bounds.max.x + ((enemyCollider.size.x / 2) + 1);
-    //            }
-    //        }
-    //    }
+        if (left)
+        {
+            if (left.collider.gameObject.layer == 10)
+            {
+                if ((left.collider.bounds.max.x + 1) >= minPatrolX)
+                {
+                    minPatrolX = left.collider.bounds.max.x + ((enemyCollider.size.x / 2) + 1);
+                }
+            }
+        }
 
-    //    RaycastHit2D right = Physics2D.Raycast(rayOrigin, Vector2.right, rayLength, patrolMask);
+        RaycastHit2D right = Physics2D.Raycast(rayOrigin, Vector2.right, rayLength, patrolMask);
 
-    //    if (right)
-    //    {
-    //        if (right.collider.gameObject.layer == 10)
-    //        {
-    //            if ((right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1)) <= maxPatrolX)
-    //            {
-    //                maxPatrolX = right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1);
-    //            }
-    //        }
-    //    }
+        if (right)
+        {
+            if (right.collider.gameObject.layer == 10)
+            {
+                if ((right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1)) <= maxPatrolX)
+                {
+                    maxPatrolX = right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1);
+                }
+            }
+        }
 
-    //    patrolPathCreated = true;
-    //}
+        patrolPathCreated = true;
+    }
 
 
 
