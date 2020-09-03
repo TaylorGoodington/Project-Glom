@@ -2,7 +2,7 @@
 
 public class PlayerDetection : MonoBehaviour
 {
-    private bool isPlayerDetected;
+    public bool isPlayerDetected;
     private float detectionTime = 1f;
     private bool isActive;
 
@@ -11,26 +11,26 @@ public class PlayerDetection : MonoBehaviour
         isPlayerDetected = false;
     }
 
-    void Update()
-    {
-        if (isPlayerDetected)
-        {
-            detectionTime -= Time.deltaTime;
-        }
-        else
-        {
-            detectionTime = 1;
-        }
+    //void Update()
+    //{
+    //    if (isPlayerDetected)
+    //    {
+    //        detectionTime -= Time.deltaTime;
+    //    }
+    //    else
+    //    {
+    //        detectionTime = 1;
+    //    }
 
-        if (detectionTime <= 0)
-        {
-            if (!isActive)
-            {
-                transform.parent.GetComponent<EnemyBase>().ActivateEnemy();
-                isActive = true;
-            }
-        }
-    }
+    //    if (detectionTime <= 0)
+    //    {
+    //        if (!isActive)
+    //        {
+    //            //transform.parent.GetComponent<EnemyBase>().ActivateEnemy();
+    //            isActive = true;
+    //        }
+    //    }
+    //}
 
     public void OnTriggerEnter2D(Collider2D collision)
     {

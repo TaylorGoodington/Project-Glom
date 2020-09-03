@@ -24,18 +24,13 @@ public class EnemyBase : MonoBehaviour
     private float gravity;
     private float maxJumpVelocity;
     private float minJumpVelocity;
-    //private float velocityXSmoothing;
 
     public Mindset mindSet;
-
-    //private float engagementCounter;
     private bool changingDirection;
-    private float minPatrolX;
-    private float maxPatrolX;
-    private GameObject patrolPlatform;
+    public float minPatrolX;
+    public float maxPatrolX;
+    public GameObject patrolPlatform;
     private bool patrolPathCreated;
-
-    //private bool isAttacking;
     //private bool beingAttacked;
     public Animator enemyAnimationController;
     //private Vector3 targetPosition;
@@ -53,8 +48,8 @@ public class EnemyBase : MonoBehaviour
     //public float maxJumpDistance;
     //[HideInInspector]
     //public float timeAirborn;
-    //[HideInInspector]
-    //public bool airborne;
+    [HideInInspector]
+    public bool airborne;
     //[HideInInspector]
     //public bool investigating;
     //[HideInInspector]
@@ -68,14 +63,12 @@ public class EnemyBase : MonoBehaviour
 
     [HideInInspector]
     public Vector3 velocity;
-    //[HideInInspector]
-    //public Vector2 input;
     private Controller2D controller;
     private BoxCollider2D enemyCollider;
-    //[HideInInspector]
-    //public PlayerDetection playerDetection;
-    //[HideInInspector]
-    //public GameObject player;
+    [HideInInspector]
+    public PlayerDetection playerDetection;
+    [HideInInspector]
+    public GameObject player;
     //[HideInInspector]
     //public GameObject freeFallPoints;
     //private BoxCollider2D fallPoint1;
@@ -87,11 +80,6 @@ public class EnemyBase : MonoBehaviour
     //private BoxCollider2D jumpPoint2;
     //private BoxCollider2D jumpPoint3;
     //private BoxCollider2D jumpPoint4;
-
-    private bool enraged;
-    private float currentRage;
-    private float currentRageTimer;
-    private float maxRageTimer;
     #endregion
 
     
@@ -100,7 +88,9 @@ public class EnemyBase : MonoBehaviour
         Patroling,
         Chasing,
         Investigating,
+        Attack_Prep,
         Attacking,
+        Attack_Recovery,
         Fleeing,
         Dying,
         Dead
@@ -116,8 +106,6 @@ public class EnemyBase : MonoBehaviour
         chaseTime = stats.chaseTime;
         maxJumpHeight = stats.jumpHeight;
         pivotTime = stats.pivotTime;
-        maxRageTimer = stats.maxRageTime;
-        enraged = false;
 
         mindSet = Mindset.Patroling;
         controller = GetComponent<Controller2D>();
@@ -126,17 +114,15 @@ public class EnemyBase : MonoBehaviour
 
         enemyAnimationController = GetComponent<Animator>();
 
-        //enemyCollider = GetComponent<BoxCollider2D>();
-        //playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
+        enemyCollider = GetComponent<BoxCollider2D>();
+        playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
         //jumpPoints = transform.GetChild(1).gameObject;
         //freeFallPoints = transform.GetChild(2).gameObject;
-        //player = FindObjectOfType<Player>().gameObject;
+        player = FindObjectOfType<Player>().gameObject;
 
-        //airborne = false;
-        //isAttacking = false;
-        //changingDirection = false;
+        airborne = false;
+        changingDirection = false;
         patrolPathCreated = false;
-        //investigating = false;
         //beingAttacked = false;
 
         //engagementCounter = chaseTime + pivotTime;
@@ -168,7 +154,6 @@ public class EnemyBase : MonoBehaviour
 
     public void EnemyUpdate ()
     {
-        
         if (stats.currentHp <= 0 && mindSet != Mindset.Dead)
         {
             CombatEngine.EnemyDeath(enemyId);
@@ -176,12 +161,7 @@ public class EnemyBase : MonoBehaviour
         }
         else
         {
-            //RageManagement();
-
-            //if (!beingAttacked)
-            //{
-            //    controller.enemyFaceDirection = controller.collisions.faceDir;
-            //}
+            AdjustMindset();
 
             //flips sprite depending on direction facing.
             if (controller.collisions.faceDir == -1)
@@ -201,16 +181,52 @@ public class EnemyBase : MonoBehaviour
                 //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
             }
 
-            //Creates a patrol path when we are on the ground.
-            if ((velocity.y == 0 && transform.position.x > maxPatrolX) || (velocity.y == 0 && transform.position.x < minPatrolX))
+            if (mindSet == Mindset.Patroling)
             {
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, (enemyCollider.size.y / 2) + 5, patrolMask);
-                if (hit)
-                {
-                    CreatePatrolPath();
-                }
+                Patrolling();
             }
+            else if (mindSet == Mindset.Attack_Prep)
+            {
+                AttackPrep();
+            }
+            else if (mindSet == Mindset.Attacking)
+            {
+                Attacking();
+            }
+            else if (mindSet == Mindset.Attack_Recovery)
+            {
+                AttackRecovery();
+            }
+            else if (mindSet == Mindset.Dying)
+            {
+                Dying();
+            }
+
+            controller.EnemyMove(velocity);
         }
+    }
+
+    private void AdjustMindset()
+    {
+        if (playerDetection.isPlayerDetected && mindSet == Mindset.Patroling)
+        {
+            mindSet = Mindset.Attack_Prep;
+        }
+        else if (!playerDetection.isPlayerDetected && mindSet == Mindset.Attacking)
+        {
+            mindSet = Mindset.Attack_Recovery;
+        }
+    }
+
+    //Called from animator after the attack recovery animation.
+    public void ReadyToPatrol()
+    {
+        mindSet = Mindset.Patroling;
+    }
+
+    public void AttackPrepComplete()
+    {
+        mindSet = Mindset.Attacking;
     }
 
     //public void RageManagement()
@@ -419,26 +435,53 @@ public class EnemyBase : MonoBehaviour
             CreatePatrolPath();
         }
 
-        if ((transform.position.x >= minPatrolX && transform.position.x <= maxPatrolX))
+        if (changingDirection)
         {
-            changingDirection = false;
-            velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
+            velocity.x = 0;
         }
-
-        if ((transform.position.x <= minPatrolX || transform.position.x >= maxPatrolX) && changingDirection == false)
+        else
         {
-            //check if the current direction puts the enemy off the platform.
-            if (((transform.position.x + ((1 * controller.collisions.faceDir) * 5) > maxPatrolX) || (transform.position.x + ((1 * controller.collisions.faceDir) * 5) < minPatrolX)) && changingDirection == false)
+             if ((transform.position.x >= minPatrolX && transform.position.x <= maxPatrolX))
             {
-                velocity.x = 0;
-                StartCoroutine(ChangeDirection(patrolSpeed));
-                changingDirection = true;
-            }
-            else
-            {
+                changingDirection = false;
                 velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
             }
+
+            if ((transform.position.x <= minPatrolX || transform.position.x >= maxPatrolX) && changingDirection == false)
+            {
+                //check if the current direction puts the enemy off the platform.
+                if (((transform.position.x + ((1 * controller.collisions.faceDir) * 5) > maxPatrolX) || (transform.position.x + ((1 * controller.collisions.faceDir) * 5) < minPatrolX)) && changingDirection == false)
+                {
+                    velocity.x = 0;
+                    StartCoroutine(ChangeDirection(patrolSpeed));
+                    changingDirection = true;
+                }
+                else
+                {
+                    velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * patrolSpeed, 1f);
+                }
+            }
         }
+    }
+
+    public virtual void AttackPrep()
+    {
+        //always override...
+    }
+
+    public virtual void Attacking()
+    {
+        //always override...
+    }
+
+    public virtual void AttackRecovery()
+    {
+        //always override...
+    }
+
+    public virtual void Dying()
+    {
+        //always override...
     }
 
     //public virtual void Investigating()
@@ -1188,38 +1231,38 @@ public class EnemyBase : MonoBehaviour
 
         if (bottom)
         {
-            if (bottom.collider.gameObject.layer == 10)
-            {
+            //if (bottom.collider.gameObject.layer == 10)
+            //{
                 minPatrolX = bottom.collider.bounds.min.x + (enemyCollider.size.x / 2) + 1;
                 maxPatrolX = bottom.collider.bounds.max.x - (enemyCollider.size.x / 2) - 1;
                 patrolPlatform = bottom.collider.gameObject;
-            }
+            //}
         }
 
         RaycastHit2D left = Physics2D.Raycast(rayOrigin, Vector2.left, rayLength, patrolMask);
 
         if (left)
         {
-            if (left.collider.gameObject.layer == 10)
-            {
+            //if (left.collider.gameObject.layer == 10)
+            //{
                 if ((left.collider.bounds.max.x + 1) >= minPatrolX)
                 {
                     minPatrolX = left.collider.bounds.max.x + ((enemyCollider.size.x / 2) + 1);
                 }
-            }
+            //}
         }
 
         RaycastHit2D right = Physics2D.Raycast(rayOrigin, Vector2.right, rayLength, patrolMask);
 
         if (right)
         {
-            if (right.collider.gameObject.layer == 10)
-            {
+            //if (right.collider.gameObject.layer == 10)
+            //{
                 if ((right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1)) <= maxPatrolX)
                 {
                     maxPatrolX = right.collider.bounds.min.x - ((enemyCollider.size.x / 2) + 1);
                 }
-            }
+            //}
         }
 
         patrolPathCreated = true;

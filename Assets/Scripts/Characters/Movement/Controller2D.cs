@@ -37,6 +37,24 @@ public class Controller2D : RaycastController
 		}
 	}
 
+    public void EnemyMove (Vector3 velocity)
+    {
+        UpdateRaycastOrigins();
+        collisions.Reset();
+        collisions.velocityOld = velocity;
+
+        HorizontalCollisions(ref velocity);
+
+        VerticalCollisions(ref velocity);
+
+        transform.Translate(velocity);
+
+        //if (standingOnPlatform)
+        //{
+        //    collisions.below = true;
+        //}
+    }
+
     public void HorizontalCollisions(ref Vector3 velocity)
     {
         //float directionX = collisions.faceDir;
