@@ -15,6 +15,11 @@ public class Helmet : EnemyBase
         EnemyUpdate();
     }
 
+    public override void Standing()
+    {
+        enemyAnimationController.Play("Helmet_Standing");
+    }
+
     public override void Patrolling()
     {
         base.Patrolling();

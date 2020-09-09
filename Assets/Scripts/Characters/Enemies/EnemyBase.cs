@@ -85,6 +85,7 @@ public class EnemyBase : MonoBehaviour
     
     public enum Mindset
     {
+        Standing,
         Patroling,
         Chasing,
         Investigating,
@@ -181,7 +182,11 @@ public class EnemyBase : MonoBehaviour
                 //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
             }
 
-            if (mindSet == Mindset.Patroling)
+            if (mindSet == Mindset.Standing)
+            {
+                Standing();
+            }
+            else if (mindSet == Mindset.Patroling)
             {
                 Patrolling();
             }
@@ -462,6 +467,11 @@ public class EnemyBase : MonoBehaviour
                 }
             }
         }
+    }
+
+    public virtual void Standing()
+    {
+        //always override...
     }
 
     public virtual void AttackPrep()
@@ -1214,10 +1224,12 @@ public class EnemyBase : MonoBehaviour
 
     public IEnumerator ChangeDirection(float moveSpeed)
     {
+        mindSet = Mindset.Standing;
         yield return new WaitForSeconds(pivotTime);
         controller.collisions.faceDir = controller.collisions.faceDir * -1;
         velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * moveSpeed, 1f);
         changingDirection = false;
+        mindSet = Mindset.Patroling;
     }
 
     public void CreatePatrolPath()
