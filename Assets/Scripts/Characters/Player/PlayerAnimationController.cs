@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using static Utility;
 
 public class PlayerAnimationController : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class PlayerAnimationController : MonoBehaviour
         yield return new WaitForSeconds(bodyAnimator.GetCurrentAnimatorStateInfo(0).length);
 
         transform.position = new Vector3(transform.position.x, gameObject.GetComponent<Player>().climbingUpPosition);
-        GameControl.playerHasControl = true;
+        GameControl.Instance.inputState = Utility.InputState.Player_Character;
     }
 
     private void PlayBodyAnimation(string animation, float direction)
@@ -72,8 +73,8 @@ public class PlayerAnimationController : MonoBehaviour
     public void PlaySpellAnimation (int spellId)
     {
         castingAnimator.Play("Casting");
-        spellAnimator.Play(SpellDatabase.spells[spellId].name);
-        if (SpellDatabase.spells[spellId].hasProjectile)
+        spellAnimator.Play(SpellDatabase.Instance.spells[spellId].name);
+        if (SpellDatabase.Instance.spells[spellId].hasProjectile)
         {
             StartCoroutine(InstantiateSpell(spellId));
         }

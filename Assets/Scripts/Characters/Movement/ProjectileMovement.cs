@@ -13,7 +13,7 @@ public class ProjectileMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<Controller2D>();
-        GetComponent<Animator>().Play(SpellDatabase.spells[spellId].name);
+        GetComponent<Animator>().Play(SpellDatabase.Instance.spells[spellId].name);
 
         if (GetComponent<SpriteRenderer>().flipX == true)
         {
@@ -25,7 +25,7 @@ public class ProjectileMovement : MonoBehaviour
         }
 
         velocity.y = 0;
-        velocity.x = SpellDatabase.spells[spellId].projectileSpeed * direction;
+        velocity.x = SpellDatabase.Instance.spells[spellId].projectileSpeed * direction;
     }
 
     void Update()
@@ -49,10 +49,10 @@ public class ProjectileMovement : MonoBehaviour
     {
         if (collision.gameObject.layer == 9 || collision.gameObject.layer == 10 || collision.gameObject.layer == 11)
         {
-            if (collision is BoxCollider2D)
+            if (collision is BoxCollider2D && collision.gameObject.layer == 11)
             {
                 velocity.x = 0;
-                collision.GetComponent<EnemyStats>().currentHp -= (int)SpellDatabase.spells[spellId].baseDamage;
+                collision.GetComponent<EnemyStats>().currentHp -= (int)SpellDatabase.Instance.spells[spellId].baseDamage;
             }
         }
     }

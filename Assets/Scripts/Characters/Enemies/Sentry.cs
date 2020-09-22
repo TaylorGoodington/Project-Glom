@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static Utility;
 
 [RequireComponent(typeof(EnemyBase))]
 public class Sentry : EnemyBase
@@ -15,7 +16,7 @@ public class Sentry : EnemyBase
     {
         EnemyUpdate();
 
-        if (mindSet == Mindset.Dying)
+        if (mindSet == EnemyMindset.Dying)
         {
             Breaking();
         }
@@ -25,7 +26,7 @@ public class Sentry : EnemyBase
     {
         breakingAnimation = UnityEngine.Random.Range(1, 5);
         enemyAnimationController.Play("Breaking " + breakingAnimation);
-        mindSet = Mindset.Dead;
+        mindSet = EnemyMindset.Dead;
     }
 
     public void Broken()

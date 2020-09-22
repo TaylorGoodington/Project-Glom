@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using static Utility;
 
 [RequireComponent(typeof(Controller2D))]
 [RequireComponent(typeof(EnemyStats))]
@@ -25,7 +26,7 @@ public class EnemyBase : MonoBehaviour
     private float maxJumpVelocity;
     private float minJumpVelocity;
 
-    public Mindset mindSet;
+    public EnemyMindset mindSet;
     private bool changingDirection;
     public float minPatrolX;
     public float maxPatrolX;
@@ -82,21 +83,6 @@ public class EnemyBase : MonoBehaviour
     //private BoxCollider2D jumpPoint4;
     #endregion
 
-    
-    public enum Mindset
-    {
-        Standing,
-        Patroling,
-        Chasing,
-        Investigating,
-        Attack_Prep,
-        Attacking,
-        Attack_Recovery,
-        Fleeing,
-        Dying,
-        Dead
-    }
-
     public virtual void Start()
     {
         enemyId = GetInstanceID();
@@ -108,7 +94,7 @@ public class EnemyBase : MonoBehaviour
         maxJumpHeight = stats.jumpHeight;
         pivotTime = stats.pivotTime;
 
-        mindSet = Mindset.Patroling;
+        mindSet = EnemyMindset.Patroling;
         controller = GetComponent<Controller2D>();
         controller.characterState = Controller2D.CharacterStates.Standing;
         ResetCharacterPhysics();
@@ -150,15 +136,15 @@ public class EnemyBase : MonoBehaviour
 
     public void ActivateEnemy()
     {
-        CombatEngine.ActivateEnemy(enemyId, stats);
+        CombatEngine.Instance.ActivateEnemy(enemyId, stats);
     }
 
     public void EnemyUpdate ()
     {
-        if (stats.currentHp <= 0 && mindSet != Mindset.Dead)
+        if (stats.currentHp <= 0 && mindSet != EnemyMindset.Dead)
         {
-            CombatEngine.EnemyDeath(enemyId);
-            mindSet = Mindset.Dying;
+            CombatEngine.Instance.EnemyDeath(enemyId);
+            mindSet = EnemyMindset.Dying;
         }
         else
         {
@@ -182,27 +168,27 @@ public class EnemyBase : MonoBehaviour
                 //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
             }
 
-            if (mindSet == Mindset.Standing)
+            if (mindSet == EnemyMindset.Standing)
             {
                 Standing();
             }
-            else if (mindSet == Mindset.Patroling)
+            else if (mindSet == EnemyMindset.Patroling)
             {
                 Patrolling();
             }
-            else if (mindSet == Mindset.Attack_Prep)
+            else if (mindSet == EnemyMindset.Attack_Prep)
             {
                 AttackPrep();
             }
-            else if (mindSet == Mindset.Attacking)
+            else if (mindSet == EnemyMindset.Attacking)
             {
                 Attacking();
             }
-            else if (mindSet == Mindset.Attack_Recovery)
+            else if (mindSet == EnemyMindset.Attack_Recovery)
             {
                 AttackRecovery();
             }
-            else if (mindSet == Mindset.Dying)
+            else if (mindSet == EnemyMindset.Dying)
             {
                 Dying();
             }
@@ -213,25 +199,25 @@ public class EnemyBase : MonoBehaviour
 
     private void AdjustMindset()
     {
-        if (playerDetection.isPlayerDetected && mindSet == Mindset.Patroling)
+        if (playerDetection.isPlayerDetected && mindSet == EnemyMindset.Patroling)
         {
-            mindSet = Mindset.Attack_Prep;
+            mindSet = EnemyMindset.Attack_Prep;
         }
-        else if (!playerDetection.isPlayerDetected && mindSet == Mindset.Attacking)
+        else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindset.Attacking)
         {
-            mindSet = Mindset.Attack_Recovery;
+            mindSet = EnemyMindset.Attack_Recovery;
         }
     }
 
     //Called from animator after the attack recovery animation.
     public void ReadyToPatrol()
     {
-        mindSet = Mindset.Patroling;
+        mindSet = EnemyMindset.Patroling;
     }
 
     public void AttackPrepComplete()
     {
-        mindSet = Mindset.Attacking;
+        mindSet = EnemyMindset.Attacking;
     }
 
     //public void RageManagement()
@@ -1224,12 +1210,12 @@ public class EnemyBase : MonoBehaviour
 
     public IEnumerator ChangeDirection(float moveSpeed)
     {
-        mindSet = Mindset.Standing;
+        mindSet = EnemyMindset.Standing;
         yield return new WaitForSeconds(pivotTime);
         controller.collisions.faceDir = controller.collisions.faceDir * -1;
         velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * moveSpeed, 1f);
         changingDirection = false;
-        mindSet = Mindset.Patroling;
+        mindSet = EnemyMindset.Patroling;
     }
 
     public void CreatePatrolPath()

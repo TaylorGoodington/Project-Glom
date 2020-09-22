@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpellDatabase : MonoBehaviour
 {
-    public static SpellDatabase Instance { get; set; }
-    public static List<Spells> spells;
+    public static SpellDatabase Instance;
+    public List<Spells> spells;
     public List<GameObject> spellProjectiles;
 
     void Awake()
@@ -34,6 +35,7 @@ public class SpellDatabase : MonoBehaviour
     }
 }
 
+[Serializable]
 public class Spells
 {
     public int id;

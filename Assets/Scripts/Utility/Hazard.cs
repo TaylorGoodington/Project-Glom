@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using static Utility;
 
 public class Hazard : MonoBehaviour
 {
@@ -8,7 +9,7 @@ public class Hazard : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == (int)GameControl.GameLayers.player)
+        if (collision.gameObject.layer == (int)GameLayers.player)
         {
             StartCoroutine("DealDamage");
         }
@@ -16,7 +17,7 @@ public class Hazard : MonoBehaviour
 
     public void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == (int)GameControl.GameLayers.player)
+        if (collision.gameObject.layer == (int)GameLayers.player)
         {
             StopCoroutine("DealDamage");
         }
@@ -26,7 +27,7 @@ public class Hazard : MonoBehaviour
     {
         while (true)
         {
-            GameControl.DealDamageToPlayer(damage);
+            CombatEngine.Instance.DealDamageToPlayer(damage);
             yield return new WaitForSeconds(interval);
         }
     }

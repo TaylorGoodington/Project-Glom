@@ -20,8 +20,6 @@ public class TestLevel : MonoBehaviour
 
     void Start ()
     {
-        GameControl.playerHasControl = true;
-
         if (generateLevel)
         {
             GenerateLevel();
@@ -111,7 +109,7 @@ public class TestLevel : MonoBehaviour
         currentPosition += blockSize;
         position++;
 
-        int currentObstacleAllowance = GameControl.difficulty + GameControl.currentLevel + Mathf.FloorToInt(position / 3);
+        int currentObstacleAllowance = GameData.Instance.difficulty + GameData.Instance.currentLevel + Mathf.FloorToInt(position / 3);
         float trapAllowance = Random.Range(1, 11);
         int currentTrapAllowance = Mathf.RoundToInt((trapAllowance / 10) * currentObstacleAllowance);
         int currentEnemyAllowance = Mathf.RoundToInt(((10 - trapAllowance) * 10) * currentObstacleAllowance);

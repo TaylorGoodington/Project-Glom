@@ -1,16 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using System.Security.Permissions;
 
 public class CombatEngine : MonoBehaviour
 {
+    public static CombatEngine Instance;
+
     private static Dictionary<int, EnemyStats> activeEnemies;
     private static Dictionary<int, SyphonInfo> syphonedStats;
     private static float initalSyphonTime = 1f;
     public static float syphonTime;
-    public static CombatEngine instance;
-    private static Player player;
     //public int attackDamage;
     //public float critRate;
     //[HideInInspector] public int maxCombos;
@@ -28,14 +27,21 @@ public class CombatEngine : MonoBehaviour
 
     void Awake()
     {
-        instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
     }
 
     void Start()
     {
         activeEnemies = new Dictionary<int, EnemyStats>();
         syphonTime = initalSyphonTime;
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         syphonedStats = new Dictionary<int, SyphonInfo>();
 
         //comboCount = 1;
@@ -52,17 +58,22 @@ public class CombatEngine : MonoBehaviour
         //    RunComboClock();
         //}
     }
+    public void DealDamageToPlayer(int damage)
+    {
+        GameData.Instance.playerCurrentHP -= damage;
+        UserInterface.Instance.UpdateHealth();
+    }
 
-    public static void ActivateEnemy(int id, EnemyStats stats)
+    public void ActivateEnemy(int id, EnemyStats stats)
     {
         activeEnemies.Add(id, stats);
         RefreshSyphons();
     }
 
-    private static void RefreshSyphons()
+    private void RefreshSyphons()
     {
-        instance.StopCoroutine("TriggerSyphons");
-        instance.StartCoroutine("TriggerSyphons");
+        Instance.StopCoroutine("TriggerSyphons");
+        Instance.StartCoroutine("TriggerSyphons");
     }
 
     private IEnumerator TriggerSyphons ()
@@ -75,12 +86,12 @@ public class CombatEngine : MonoBehaviour
             {
                 if (enemy.Value.syphonType == EnemyStats.SyphonType.health)
                 {
-                    GameControl.DealDamageToPlayer(enemy.Value.syphonAmount);
+                    DealDamageToPlayer(enemy.Value.syphonAmount);
                 }
                 else
                 {
-                    player.moveSpeed -= enemy.Value.syphonAmount;
-                    player.climbSpeed -= enemy.Value.syphonAmount;
+                    GameControl.Instance.player.moveSpeed -= enemy.Value.syphonAmount;
+                    GameControl.Instance.player.climbSpeed -= enemy.Value.syphonAmount;
                 }
 
                 UpdateSyphonnedStats(enemy.Key, enemy.Value.syphonType, enemy.Value.syphonAmount);
@@ -100,25 +111,25 @@ public class CombatEngine : MonoBehaviour
         }
     }
 
-    private static void ReturnSyphonnedStats(int enemyId)
+    private void ReturnSyphonnedStats(int enemyId)
     {
         if (syphonedStats.ContainsKey(enemyId))
         {
             if (syphonedStats[enemyId].syphonType == EnemyStats.SyphonType.health)
             {
-                GameControl.DealDamageToPlayer(syphonedStats[enemyId].syphonedAmount * -1);
+                DealDamageToPlayer(syphonedStats[enemyId].syphonedAmount * -1);
             }
             else
             {
-                player.moveSpeed += syphonedStats[enemyId].syphonedAmount;
-                player.climbSpeed += syphonedStats[enemyId].syphonedAmount;
+                GameControl.Instance.player.moveSpeed += syphonedStats[enemyId].syphonedAmount;
+                GameControl.Instance.player.climbSpeed += syphonedStats[enemyId].syphonedAmount;
             }
 
             syphonedStats.Remove(enemyId);
         }
     }
 
-    public static void EnemyDeath(int enemyId)
+    public void EnemyDeath(int enemyId)
     {
         if (activeEnemies.ContainsKey(enemyId))
         {

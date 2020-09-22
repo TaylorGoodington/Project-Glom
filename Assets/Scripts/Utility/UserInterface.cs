@@ -4,49 +4,63 @@ using UnityEngine.UI;
 
 public class UserInterface : MonoBehaviour
 {
+    public static UserInterface Instance;
+
     public GameObject spellSlot;
     public GameObject userInterface;
     public List<Sprite> spells;
     public List<Sprite> userInterfaces;
     public List<GameObject> healthBars;
 
-    public static GameObject staticSpellSlot;
-    public static GameObject staticUserInterface;
-    public static List<Sprite> staticSpells;
-    public static List<Sprite> staticUserInterfaces;
-    public static List<GameObject> staticHealthBars;
+    //public static GameObject staticSpellSlot;
+    //public static GameObject staticUserInterface;
+    //public static List<Sprite> staticSpells;
+    //public static List<Sprite> staticUserInterfaces;
+    //public static List<GameObject> staticHealthBars;
 
-    private static GameObject healthBar;
-    private static Transform parent;
+    private GameObject healthBar;
+    private Transform parent;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     void Start ()
     {
-        staticSpellSlot = spellSlot;
-        staticUserInterface = userInterface;
-        staticSpells = spells;
-        staticUserInterfaces = userInterfaces;
-        staticHealthBars = healthBars;
+        //staticSpellSlot = spellSlot;
+        //staticUserInterface = userInterface;
+        //staticSpells = spells;
+        //staticUserInterfaces = userInterfaces;
+        //staticHealthBars = healthBars;
         parent = transform;
         UpdateUserInterface();
-        GetComponent<Canvas>().worldCamera = GameControl.mainCamera;
 	}
 
     //Updates all pieces of the UI, used at the begining of a level.
-    private static void UpdateUserInterface ()
+    private void UpdateUserInterface ()
     {
-        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId];
-        staticUserInterface.GetComponent<SpriteRenderer>().sprite = staticUserInterfaces[GameControl.healthLevel - 1];
+        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameData.Instance.selectedSpellId];
+        userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[GameData.Instance.healthLevel - 1];
         Destroy(healthBar);
-        healthBar = Instantiate(staticHealthBars[GameControl.healthLevel - 1], parent);
+        healthBar = Instantiate(healthBars[GameData.Instance.healthLevel - 1], parent);
     }
 
-    public static void UpdateHealth ()
+    public void UpdateHealth ()
     {
-        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameControl.playerCurrentHP;
+        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameData.Instance.playerCurrentHP;
     }
 
-    public static void UpdateSelectedSpell ()
+    public void UpdateSelectedSpell ()
     {
-        staticSpellSlot.GetComponent<SpriteRenderer>().sprite = staticSpells[GameControl.selectedSpellId ];
+        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameData.Instance.selectedSpellId ];
     }
 }

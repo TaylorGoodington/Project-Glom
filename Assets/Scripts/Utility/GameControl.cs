@@ -1,83 +1,32 @@
-﻿using Boo.Lang;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+using static Utility;
 
 public class GameControl : MonoBehaviour
 {
-    private static GameControl _thisObject;
-
-    public static bool playerHasControl;
-    public static int playerCurrentHP;
-    public static bool inMenus;
-    public static int currentLevel;
-    public static int difficulty = 1;
-    public static int selectedSpellId;
-    public static List<int> availableSpellIds;
-
-    public static Camera mainCamera;
-
-    #region Upgrades
-    public static int healthLevel;
-    #endregion
+    public static GameControl Instance;
+    public InputState inputState;
+    public Player player;
 
     void Awake()
     {
-        if (_thisObject != null)
+        if (Instance != null && Instance != this)
         {
-            DestroyImmediate(gameObject);
+            Destroy(this.gameObject);
             return;
         }
-        _thisObject = this;
-        DontDestroyOnLoad(transform.root.gameObject);
+        else
+        {
+            Instance = this;
+        }
     }
 
     void Start ()
     {
-        playerHasControl = false;
-        playerCurrentHP = 36;
-        currentLevel = 1;
-        healthLevel = 1;
-        selectedSpellId = 0;
-        difficulty = 1;
-        mainCamera = GetComponentInChildren<Camera>();
-        playerHasControl = true;
-        availableSpellIds = new List<int>();
-        availableSpellIds.Add(0);
-        availableSpellIds.Add(1);
-        availableSpellIds.Add(2);
-    }
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
-    public static void DealDamageToPlayer(int damage)
-    {
-        playerCurrentHP -= damage;
-        UserInterface.UpdateHealth();
-    }
 
-    public enum GameLayers
-    {
-        levelBounds = 8,
-        ground = 9,
-        platforms = 10,
-        enemy = 11,
-        player = 12,
-        ladder = 13,
-        ladderTop = 14,
-        hazzard = 15
-    }
-
-    public static void CycleActiveSpell ()
-    {
-        int currentListPosition = availableSpellIds.IndexOf(selectedSpellId);
-
-        if (currentListPosition == ( availableSpellIds.Count - 1))
-        {
-            selectedSpellId = availableSpellIds[0];
-        }
-        else
-        {
-            selectedSpellId = availableSpellIds[currentListPosition + 1];
-        }
-
-        UserInterface.UpdateSelectedSpell();
+        inputState = InputState.None;
+        GameData.Instance.InitializeGameData();
+        inputState = InputState.Player_Character;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Utility;
 
 [RequireComponent(typeof(Controller2D))]
 public class Player : MonoBehaviour
@@ -21,7 +22,6 @@ public class Player : MonoBehaviour
     
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
-    private Vector2 input;
     private bool isClimbable;
     private bool summiting;
     public bool casting;
@@ -47,7 +47,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        GameControl.playerCurrentHP = 10;
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
         cooldownList = new Dictionary<int, float>();
@@ -59,97 +58,34 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (GameControl.playerHasControl)
-        {
-            input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-            if (input.x == 1)
-            {
-                faceDirection = 1;
-            }
-            else if (input.x == -1)
-            {
-                faceDirection = -1;
-            }
-
-            DetermineState(input);
-            velocity = StateResult(input);
-            controller.Move(velocity, input);
-        }
-
-        if (Input.GetButtonDown("Cycle"))
-        {
-            GameControl.CycleActiveSpell();
-        }
-
         UpdateCoolDownList();
-
-        #region Old
-
-        #region Flinching Section
-        //else if (controller.characterState == Controller2D.CharacterStates.Flinching)
-        //{
-        //    UnPauseAnimators();
-        //    attackLaunched = false;
-        //    //weaponCollider.DisableActiveCollider();
-        //    //SkillsController.skillsController.activatingAbility = false;
-        //    //CombatEngine.combatEngine.comboCount = 1;
-        //    //animator.PlayAnimation(PlayerAnimationController.Animations.Flinching);
-        //    //PlayerSoundEffects.playerSoundEffects.PlaySoundEffect(PlayerSoundEffects.playerSoundEffects.SoundEffectToArrayInt(PlayerSoundEffects.SoundEffect.MenuUnable));
-
-        //    gravity = -1000;
-        //    velocity.y = 0;
-        //    velocity.y += gravity * Time.deltaTime;
-        //    velocity.x = 0;
-        //    //controller.Move(velocity * Time.deltaTime, input);
-        //}
-        #endregion
-
-        #region Wall Jumping
-        //int wallDirX = (controller.collisions.left) ? -1 : 1;
-        //bool wallSliding = false;
-        //if ((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0 && controller.wallJumpReady == true)
-        //{
-        //    wallSliding = true;
-
-        //    if (velocity.y < -wallSlideSpeedMax)
-        //    {
-        //        velocity.y = -wallSlideSpeedMax;
-        //    }
-
-        //    if (timeToWallUnstick > 0)
-        //    {
-        //        velocityXSmoothing = 0;
-        //        velocity.x = 0;
-
-        //        if (input.x != wallDirX && input.x != 0)
-        //        {
-        //            timeToWallUnstick -= Time.deltaTime;
-        //        }
-        //        else
-        //        {
-        //            timeToWallUnstick = wallStickTime;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        timeToWallUnstick = wallStickTime;
-        //    }
-        //}
-        #endregion
-        
-        #endregion
     }
 
-    private void DetermineState (Vector2 input)
+    public void RecieveInput (Vector2 input, ButtonPress buttonPress)
+    {
+        if (input.x == 1)
+        {
+            faceDirection = 1;
+        }
+        else if (input.x == -1)
+        {
+            faceDirection = -1;
+        }
+
+        DetermineState(input, buttonPress);
+        velocity = StateResult(input);
+        controller.Move(velocity, input);
+    }
+
+    private void DetermineState (Vector2 input, ButtonPress buttonPress)
     {
         //Dying
-        if (GameControl.playerCurrentHP <= 0)
+        if (GameData.Instance.playerCurrentHP <= 0)
         {
             controller.characterState = Controller2D.CharacterStates.Dying;
         }
         //Climbing
-        else if (Input.GetButtonDown("Interact") && isClimbable && !casting)
+        else if (buttonPress == ButtonPress.Interact && isClimbable && !casting)
         {
             controller.characterState = Controller2D.CharacterStates.Climbing;
         }
@@ -159,14 +95,14 @@ public class Player : MonoBehaviour
             controller.characterState = Controller2D.CharacterStates.Summiting;
         }
         //Jumping
-        else if ((Input.GetButtonDown("Jump")) && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
+        else if (buttonPress == ButtonPress.Jump && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
         {
             controller.characterState = Controller2D.CharacterStates.Jumping;
         }
         //Falling
         else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.AerialCasting;
             }
@@ -178,7 +114,7 @@ public class Player : MonoBehaviour
         //Running
         else if (controller.collisions.below && input.x != 0)
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.RunCasting;
             }
@@ -190,7 +126,7 @@ public class Player : MonoBehaviour
         //Standing
         else if (input.x == 0 && controller.collisions.below)
         {
-            if ((Input.GetButtonDown("Cast") && !cooldownList.ContainsKey(GameControl.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.StandCasting;
             }
@@ -207,7 +143,7 @@ public class Player : MonoBehaviour
         if (controller.characterState == Controller2D.CharacterStates.Dying)
         {
             UnPauseAnimators();
-            GameControl.playerHasControl = false;
+            GameControl.Instance.inputState = InputState.None;
 
             if (controller.collisions.below)
             {
@@ -309,7 +245,7 @@ public class Player : MonoBehaviour
             CancelInvoke("PauseAnimators");
             UnPauseAnimators();
             velocity = Vector2.zero;
-            GameControl.playerHasControl = false;
+            GameControl.Instance.inputState = InputState.None;
         }
         #endregion
         #region Stand Casting
@@ -401,23 +337,23 @@ public class Player : MonoBehaviour
 
     private void ExecuteSpellPoperties()
     {
-        cooldownList.Add(GameControl.selectedSpellId, SpellDatabase.spells[GameControl.selectedSpellId].cooldown);
-        animator.PlaySpellAnimation(GameControl.selectedSpellId);
+        cooldownList.Add(GameData.Instance.selectedSpellId, SpellDatabase.Instance.spells[GameData.Instance.selectedSpellId].cooldown);
+        animator.PlaySpellAnimation(GameData.Instance.selectedSpellId);
 
         //Blast
-        if (GameControl.selectedSpellId == 0)
+        if (GameData.Instance.selectedSpellId == 0)
         {
             //move projectile instantiation from player animation controller.
         }
 
         //Aura
-        else if (GameControl.selectedSpellId == 1)
+        else if (GameData.Instance.selectedSpellId == 1)
         {
             AuraSpell();
         }
 
         //Poof
-        else if (GameControl.selectedSpellId == 2)
+        else if (GameData.Instance.selectedSpellId == 2)
         {
             PoofSpell();
         }
@@ -425,11 +361,12 @@ public class Player : MonoBehaviour
 
     private void AuraSpell()
     {
-        Instantiate(SpellDatabase.Instance.ReturnSpellProjectile(1),transform.position, Quaternion.identity, SpellDatabase.Instance.transform);
+        //Instantiate(SpellDatabase.Instance.ReturnSpellProjectile(1),transform.position, Quaternion.identity, SpellDatabase.Instance.transform);
     }
 
     private void PoofSpell()
     {
+        Vector2 input = InputController.Instance.CollectPlayerDirectionalInput();
         float closestDistance = 161;
         float rayLength = 160;
         Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y + .5f);
@@ -540,7 +477,7 @@ public class Player : MonoBehaviour
 
     public void Death()
     {
-        GameControl.playerCurrentHP = 0;
+        GameData.Instance.playerCurrentHP = 0;
     }
 
     //Triggers dictate climbing, interactables, level triggers, and other things.
@@ -568,7 +505,7 @@ public class Player : MonoBehaviour
         //Falling off the world
         if (collider.gameObject.layer == 19)
         {
-            GameControl.playerCurrentHP = 0;
+            GameData.Instance.playerCurrentHP = 0;
         }
 
         //Interactable Objects
