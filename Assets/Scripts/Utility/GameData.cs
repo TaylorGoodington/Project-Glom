@@ -9,8 +9,8 @@ public class GameData : MonoBehaviour
 {
     public static GameData Instance { get; set; }
 
-    public GameState level0GameState;
-    public GameState level1GameState;
+    public GameState levelZeroGameState;
+    public GameState levelOneGameState;
     public int playerCurrentHP;
     public int currentLevel;
     public int difficulty = 1;
@@ -41,14 +41,15 @@ public class GameData : MonoBehaviour
 
     public void InitializeGameData()
     {
+        LoadSaveData();
+
+        #region For Testting
         playerCurrentHP = 36;
         currentLevel = 1;
         healthLevel = 1;
         selectedSpellId = 0;
         difficulty = 1; 
         availableSpellIds = new List<int>();
-
-        #region For Testting
         availableSpellIds.Add(0);
         availableSpellIds.Add(1);
         availableSpellIds.Add(2);
@@ -77,14 +78,14 @@ public class GameData : MonoBehaviour
             FileStream saveFile = File.Open(Application.persistentDataPath + "/Game_Data.dat", FileMode.Open);
             SaveData saveData = (SaveData)binaryFormatter.Deserialize(saveFile);
 
-            level0GameState = saveData.level0GameState;
+            levelZeroGameState = saveData.levelZeroGameState;
 
             saveFile.Close();
         }
         else
         {
             //First Execution
-            level0GameState = GameState.First_Execution;
+            levelZeroGameState = GameState.First_Execution;
         }
     }
 
@@ -96,7 +97,7 @@ public class GameData : MonoBehaviour
         FileStream saveFile = File.Create(Application.persistentDataPath + "/Game_Data.dat");
         SaveData saveData = new SaveData();
 
-        saveData.level0GameState = level0GameState;
+        saveData.levelZeroGameState = levelZeroGameState;
 
         binaryFormatter.Serialize(saveFile, saveData);
         saveFile.Close();
@@ -107,5 +108,5 @@ public class GameData : MonoBehaviour
 [Serializable]
 struct SaveData
 {
-    public GameState level0GameState;
+    public GameState levelZeroGameState;
 }

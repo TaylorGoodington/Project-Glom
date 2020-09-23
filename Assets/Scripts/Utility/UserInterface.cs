@@ -12,12 +12,6 @@ public class UserInterface : MonoBehaviour
     public List<Sprite> userInterfaces;
     public List<GameObject> healthBars;
 
-    //public static GameObject staticSpellSlot;
-    //public static GameObject staticUserInterface;
-    //public static List<Sprite> staticSpells;
-    //public static List<Sprite> staticUserInterfaces;
-    //public static List<GameObject> staticHealthBars;
-
     private GameObject healthBar;
     private Transform parent;
 
@@ -36,17 +30,11 @@ public class UserInterface : MonoBehaviour
 
     void Start ()
     {
-        //staticSpellSlot = spellSlot;
-        //staticUserInterface = userInterface;
-        //staticSpells = spells;
-        //staticUserInterfaces = userInterfaces;
-        //staticHealthBars = healthBars;
         parent = transform;
-        UpdateUserInterface();
 	}
 
     //Updates all pieces of the UI, used at the begining of a level.
-    private void UpdateUserInterface ()
+    public void UpdateUserInterface ()
     {
         spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameData.Instance.selectedSpellId];
         userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[GameData.Instance.healthLevel - 1];

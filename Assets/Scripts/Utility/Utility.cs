@@ -51,4 +51,9 @@
         Select,
         Advance
     }
+
+    public enum SoundEffects
+    {
+        Company_Logo
+    }
 }

@@ -6,6 +6,7 @@ public class GameControl : MonoBehaviour
     public static GameControl Instance;
     public InputState inputState;
     public Player player;
+    public Camera mainCamera;
 
     void Awake()
     {
@@ -17,16 +18,21 @@ public class GameControl : MonoBehaviour
         else
         {
             Instance = this;
+            DontDestroyOnLoad(Instance);
         }
     }
 
     void Start ()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-
-
-        inputState = InputState.None;
         GameData.Instance.InitializeGameData();
-        inputState = InputState.Player_Character;
+        inputState = InputState.None;
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+
+        LevelManager.Instance.LoadIntroduction();
     }
+
+    //public void FindPlayer()
+    //{
+    //    player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    //}
 }

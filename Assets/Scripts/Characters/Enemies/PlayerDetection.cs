@@ -4,7 +4,7 @@ using static Utility;
 public class PlayerDetection : MonoBehaviour
 {
     public bool isPlayerDetected;
-    private float detectionTime = 1f;
+    //private float detectionTime = 1f;
     private bool isActive;
 
     void Start()

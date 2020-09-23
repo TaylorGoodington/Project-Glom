@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+using static Utility;
 
 public class SceneTransitions : MonoBehaviour
 {
-    public static SceneTransitions instance;
+    public static SceneTransitions Instance;
 
     public Animator animator;
-    private string levelDestination;
 
-    void Start ()
+    void Awake()
     {
-        instance = GetComponent<SceneTransitions>();
-	}
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     public float CurrentAnimationLength ()
     {
@@ -20,16 +27,11 @@ public class SceneTransitions : MonoBehaviour
         return animatorClip[0].clip.length * animationState.normalizedTime;
     }
 
-    public void TransitionOut(string destination)
+    public void TransitionOut()
     {
-        levelDestination = destination;
         animator.Play("transitionOut");
     }
 
-    public void GoToLevel()
-    {
-        SceneManager.LoadScene(levelDestination);
-    }
 
     public void TransitionIn ()
     {

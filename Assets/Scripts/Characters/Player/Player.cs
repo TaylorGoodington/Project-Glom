@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        GameControl.Instance.player = this;
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
         cooldownList = new Dictionary<int, float>();
