@@ -62,7 +62,7 @@ public class Player : MonoBehaviour
         UpdateCoolDownList();
     }
 
-    public void RecieveInput (Vector2 input, ButtonPress buttonPress)
+    public void RecieveInput (Vector2 input, ButtonPresses buttonPress)
     {
         if (input.x == 1)
         {
@@ -78,7 +78,7 @@ public class Player : MonoBehaviour
         controller.Move(velocity, input);
     }
 
-    private void DetermineState (Vector2 input, ButtonPress buttonPress)
+    private void DetermineState (Vector2 input, ButtonPresses buttonPress)
     {
         //Dying
         if (GameData.Instance.playerCurrentHP <= 0)
@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
             controller.characterState = Controller2D.CharacterStates.Dying;
         }
         //Climbing
-        else if (buttonPress == ButtonPress.Interact && isClimbable && !casting)
+        else if (buttonPress == ButtonPresses.Interact && isClimbable && !casting)
         {
             controller.characterState = Controller2D.CharacterStates.Climbing;
         }
@@ -96,14 +96,14 @@ public class Player : MonoBehaviour
             controller.characterState = Controller2D.CharacterStates.Summiting;
         }
         //Jumping
-        else if (buttonPress == ButtonPress.Jump && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
+        else if (buttonPress == ButtonPresses.Jump && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
         {
             controller.characterState = Controller2D.CharacterStates.Jumping;
         }
         //Falling
         else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
         {
-            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.AerialCasting;
             }
@@ -115,7 +115,7 @@ public class Player : MonoBehaviour
         //Running
         else if (controller.collisions.below && input.x != 0)
         {
-            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.RunCasting;
             }
@@ -127,7 +127,7 @@ public class Player : MonoBehaviour
         //Standing
         else if (input.x == 0 && controller.collisions.below)
         {
-            if ((buttonPress == ButtonPress.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.StandCasting;
             }
@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
         if (controller.characterState == Controller2D.CharacterStates.Dying)
         {
             UnPauseAnimators();
-            GameControl.Instance.inputState = InputState.None;
+            GameControl.Instance.inputState = InputStates.None;
 
             if (controller.collisions.below)
             {
@@ -246,7 +246,7 @@ public class Player : MonoBehaviour
             CancelInvoke("PauseAnimators");
             UnPauseAnimators();
             velocity = Vector2.zero;
-            GameControl.Instance.inputState = InputState.None;
+            GameControl.Instance.inputState = InputStates.None;
         }
         #endregion
         #region Stand Casting

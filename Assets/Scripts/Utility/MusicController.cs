@@ -1,23 +1,62 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
+using static Utility;
 
 public class MusicController : MonoBehaviour
 {
-    public List<AudioClip> tracks;
+    public static MusicController Instance;
 
-    private static List<AudioClip> staticTracks;
-    private static AudioSource player;
+    public List<MusicTrack> tracks;
 
-	void Start ()
+    private AudioSource player;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+
+    void Start ()
     {
         player = GetComponent<AudioSource>();
-        staticTracks = new List<AudioClip>();
-        staticTracks = tracks;
 	}
 
-    public static void PlayTrack (int track)
+    public void PlayTrack (MusicTracks track)
     {
-        player.clip = staticTracks[track];
+        AudioClip clip = null;
+
+        foreach (MusicTrack musicTrack in tracks)
+        {
+            if (musicTrack.track == track)
+            {
+                clip = musicTrack.clip;
+                break;
+            }
+        }
+
+        player.clip = clip;
         player.Play();
+    }
+}
+
+
+[Serializable]
+public class MusicTrack
+{
+    public MusicTracks track;
+    public AudioClip clip;
+
+    public MusicTrack(MusicTracks track, AudioClip clip)
+    {
+        this.track = track;
+        this.clip = clip;
     }
 }

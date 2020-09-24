@@ -9,8 +9,8 @@ public class GameData : MonoBehaviour
 {
     public static GameData Instance { get; set; }
 
-    public GameState levelZeroGameState;
-    public GameState levelOneGameState;
+    public GameStates levelZeroGameState;
+    public GameStates levelOneGameState;
     public int playerCurrentHP;
     public int currentLevel;
     public int difficulty = 1;
@@ -85,7 +85,7 @@ public class GameData : MonoBehaviour
         else
         {
             //First Execution
-            levelZeroGameState = GameState.First_Execution;
+            levelZeroGameState = GameStates.First_Execution;
         }
     }
 
@@ -108,5 +108,5 @@ public class GameData : MonoBehaviour
 [Serializable]
 struct SaveData
 {
-    public GameState levelZeroGameState;
+    public GameStates levelZeroGameState;
 }

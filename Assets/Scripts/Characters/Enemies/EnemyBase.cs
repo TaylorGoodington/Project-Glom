@@ -26,7 +26,7 @@ public class EnemyBase : MonoBehaviour
     private float maxJumpVelocity;
     private float minJumpVelocity;
 
-    public EnemyMindset mindSet;
+    public EnemyMindsets mindSet;
     private bool changingDirection;
     public float minPatrolX;
     public float maxPatrolX;
@@ -94,7 +94,7 @@ public class EnemyBase : MonoBehaviour
         maxJumpHeight = stats.jumpHeight;
         pivotTime = stats.pivotTime;
 
-        mindSet = EnemyMindset.Patroling;
+        mindSet = EnemyMindsets.Patroling;
         controller = GetComponent<Controller2D>();
         controller.characterState = Controller2D.CharacterStates.Standing;
         ResetCharacterPhysics();
@@ -141,10 +141,10 @@ public class EnemyBase : MonoBehaviour
 
     public void EnemyUpdate ()
     {
-        if (stats.currentHp <= 0 && mindSet != EnemyMindset.Dead)
+        if (stats.currentHp <= 0 && mindSet != EnemyMindsets.Dead)
         {
             CombatEngine.Instance.EnemyDeath(enemyId);
-            mindSet = EnemyMindset.Dying;
+            mindSet = EnemyMindsets.Dying;
         }
         else
         {
@@ -168,27 +168,27 @@ public class EnemyBase : MonoBehaviour
                 //freeFallPoints.transform.localScale = new Vector3(-1, 1, 1);
             }
 
-            if (mindSet == EnemyMindset.Standing)
+            if (mindSet == EnemyMindsets.Standing)
             {
                 Standing();
             }
-            else if (mindSet == EnemyMindset.Patroling)
+            else if (mindSet == EnemyMindsets.Patroling)
             {
                 Patrolling();
             }
-            else if (mindSet == EnemyMindset.Attack_Prep)
+            else if (mindSet == EnemyMindsets.Attack_Prep)
             {
                 AttackPrep();
             }
-            else if (mindSet == EnemyMindset.Attacking)
+            else if (mindSet == EnemyMindsets.Attacking)
             {
                 Attacking();
             }
-            else if (mindSet == EnemyMindset.Attack_Recovery)
+            else if (mindSet == EnemyMindsets.Attack_Recovery)
             {
                 AttackRecovery();
             }
-            else if (mindSet == EnemyMindset.Dying)
+            else if (mindSet == EnemyMindsets.Dying)
             {
                 Dying();
             }
@@ -199,25 +199,25 @@ public class EnemyBase : MonoBehaviour
 
     private void AdjustMindset()
     {
-        if (playerDetection.isPlayerDetected && mindSet == EnemyMindset.Patroling)
+        if (playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Patroling)
         {
-            mindSet = EnemyMindset.Attack_Prep;
+            mindSet = EnemyMindsets.Attack_Prep;
         }
-        else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindset.Attacking)
+        else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Attacking)
         {
-            mindSet = EnemyMindset.Attack_Recovery;
+            mindSet = EnemyMindsets.Attack_Recovery;
         }
     }
 
     //Called from animator after the attack recovery animation.
     public void ReadyToPatrol()
     {
-        mindSet = EnemyMindset.Patroling;
+        mindSet = EnemyMindsets.Patroling;
     }
 
     public void AttackPrepComplete()
     {
-        mindSet = EnemyMindset.Attacking;
+        mindSet = EnemyMindsets.Attacking;
     }
 
     //public void RageManagement()
@@ -1210,12 +1210,12 @@ public class EnemyBase : MonoBehaviour
 
     public IEnumerator ChangeDirection(float moveSpeed)
     {
-        mindSet = EnemyMindset.Standing;
+        mindSet = EnemyMindsets.Standing;
         yield return new WaitForSeconds(pivotTime);
         controller.collisions.faceDir = controller.collisions.faceDir * -1;
         velocity.x = Mathf.Lerp(velocity.x, controller.collisions.faceDir * moveSpeed, 1f);
         changingDirection = false;
-        mindSet = EnemyMindset.Patroling;
+        mindSet = EnemyMindsets.Patroling;
     }
 
     public void CreatePatrolPath()

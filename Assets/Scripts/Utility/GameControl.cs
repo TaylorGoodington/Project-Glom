@@ -4,7 +4,7 @@ using static Utility;
 public class GameControl : MonoBehaviour
 {
     public static GameControl Instance;
-    public InputState inputState;
+    public InputStates inputState;
     public Player player;
     public Camera mainCamera;
 
@@ -25,14 +25,9 @@ public class GameControl : MonoBehaviour
     void Start ()
     {
         GameData.Instance.InitializeGameData();
-        inputState = InputState.None;
+        inputState = InputStates.None;
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 
         LevelManager.Instance.LoadIntroduction();
     }
-
-    //public void FindPlayer()
-    //{
-    //    player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-    //}
 }

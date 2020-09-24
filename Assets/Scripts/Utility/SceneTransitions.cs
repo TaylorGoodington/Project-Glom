@@ -29,12 +29,14 @@ public class SceneTransitions : MonoBehaviour
 
     public void TransitionOut()
     {
+        GameControl.Instance.inputState = InputStates.None;
         animator.Play("transitionOut");
     }
 
 
     public void TransitionIn ()
     {
+        GameControl.Instance.inputState = InputStates.None;
         animator.Play("transitionIn");
     }
 }

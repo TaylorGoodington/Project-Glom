@@ -20,10 +20,10 @@ public class InputController : MonoBehaviour
 
     void Update()
     {
-        if (GameControl.Instance.inputState == InputState.Player_Character)
+        if (GameControl.Instance.inputState == InputStates.Player_Character)
         {
             Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            ButtonPress buttonPress = ProcessPlayerCharacterButtonInput();
+            ButtonPresses buttonPress = ProcessPlayerCharacterButtonInput();
             ProcessPlayerInput(input, buttonPress);
 
             if (Input.GetButtonDown("Cycle"))
@@ -31,11 +31,11 @@ public class InputController : MonoBehaviour
                 CycleSelectedSpell();
             }
         }
-        else if (GameControl.Instance.inputState == InputState.Menus)
+        else if (GameControl.Instance.inputState == InputStates.Menus)
         {
 
         }
-        else if (GameControl.Instance.inputState == InputState.Dialogue)
+        else if (GameControl.Instance.inputState == InputStates.Dialogue)
         {
 
         }
@@ -47,26 +47,26 @@ public class InputController : MonoBehaviour
         UserInterface.Instance.UpdateSelectedSpell();
     }
 
-    private void ProcessPlayerInput(Vector2 input, ButtonPress buttonPress)
+    private void ProcessPlayerInput(Vector2 input, ButtonPresses buttonPress)
     {
         GameControl.Instance.player.RecieveInput(input, buttonPress);
     }
 
-    private ButtonPress ProcessPlayerCharacterButtonInput()
+    private ButtonPresses ProcessPlayerCharacterButtonInput()
     {
-        ButtonPress buttonPress = ButtonPress.None;
+        ButtonPresses buttonPress = ButtonPresses.None;
 
         if (Input.GetButtonDown("Interact"))
         {
-            buttonPress = ButtonPress.Interact;
+            buttonPress = ButtonPresses.Interact;
         }
         else if (Input.GetButtonDown("Jump"))
         {
-            buttonPress = ButtonPress.Jump;
+            buttonPress = ButtonPresses.Jump;
         }
         else if (Input.GetButtonDown("Cast"))
         {
-            buttonPress = ButtonPress.Cast;
+            buttonPress = ButtonPresses.Cast;
         }
 
         return buttonPress;

@@ -25,7 +25,7 @@ public class PlayerAnimationController : MonoBehaviour
         yield return new WaitForSeconds(bodyAnimator.GetCurrentAnimatorStateInfo(0).length);
 
         transform.position = new Vector3(transform.position.x, gameObject.GetComponent<Player>().climbingUpPosition);
-        GameControl.Instance.inputState = Utility.InputState.Player_Character;
+        GameControl.Instance.inputState = Utility.InputStates.Player_Character;
     }
 
     private void PlayBodyAnimation(string animation, float direction)

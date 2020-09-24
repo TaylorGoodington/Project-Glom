@@ -16,7 +16,7 @@ public class Sentry : EnemyBase
     {
         EnemyUpdate();
 
-        if (mindSet == EnemyMindset.Dying)
+        if (mindSet == EnemyMindsets.Dying)
         {
             Breaking();
         }
@@ -26,7 +26,7 @@ public class Sentry : EnemyBase
     {
         breakingAnimation = UnityEngine.Random.Range(1, 5);
         enemyAnimationController.Play("Breaking " + breakingAnimation);
-        mindSet = EnemyMindset.Dead;
+        mindSet = EnemyMindsets.Dead;
     }
 
     public void Broken()
