@@ -12,14 +12,6 @@
         hazzard = 15
     }
 
-    public enum GameStates
-    {
-        Normal,
-        First_Execution,
-        Helmet_Info,
-        Knight_Info
-    }
-
     public enum EnemyMindsets
     {
         Standing,
@@ -36,6 +28,7 @@
 
     public enum InputStates
     {
+        Null,
         None,
         Player_Character,
         Menus,
@@ -54,18 +47,23 @@
 
     public enum SoundEffects
     {
-        Company_Logo
+        Null,
+        Company_Logo,
+        Player_Death
     }
 
     public enum MusicTracks
     {
-        Level_Zero_Normal
+        Null,
+        Level_Zero_Normal,
+        Level_One_Normal,
+        Player_Death
     }
 
-    public enum EventTypes
+    public enum Levels
     {
-        Cinematic,
-        Dialogue,
-        Tutorial
+        Company_Logo,
+        Level_Zero,
+        Level_One
     }
 }

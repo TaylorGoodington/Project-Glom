@@ -15,6 +15,6 @@ public class CompanyLogo : MonoBehaviour
 
     public void TransitionOut()
     {
-        LevelManager.Instance.LoadLevelZero();
+        LevelManager.Instance.LoadLevel(Levels.Level_Zero);
     }
 }

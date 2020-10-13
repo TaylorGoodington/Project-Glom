@@ -10,6 +10,9 @@ public class Player : MonoBehaviour
     [Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
     public LayerMask attackingLayer;
 
+    public float heightReached = 0;
+    public float initialHeight;
+
     public float initialMaxJumpHeight;
     private float maxJumpHeight;
     public float initialMinJumpHeight;
@@ -47,11 +50,11 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        GameControl.Instance.player = this;
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
         cooldownList = new Dictionary<int, float>();
         casting = false;
+        initialHeight = transform.position.y;
 
         ResetCharacterPhysics();
         controller.characterState = Controller2D.CharacterStates.Standing;
@@ -81,7 +84,7 @@ public class Player : MonoBehaviour
     private void DetermineState (Vector2 input, ButtonPresses buttonPress)
     {
         //Dying
-        if (GameData.Instance.playerCurrentHP <= 0)
+        if (SaveDataController.Instance.playerCurrentHP <= 0)
         {
             controller.characterState = Controller2D.CharacterStates.Dying;
         }
@@ -89,6 +92,7 @@ public class Player : MonoBehaviour
         else if (buttonPress == ButtonPresses.Interact && isClimbable && !casting)
         {
             controller.characterState = Controller2D.CharacterStates.Climbing;
+            UpdateHeightReached();
         }
         //Summiting
         else if (summiting && controller.characterState == Controller2D.CharacterStates.Climbing)
@@ -103,19 +107,20 @@ public class Player : MonoBehaviour
         //Falling
         else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.AerialCasting;
             }
             else
             {
                 controller.characterState = Controller2D.CharacterStates.Falling;
+                UpdateHeightReached();
             }
         }
         //Running
         else if (controller.collisions.below && input.x != 0)
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.RunCasting;
             }
@@ -127,7 +132,7 @@ public class Player : MonoBehaviour
         //Standing
         else if (input.x == 0 && controller.collisions.below)
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameData.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
             {
                 controller.characterState = Controller2D.CharacterStates.StandCasting;
             }
@@ -314,6 +319,16 @@ public class Player : MonoBehaviour
         return velocity;
     }
 
+    private void UpdateHeightReached()
+    {
+        float currentHeight = transform.position.y - initialHeight;
+
+        if (currentHeight > heightReached)
+        {
+            heightReached = currentHeight;
+        }
+    }
+
     public void AdjustCharacterPhysics(float maxJumpModifier, float minJumpModifier, float moveSpeedModifier, float climbSpeedModifier)
     {
         maxJumpHeight *= maxJumpModifier;
@@ -338,23 +353,23 @@ public class Player : MonoBehaviour
 
     private void ExecuteSpellPoperties()
     {
-        cooldownList.Add(GameData.Instance.selectedSpellId, SpellDatabase.Instance.spells[GameData.Instance.selectedSpellId].cooldown);
-        animator.PlaySpellAnimation(GameData.Instance.selectedSpellId);
+        cooldownList.Add(GameControl.Instance.selectedSpellId, SpellDatabase.Instance.spells[GameControl.Instance.selectedSpellId].cooldown);
+        animator.PlaySpellAnimation(GameControl.Instance.selectedSpellId);
 
         //Blast
-        if (GameData.Instance.selectedSpellId == 0)
+        if (GameControl.Instance.selectedSpellId == 0)
         {
             //move projectile instantiation from player animation controller.
         }
 
         //Aura
-        else if (GameData.Instance.selectedSpellId == 1)
+        else if (GameControl.Instance.selectedSpellId == 1)
         {
             AuraSpell();
         }
 
         //Poof
-        else if (GameData.Instance.selectedSpellId == 2)
+        else if (GameControl.Instance.selectedSpellId == 2)
         {
             PoofSpell();
         }
@@ -406,6 +421,7 @@ public class Player : MonoBehaviour
 
             Vector2 poofDestination = new Vector2(transform.position.x, newPositionY);
             transform.position = poofDestination;
+            UpdateHeightReached();
         }
         else 
         {
@@ -476,9 +492,11 @@ public class Player : MonoBehaviour
         animator.PlayAnimation(state, input);
     }
 
-    public void Death()
+    public void Die()
     {
-        GameData.Instance.playerCurrentHP = 0;
+        controller.characterState = Controller2D.CharacterStates.Dying;
+        PlayAnimation(faceDirection);
+        GameControl.Instance.ProcessEndOfTowerCurrency(heightReached);
     }
 
     //Triggers dictate climbing, interactables, level triggers, and other things.
@@ -506,7 +524,7 @@ public class Player : MonoBehaviour
         //Falling off the world
         if (collider.gameObject.layer == 19)
         {
-            GameData.Instance.playerCurrentHP = 0;
+            SaveDataController.Instance.playerCurrentHP = 0;
         }
 
         //Interactable Objects
@@ -553,12 +571,6 @@ public class Player : MonoBehaviour
         animator.bodyAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.scarAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.castingAnimator.gameObject.GetComponent<Animator>().enabled = true;
-    }
-
-    //called by the animator.
-    public void FullyRevived()
-    {
-        //deathStanding = false;
     }
 
     public void UpdateCoolDownList()

@@ -2,14 +2,16 @@
 
 public class CameraController : MonoBehaviour
 {
+    public static CameraController Instance;
+
     public LayerMask levelBounds;
-    [HideInInspector] public Controller2D target;
     public float verticalOffset;
     public float lookAheadDstX;
     public float lookSmoothTimeX;
     public float verticalSmoothTime;
     public Vector2 focusAreaSize;
 
+    private Controller2D target = null;
     private float cameraHeight;
     private float cameraWidth;
     private FocusArea focusArea;
@@ -17,8 +19,21 @@ public class CameraController : MonoBehaviour
     private float minYCameraClamp;
     private float maxXCameraClamp;
     private float minXCameraClamp;
-
     private float targetAspectRatio;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+
 
     void Start()
     {
@@ -26,10 +41,24 @@ public class CameraController : MonoBehaviour
         cameraHeight = GetComponent<Camera>().orthographicSize;
         cameraWidth = cameraHeight * targetAspectRatio;
     }
+
+    public void SetCameraTarget()
+    {
+        target = GameControl.Instance.player.GetComponent<Controller2D>();
+        focusArea = new FocusArea(target.boxCollider.bounds, focusAreaSize);
+
+        //TODO Do this better at some point?
+        transform.position = new Vector2(80, 72);
+    }
+
+    public void ClearCameraTarget()
+    {
+        target = null;
+    }
     
     void LateUpdate()
     {
-        if (IsPlayerInScene())
+        if (target !=null)
         {
             float currentLookAheadX = 0;
             float targetLookAheadX = 0;
@@ -68,20 +97,6 @@ public class CameraController : MonoBehaviour
             transform.position = new Vector3(Mathf.Round(cameraPositionX), Mathf.Round(cameraPositionY), -10);
 
             FindObjectOfType<Parallax>().GetComponent<Parallax>().Scrolling(transform.position);
-        }
-    }
-
-    private bool IsPlayerInScene ()
-    {
-        if (GameObject.FindGameObjectWithTag("Player"))
-        {
-            target = GameObject.FindGameObjectWithTag("Player").GetComponent<Controller2D>();
-            focusArea = new FocusArea(target.boxCollider.bounds, focusAreaSize);
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 

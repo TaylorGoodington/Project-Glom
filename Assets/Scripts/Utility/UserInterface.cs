@@ -36,19 +36,19 @@ public class UserInterface : MonoBehaviour
     //Updates all pieces of the UI, used at the begining of a level.
     public void UpdateUserInterface ()
     {
-        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameData.Instance.selectedSpellId];
-        userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[GameData.Instance.healthLevel - 1];
+        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameControl.Instance.selectedSpellId];
+        userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[SaveDataController.Instance.healthLevel - 1];
         Destroy(healthBar);
-        healthBar = Instantiate(healthBars[GameData.Instance.healthLevel - 1], parent);
+        healthBar = Instantiate(healthBars[SaveDataController.Instance.healthLevel - 1], parent);
     }
 
     public void UpdateHealth ()
     {
-        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameData.Instance.playerCurrentHP;
+        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - SaveDataController.Instance.playerCurrentHP;
     }
 
     public void UpdateSelectedSpell ()
     {
-        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameData.Instance.selectedSpellId ];
+        spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameControl.Instance.selectedSpellId ];
     }
 }

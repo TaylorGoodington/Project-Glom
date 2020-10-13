@@ -26,10 +26,10 @@ public class EnemyStats : MonoBehaviour
 
     void Start ()
     {
-        maxHP *= GameData.Instance.difficulty;
+        maxHP *= SaveDataController.Instance.difficulty;
         currentHp = maxHP;
-        currentHp *= GameData.Instance.difficulty;
-        attackDamage *= GameData.Instance.difficulty;
-        syphonAmount *= GameData.Instance.difficulty;
+        currentHp *= SaveDataController.Instance.difficulty;
+        attackDamage *= SaveDataController.Instance.difficulty;
+        syphonAmount *= SaveDataController.Instance.difficulty;
     }
 }

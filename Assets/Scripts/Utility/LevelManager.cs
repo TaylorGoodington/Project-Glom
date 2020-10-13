@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System.Collections;
 using UnityEngine.SceneManagement;
+using static Utility;
 
 public class LevelManager : MonoBehaviour
 {
@@ -18,18 +20,32 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void LoadIntroduction()
+    public void LoadLevel(Levels level)
     {
-        SceneManager.LoadScene("Company Logo");
+        SceneManager.LoadScene(level.ToString());
     }
 
-    public void LoadLevelZero()
+    public void EnterTheTower()
     {
-        SceneManager.LoadScene("Level Zero");
+        StartCoroutine(LoadTower());
     }
 
-    public void LoadLevelOne()
+    public void LeaveTheTower()
     {
-        SceneManager.LoadScene("Level One");
+        StartCoroutine(LeaveTower());
+    }
+
+    private IEnumerator LoadTower()
+    {
+        yield return new WaitForSeconds(SceneTransitions.Instance.TransitionOut());
+
+        LoadLevel(Levels.Level_One);
+    }
+
+    private IEnumerator LeaveTower()
+    {
+        yield return new WaitForSeconds(SceneTransitions.Instance.TransitionOut());
+
+        LoadLevel(Levels.Level_Zero);
     }
 }

@@ -43,7 +43,17 @@ public class InputController : MonoBehaviour
 
     private void CycleSelectedSpell()
     {
-        GameData.Instance.CycleSelectedSpell();
+        int currentListPosition = SaveDataController.Instance.availableSpellIds.IndexOf(GameControl.Instance.selectedSpellId);
+
+        if (currentListPosition == (SaveDataController.Instance.availableSpellIds.Count - 1))
+        {
+            GameControl.Instance.selectedSpellId = SaveDataController.Instance.availableSpellIds[0];
+        }
+        else
+        {
+            GameControl.Instance.selectedSpellId = SaveDataController.Instance.availableSpellIds[currentListPosition + 1];
+        }
+
         UserInterface.Instance.UpdateSelectedSpell();
     }
 

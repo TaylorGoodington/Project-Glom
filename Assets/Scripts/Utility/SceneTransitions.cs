@@ -20,23 +20,25 @@ public class SceneTransitions : MonoBehaviour
         }
     }
 
-    public float CurrentAnimationLength ()
-    {
-        AnimatorStateInfo animationState = animator.GetCurrentAnimatorStateInfo(0);
-        AnimatorClipInfo[] animatorClip = animator.GetCurrentAnimatorClipInfo(0);
-        return animatorClip[0].clip.length * animationState.normalizedTime;
-    }
-
-    public void TransitionOut()
+    public float TransitionOut()
     {
         GameControl.Instance.inputState = InputStates.None;
         animator.Play("transitionOut");
+        CameraController.Instance.ClearCameraTarget();
+        return CurrentAnimationLength();
     }
 
 
-    public void TransitionIn ()
+    public float TransitionIn ()
     {
         GameControl.Instance.inputState = InputStates.None;
         animator.Play("transitionIn");
+        return CurrentAnimationLength();
+    }
+
+    private float CurrentAnimationLength()
+    {
+        AnimatorClipInfo[] animatorClip = animator.GetCurrentAnimatorClipInfo(0);
+        return animatorClip[0].clip.length;
     }
 }

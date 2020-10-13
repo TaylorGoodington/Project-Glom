@@ -38,7 +38,7 @@ public class ProjectileMovement : MonoBehaviour
         {
             controller.Move(velocity, Vector2.zero);
 
-            if (transform.position.x < -10 || transform.position.x > 180)
+            if (transform.position.x < -10 || transform.position.x > 500)
             {
                 Destroy(gameObject);
             }

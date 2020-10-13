@@ -5,12 +5,36 @@ using static Utility;
 public class LevelZero : MonoBehaviour
 {
     private Vector2 normalPlayerStartPosition = new Vector2(10, 29);
+    private GameState gameState;
+
+    [SerializeField] Player player = null;
+
+    private enum GameState
+    {
+        First_Execution,
+        Normal,
+        Knight_Info,
+        Helmet_Info,
+        Level_One_Completion
+    }
 
     void Start()
     {
+        DetermineGameState();
+        InitializeLevel();
         SceneTransitions.Instance.TransitionIn();
+        CheckAndRunCinematics();
+        StartUIAndControl();
+    }
 
-        StartCoroutine("InitializeLevel", CheckAndRunCinematics());
+    private void DetermineGameState()
+    {
+        //First Execution
+        gameState = GameState.First_Execution;
+        //First Death
+        //New Enemy Knight
+        //New Enemy Helmet
+        //Level One Completion
     }
 
     //Get cinematic depending on level game state, run it, and return the clip length for the delay in level intialization.
@@ -18,19 +42,19 @@ public class LevelZero : MonoBehaviour
     {
         float cinematicLength = 0;
 
-        if (GameData.Instance.levelZeroGameState == GameStates.Normal)
+        if (gameState == GameState.Normal)
         {
             cinematicLength = 0;
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.First_Execution)
+        else if (gameState == GameState.First_Execution)
         {
-            cinematicLength = 5;
+            cinematicLength = 1;
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.Helmet_Info)
+        else if (gameState == GameState.Helmet_Info)
         {
             cinematicLength = 0;
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.Knight_Info)
+        else if (gameState == GameState.Knight_Info)
         {
             cinematicLength = 0;
         }
@@ -38,11 +62,11 @@ public class LevelZero : MonoBehaviour
         return cinematicLength;
     }
 
-    private IEnumerator InitializeLevel(float delay)
+    private void InitializeLevel()
     {
-        yield return new WaitForSeconds(delay);
+        GameControl.Instance.FindPlayer(player);
 
-        if (GameData.Instance.levelZeroGameState == GameStates.Normal)
+        if (gameState == GameState.Normal)
         {
             #region Character Positioning
             GameControl.Instance.player.transform.position = normalPlayerStartPosition;
@@ -53,7 +77,7 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region Camera Positioning
-
+            CameraController.Instance.SetCameraTarget();
             #endregion
 
             #region Music
@@ -61,11 +85,11 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region UI
-            UserInterface.Instance.UpdateUserInterface();
+            //UserInterface.Instance.UpdateUserInterface();
             #endregion
 
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.First_Execution)
+        else if (gameState == GameState.First_Execution)
         {
             #region Character Positioning
             GameControl.Instance.player.transform.position = normalPlayerStartPosition;
@@ -76,7 +100,7 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region Camera Positioning
-
+            CameraController.Instance.SetCameraTarget();
             #endregion
 
             #region Music
@@ -84,18 +108,22 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region UI
-            UserInterface.Instance.UpdateUserInterface();
+            //UserInterface.Instance.UpdateUserInterface();
             #endregion
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.Helmet_Info)
+        else if (gameState == GameState.Helmet_Info)
         {
 
         }
-        else if (GameData.Instance.levelZeroGameState == GameStates.Knight_Info)
+        else if (gameState == GameState.Knight_Info)
         {
 
         }
+    }
 
+    private void StartUIAndControl()
+    {
+        UserInterface.Instance.UpdateUserInterface();
         GameControl.Instance.inputState = InputStates.Player_Character;
     }
 }
