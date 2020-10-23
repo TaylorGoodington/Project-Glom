@@ -1,28 +1,43 @@
 fileFormatVersion: 2
-guid: 54ccb2a8ebeff4e47bbfa3d55c843ddd
+guid: b0e5aa90601cc754ab0d41b8225cb892
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8592010790199368755
-    second: Knight_Sheet_24_0
+      213: -4062202627725643172
+    second: Knight_Sparks_Sheet_24_0
   - first:
-      213: -4745596604424384999
-    second: Knight_Sheet_24_1
+      213: -4208467497157223929
+    second: Knight_Sparks_Sheet_24_1
   - first:
-      213: 7978508077105665564
-    second: Knight_Sheet_24_2
+      213: 3088228432859436838
+    second: Knight_Sparks_Sheet_24_2
   - first:
-      213: 4049402703834576564
-    second: Knight_Sheet_24_3
+      213: -5143328873576432672
+    second: Knight_Sparks_Sheet_24_3
   - first:
-      213: 3322127997491595889
-    second: Knight_Sheet_24_4
+      213: 5501916984506647173
+    second: Knight_Sparks_Sheet_24_4
   - first:
-      213: 8595578908600485724
-    second: Knight_Sheet_24_5
+      213: 9155350301671581226
+    second: Knight_Sparks_Sheet_24_5
   - first:
-      213: 8947074315928264938
-    second: Knight_Sheet_24_6
+      213: 1081840246800780688
+    second: Knight_Sparks_Sheet_24_0
+  - first:
+      213: -6192370614165028920
+    second: Knight_Sparks_Sheet_24_1
+  - first:
+      213: -8259510918766358327
+    second: Knight_Sparks_Sheet_24_2
+  - first:
+      213: -4013553007279453593
+    second: Knight_Sparks_Sheet_24_3
+  - first:
+      213: 3137585142495034087
+    second: Knight_Sparks_Sheet_24_4
+  - first:
+      213: 724698422600514513
+    second: Knight_Sparks_Sheet_24_5
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -44,6 +59,7 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -78,6 +94,7 @@ TextureImporter:
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
   platformSettings:
   - serializedVersion: 3
@@ -108,148 +125,127 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Knight_Sheet_24_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 24
-        width: 24
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 33c18209a44fc3770800000000000000
-      internalID: 8592010790199368755
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Knight_Sheet_24_1
-      rect:
-        serializedVersion: 2
-        x: 24
-        y: 24
-        width: 24
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 91e0cf11801442eb0800000000000000
-      internalID: -4745596604424384999
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Knight_Sheet_24_2
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 24
-        width: 24
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c16d77df2da59be60800000000000000
-      internalID: 7978508077105665564
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Knight_Sheet_24_3
+      name: Knight_Sparks_Sheet_24_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4b6f092fd4e523830800000000000000
-      internalID: 4049402703834576564
+      spriteID: 09d084ef8f7730f00800000000000000
+      internalID: 1081840246800780688
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Knight_Sheet_24_4
+      name: Knight_Sparks_Sheet_24_1
       rect:
         serializedVersion: 2
         x: 24
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 17acdd4ffc19a1e20800000000000000
-      internalID: 3322127997491595889
+      spriteID: 8cf30292cb7401aa0800000000000000
+      internalID: -6192370614165028920
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Knight_Sheet_24_5
+      name: Knight_Sparks_Sheet_24_2
       rect:
         serializedVersion: 2
         x: 48
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c57c8fdd971a94770800000000000000
-      internalID: 8595578908600485724
+      spriteID: 9c098748492506d80800000000000000
+      internalID: -8259510918766358327
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Knight_Sheet_24_6
+      name: Knight_Sparks_Sheet_24_3
       rect:
         serializedVersion: 2
         x: 72
         y: 0
         width: 24
         height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ae0ecebcfa46a2c70800000000000000
-      internalID: 8947074315928264938
+      spriteID: 76a48e9fdcefc48c0800000000000000
+      internalID: -4013553007279453593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Knight_Sparks_Sheet_24_4
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 24
+        height: 24
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7eab5fe3011fa8b20800000000000000
+      internalID: 3137585142495034087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Knight_Sparks_Sheet_24_5
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 24
+        height: 24
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dbb3603065ae0a00800000000000000
+      internalID: 724698422600514513
       vertices: []
       indices: 
       edges: []

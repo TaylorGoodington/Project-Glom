@@ -8,10 +8,7 @@ public class EnemyBase : MonoBehaviour
 {
     #region Variables
     [HideInInspector] public int enemyId;
-    private EnemyStats stats;
-
-    [Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
-    public LayerMask attackingLayer;
+    [HideInInspector] public EnemyStats stats;
 
     [Tooltip("This field is used to specify which layers the enemy can move on.")]
     public LayerMask patrolMask;
@@ -30,10 +27,10 @@ public class EnemyBase : MonoBehaviour
     private bool changingDirection;
     public float minPatrolX;
     public float maxPatrolX;
-    public GameObject patrolPlatform;
+   [HideInInspector] public GameObject patrolPlatform;
     private bool patrolPathCreated;
     //private bool beingAttacked;
-    public Animator enemyAnimationController;
+    [HideInInspector] public Animator enemyAnimationController;
     //private Vector3 targetPosition;
     //private Vector2 eyePositionLeft;
     //private Vector2 eyePositionRight;
@@ -102,7 +99,6 @@ public class EnemyBase : MonoBehaviour
         enemyAnimationController = GetComponent<Animator>();
 
         enemyCollider = GetComponent<BoxCollider2D>();
-        playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
         //jumpPoints = transform.GetChild(1).gameObject;
         //freeFallPoints = transform.GetChild(2).gameObject;
         player = FindObjectOfType<Player>().gameObject;
@@ -132,6 +128,11 @@ public class EnemyBase : MonoBehaviour
         //fallPoint3 = freeFallPoints.transform.GetChild(2).GetComponent<BoxCollider2D>();
 
         //CalculateJumpCollders();
+    }
+
+    public void InitializePlayerDetection()
+    {
+        playerDetection = transform.GetChild(0).GetComponent<PlayerDetection>();
     }
 
     public void ActivateEnemy()
@@ -197,16 +198,9 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    private void AdjustMindset()
+    public virtual void AdjustMindset()
     {
-        if (playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Patroling)
-        {
-            mindSet = EnemyMindsets.Attack_Prep;
-        }
-        else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Attacking)
-        {
-            mindSet = EnemyMindsets.Attack_Recovery;
-        }
+        //Always Override
     }
 
     //Called from animator after the attack recovery animation.

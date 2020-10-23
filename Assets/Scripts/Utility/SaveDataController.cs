@@ -65,7 +65,7 @@ public class SaveDataController : MonoBehaviour
         }
     }
 
-    private void WriteSaveData()
+    public void WriteSaveData()
     {
         //UpdateGameData();
 
@@ -80,6 +80,8 @@ public class SaveDataController : MonoBehaviour
 
             binaryFormatter.Serialize(saveFile, saveData);
         }
+
+        print("saved");
     }
 
     private void BuildInitialSaveData()

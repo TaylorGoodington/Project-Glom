@@ -1,18 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utility;
 
 public class Helmet : EnemyBase
 {
+    public float detectionWidthOffset = 40;
+    public float detectionHeightOffset = 10;
+
     public override void Start()
     {
         base.Start();
-        //enemyAnimationController.Play("Inactive");
+        InitializePlayerDetection();
+        InitializeDetectionPoints();
     }
 
     void Update()
     {
         EnemyUpdate();
+    }
+
+    void InitializeDetectionPoints()
+    {
+        Vector2 firstPoint = new Vector2(-1 * detectionWidthOffset, detectionHeightOffset);
+        Vector2 secondPoint = new Vector2(detectionWidthOffset, detectionHeightOffset);
+        Vector2 thirdPoint = new Vector2(detectionWidthOffset, -1 * detectionHeightOffset);
+        Vector2 fourthPoint = new Vector2(-1 * detectionWidthOffset, -1 * detectionHeightOffset);
+
+        Vector2[] detectionPoints = {firstPoint, secondPoint,thirdPoint, fourthPoint};
+        playerDetection.GetComponent<PolygonCollider2D>().points = detectionPoints;
+    }
+
+    public override void AdjustMindset()
+    {
+        if (playerDetection != null)
+        {
+            if (playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Patroling)
+            {
+                mindSet = EnemyMindsets.Attack_Prep;
+            }
+            else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Attacking)
+            {
+                mindSet = EnemyMindsets.Attack_Recovery;
+            }
+        }
     }
 
     public override void Standing()
@@ -26,25 +57,13 @@ public class Helmet : EnemyBase
         enemyAnimationController.Play("Helmet_Patroling");
     }
 
-    public override void AttackPrep()
-    {
-        velocity.x = 0;
-        enemyAnimationController.Play("Helmet_Attack_Prep");
-    }
-
     public override void Attacking()
     {
         velocity.x = 0;
     }
 
-    public override void AttackRecovery()
-    {
-        velocity.x = 0;
-        enemyAnimationController.Play("Helmet_Attack_Recovery");
-    }
-
     public override void Dying()
     {
-        
+        enemyAnimationController.Play("Helmet_Standing");
     }
 }

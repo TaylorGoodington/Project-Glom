@@ -14,7 +14,11 @@ public class Sentry : EnemyBase
 
     void Update()
     {
-        EnemyUpdate();
+        if (stats.currentHp <= 0 && mindSet != EnemyMindsets.Dead)
+        {
+            CombatEngine.Instance.EnemyDeath(enemyId);
+            mindSet = EnemyMindsets.Dying;
+        }
 
         if (mindSet == EnemyMindsets.Dying)
         {
