@@ -33,10 +33,10 @@ public class CombatEngine : MonoBehaviour
 
     public void DealDamageToPlayer(int damage)
     {
-        SaveDataController.Instance.playerCurrentHP = Mathf.Max(SaveDataController.Instance.playerCurrentHP - damage, 0);
+        GameControl.Instance.player_currentHP = Mathf.Max(GameControl.Instance.player_currentHP - damage, 0);
         UserInterface.Instance.UpdateHealth();
 
-        if (SaveDataController.Instance.playerCurrentHP == 0)
+        if (GameControl.Instance.player_currentHP == 0)
         {
             ResetCombatEngine();
             GameControl.Instance.PlayerHasDied();

@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(Levels level)
     {
         SceneManager.LoadScene(level.ToString());
-        //SaveDataController.Instance.WriteSaveData();
+        SaveDataController.Instance.WriteSaveData();
     }
 
     public void EnterTheTower()

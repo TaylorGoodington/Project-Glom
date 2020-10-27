@@ -8,6 +8,7 @@ public class GameControl : MonoBehaviour
     public Player player;
     public Camera mainCamera;
     public int selectedSpellId;
+    public int player_currentHP;
 
     void Awake()
     {
@@ -28,6 +29,7 @@ public class GameControl : MonoBehaviour
         SaveDataController.Instance.InitializeGameData();
         inputState = InputStates.None;
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        SetPlayerHealthOnLevelInitialization();
     }
 
     public void FindPlayer(Player player)
@@ -59,7 +61,12 @@ public class GameControl : MonoBehaviour
     public void PlayerDeathEventsAreComplete()
     {
         LevelManager.Instance.LeaveTheTower();
-        SaveDataController.Instance.playerCurrentHP = 36;
+        SetPlayerHealthOnLevelInitialization();
+    }
+
+    private void SetPlayerHealthOnLevelInitialization()
+    {
+        player_currentHP = SaveDataController.Instance.player_MaxHP;
     }
     #endregion
 

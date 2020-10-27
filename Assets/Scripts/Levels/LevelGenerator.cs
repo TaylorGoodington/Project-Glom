@@ -102,13 +102,18 @@ public class LevelGenerator : ScriptableObject
         currentPosition += blockSize;
         position++;
 
-        int currentObstacleAllowance = SaveDataController.Instance.difficulty + SaveDataController.Instance.currentLevel + Mathf.FloorToInt(position / 3);
+        int currentObstacleAllowance = SaveDataController.Instance.chosenDifficulty + LevelSpecificAllowance() + Mathf.FloorToInt(position / 3);
         float trapAllowance = Random.Range(1, 11);
         int currentTrapAllowance = Mathf.RoundToInt((trapAllowance / 10) * currentObstacleAllowance);
         int currentEnemyAllowance = Mathf.RoundToInt(((10 - trapAllowance) * 10) * currentObstacleAllowance);
         
         int remainder = block.transform.GetChild(block.transform.childCount - 1).GetComponent<TrapGeneration>().SpawnTraps(currentTrapAllowance);
         //block.GetComponent<EnemySpawner>().SpawnEnemies(currentEnemyAllowance + remainder);
+    }
+
+    private int LevelSpecificAllowance()
+    {
+        return 1;
     }
 }
 

@@ -37,14 +37,14 @@ public class UserInterface : MonoBehaviour
     public void UpdateUserInterface ()
     {
         spellSlot.GetComponent<SpriteRenderer>().sprite = spells[GameControl.Instance.selectedSpellId];
-        userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[SaveDataController.Instance.healthLevel - 1];
+        userInterface.GetComponent<SpriteRenderer>().sprite = userInterfaces[SaveDataController.Instance.healthLevelUsedForSelectingUIHealthBar - 1];
         Destroy(healthBar);
-        healthBar = Instantiate(healthBars[SaveDataController.Instance.healthLevel - 1], parent);
+        healthBar = Instantiate(healthBars[SaveDataController.Instance.healthLevelUsedForSelectingUIHealthBar - 1], parent);
     }
 
     public void UpdateHealth ()
     {
-        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - SaveDataController.Instance.playerCurrentHP;
+        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameControl.Instance.player_currentHP;
     }
 
     public void UpdateSelectedSpell ()

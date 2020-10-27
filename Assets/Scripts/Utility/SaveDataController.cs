@@ -10,15 +10,15 @@ public class SaveDataController : MonoBehaviour
     public static SaveDataController Instance { get; set; }
 
     public bool isFirstExecution;
-    public int playerCurrentHP;
+    public int player_MaxHP;
     public int currency;
-    public int currentLevel;
-    public int difficulty;
+    public int chosenDifficulty;
     public int activeSpellId;
     public List<int> availableSpellIds;
 
     #region Upgrades
-    public int healthLevel;
+    public int healthLevelUsedForSelectingUIHealthBar;
+    int maxDifficulty;
     #endregion
 
     void Awake()
@@ -56,6 +56,12 @@ public class SaveDataController : MonoBehaviour
 
                 isFirstExecution = saveData.isFirstExecution;
                 currency = saveData.currency;
+                player_MaxHP = saveData.player_MaxHP;
+                chosenDifficulty = saveData.chosenDifficulty;
+                maxDifficulty = saveData.maxDifficulty;
+                activeSpellId = saveData.activeSpellId;
+                availableSpellIds = saveData.availableSpellIds;
+                healthLevelUsedForSelectingUIHealthBar = saveData.healthLevelUsedForSelectingUIHealthBar;
             }
         }
         else
@@ -77,24 +83,28 @@ public class SaveDataController : MonoBehaviour
 
             saveData.isFirstExecution = isFirstExecution;
             saveData.currency = currency;
+            saveData.player_MaxHP = player_MaxHP;
+            saveData.chosenDifficulty = chosenDifficulty;
+            saveData.maxDifficulty = maxDifficulty;
+            saveData.activeSpellId = activeSpellId;
+            saveData.availableSpellIds = availableSpellIds;
+            saveData.healthLevelUsedForSelectingUIHealthBar = healthLevelUsedForSelectingUIHealthBar;
 
             binaryFormatter.Serialize(saveFile, saveData);
         }
-
-        print("saved");
     }
 
     private void BuildInitialSaveData()
     {
         isFirstExecution = true;
         currency = 0;
+        chosenDifficulty = 1;
+        maxDifficulty = 1;
 
         #region For Testting
-        playerCurrentHP = 36;
-        currentLevel = 1;
-        healthLevel = 1;
+        player_MaxHP = 36;
+        healthLevelUsedForSelectingUIHealthBar = 1;
         activeSpellId = 0;
-        difficulty = 1;
         availableSpellIds = new List<int>();
         availableSpellIds.Add(0);
         availableSpellIds.Add(1);
@@ -107,5 +117,11 @@ public class SaveDataController : MonoBehaviour
 struct SaveData
 {
     public bool isFirstExecution;
+    public int player_MaxHP;
     public int currency;
+    public int chosenDifficulty;
+    public int activeSpellId;
+    public List<int> availableSpellIds;
+    public int healthLevelUsedForSelectingUIHealthBar;
+    public int maxDifficulty;
 }

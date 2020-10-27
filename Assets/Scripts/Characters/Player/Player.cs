@@ -84,7 +84,7 @@ public class Player : MonoBehaviour
     private void DetermineState (Vector2 input, ButtonPresses buttonPress)
     {
         //Dying
-        if (SaveDataController.Instance.playerCurrentHP <= 0)
+        if (GameControl.Instance.player_currentHP <= 0)
         {
             controller.characterState = Controller2D.CharacterStates.Dying;
         }
@@ -524,7 +524,7 @@ public class Player : MonoBehaviour
         //Falling off the world
         if (collider.gameObject.layer == 19)
         {
-            SaveDataController.Instance.playerCurrentHP = 0;
+            GameControl.Instance.player_currentHP = 0;
         }
 
         //Interactable Objects
