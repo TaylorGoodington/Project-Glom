@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using static Utility;
 
 [CreateAssetMenu(fileName = "Level", menuName = "Levels/New Level Generator", order = 1)]
 public class LevelGenerator : ScriptableObject
@@ -108,7 +109,46 @@ public class LevelGenerator : ScriptableObject
         int currentEnemyAllowance = Mathf.RoundToInt(((10 - trapAllowance) * 10) * currentObstacleAllowance);
         
         int remainder = block.transform.GetChild(block.transform.childCount - 1).GetComponent<TrapGeneration>().SpawnTraps(currentTrapAllowance);
-        //block.GetComponent<EnemySpawner>().SpawnEnemies(currentEnemyAllowance + remainder);
+        SpawnEnemies(block, currentEnemyAllowance + remainder);
+    }
+
+    private void SpawnEnemies(GameObject block, int allowance)
+    {
+        //list all possible spawn points
+        List<GameObject> potentialSpawnPoints = new List<GameObject>(); 
+        foreach (Transform child in block.transform)
+        {
+            if (child.gameObject.layer == (int)GameLayers.ground || child.gameObject.layer == (int)GameLayers.platforms)
+            {
+                if (child.GetComponent<BoxCollider2D>().size.x >= 48)
+                {
+                    potentialSpawnPoints.Add(child.gameObject);
+                }
+            }
+        }
+
+        //pick spawn points as needed
+        List<GameObject> spawnPoints = new List<GameObject>();
+        for (int i = 0; i < allowance; i++)
+        {
+            if (potentialSpawnPoints.Count > 1)
+            {
+                int position = Random.Range(0, potentialSpawnPoints.Count - 1);
+                spawnPoints.Add(potentialSpawnPoints[position]);
+                potentialSpawnPoints.RemoveAt(position);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        //spawn enemies
+        //TODO Improve to add logic about unlocked enemies and positions within the platform for enemies to be randomly instantiated on.
+        foreach (GameObject spawnPoint in spawnPoints)
+        {
+            Instantiate(EnemyDatabase.Instance.enemies[2], spawnPoint.transform.position, Quaternion.identity, spawnPoint.transform);
+        }
     }
 
     private int LevelSpecificAllowance()
