@@ -30,6 +30,14 @@ public class InputController : MonoBehaviour
             {
                 CycleSelectedSpell();
             }
+
+            //Testing
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
+                GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Burst;
+                PlayerSpellControl.Instance.CastSpell();
+            }
         }
         else if (GameControl.Instance.inputState == InputStates.Menus)
         {

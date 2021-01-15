@@ -353,7 +353,7 @@ public class Player : MonoBehaviour
 
     private void ExecuteSpellPoperties()
     {
-        cooldownList.Add(GameControl.Instance.selectedSpellId, SpellDatabase.Instance.spells[GameControl.Instance.selectedSpellId].cooldown);
+        cooldownList.Add(GameControl.Instance.selectedSpellId, PlayerSpellControl.Instance.spells[GameControl.Instance.selectedSpellId].cooldown);
         animator.PlaySpellAnimation(GameControl.Instance.selectedSpellId);
 
         //Blast

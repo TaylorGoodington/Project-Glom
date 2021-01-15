@@ -25,7 +25,7 @@ public class PlayerAnimationController : MonoBehaviour
         yield return new WaitForSeconds(bodyAnimator.GetCurrentAnimatorStateInfo(0).length);
 
         transform.position = new Vector3(transform.position.x, gameObject.GetComponent<Player>().climbingUpPosition);
-        GameControl.Instance.inputState = Utility.InputStates.Player_Character;
+        GameControl.Instance.inputState = InputStates.Player_Character;
     }
 
     private void PlayBodyAnimation(string animation, float direction)
@@ -73,8 +73,8 @@ public class PlayerAnimationController : MonoBehaviour
     public void PlaySpellAnimation (int spellId)
     {
         castingAnimator.Play("Casting");
-        spellAnimator.Play(SpellDatabase.Instance.spells[spellId].name);
-        if (SpellDatabase.Instance.spells[spellId].hasProjectile)
+        spellAnimator.Play(PlayerSpellControl.Instance.spells[spellId].name);
+        if (PlayerSpellControl.Instance.spells[spellId].hasProjectile)
         {
             StartCoroutine(InstantiateSpell(spellId));
         }
@@ -82,7 +82,7 @@ public class PlayerAnimationController : MonoBehaviour
 
     private IEnumerator InstantiateSpell (int spellId)
     {
-        GameObject prefab = SpellDatabase.Instance.ReturnSpellProjectile(spellId);
+        GameObject prefab = PlayerSpellControl.Instance.ReturnSpellProjectile(spellId);
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(spellAnimator.GetCurrentAnimatorStateInfo(0).length);
         Vector3 position = transform.localPosition;

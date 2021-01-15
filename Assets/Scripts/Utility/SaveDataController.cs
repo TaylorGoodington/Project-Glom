@@ -19,6 +19,15 @@ public class SaveDataController : MonoBehaviour
     #region Upgrades
     public int healthLevelUsedForSelectingUIHealthBar;
     int maxDifficulty;
+
+    #region Offensive Spell Upgrades
+
+    #region Burst
+
+    #endregion
+
+    #endregion
+
     #endregion
 
     void Awake()
@@ -62,6 +71,10 @@ public class SaveDataController : MonoBehaviour
                 activeSpellId = saveData.activeSpellId;
                 availableSpellIds = saveData.availableSpellIds;
                 healthLevelUsedForSelectingUIHealthBar = saveData.healthLevelUsedForSelectingUIHealthBar;
+
+                #region Spell Data
+
+                #endregion
             }
         }
         else

@@ -10,6 +10,9 @@ public class GameControl : MonoBehaviour
     public int selectedSpellId;
     public int player_currentHP;
 
+    public OffensiveSpell currentOffensiveSpell;
+    public OffensiveSpellVariant currentOffensiveSpellVariant;
+
     void Awake()
     {
         if (Instance != null && Instance != this)

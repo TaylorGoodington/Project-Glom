@@ -66,4 +66,17 @@
         Level_Zero,
         Level_One
     }
+
+    public enum OffensiveSpell
+    {
+        Blast
+    }
+
+    public enum OffensiveSpellVariant
+    {
+        None,
+        Burst,
+        Charge,
+        Lance
+    }
 }
