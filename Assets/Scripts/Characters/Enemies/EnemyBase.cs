@@ -93,7 +93,7 @@ public class EnemyBase : MonoBehaviour
 
         mindSet = EnemyMindsets.Patroling;
         controller = GetComponent<Controller2D>();
-        controller.characterState = Controller2D.CharacterStates.Standing;
+        controller.characterState = CharacterState.Standing;
         ResetCharacterPhysics();
 
         enemyAnimationController = GetComponent<Animator>();

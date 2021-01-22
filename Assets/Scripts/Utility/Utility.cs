@@ -79,4 +79,44 @@
         Charge,
         Lance
     }
+
+    public enum CharacterState
+    {
+        Standing,
+        StandCasting,
+        Running,
+        RunCasting,
+        Jumping,
+        AerialCasting,
+        Falling,
+        Climbing,
+        Summiting,
+        Attacking,
+        Casting,
+        AbilityMoving,
+        Flinching,
+        KnockedBack,
+        Dying
+    }
+
+    public enum MovementState
+    {
+        Standing,
+        Running,
+        Falling,
+        Climbing,
+        Summiting
+    }
+
+    public enum ActionState
+    {
+        Attacking,
+        Jumping,
+        Casting,
+        Channeling,
+        AbilityMoving,
+        Flinching,
+        KnockedBack,
+        Dying
+    }
 }

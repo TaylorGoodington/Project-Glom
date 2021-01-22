@@ -52,12 +52,12 @@ public class Player : MonoBehaviour
     {
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
-        cooldownList = new Dictionary<int, float>();
+        //cooldownList = new Dictionary<int, float>();
         casting = false;
         initialHeight = transform.position.y;
 
         ResetCharacterPhysics();
-        controller.characterState = Controller2D.CharacterStates.Standing;
+        controller.characterState = CharacterState.Standing;
     }
 
     void Update()
@@ -86,67 +86,108 @@ public class Player : MonoBehaviour
         //Dying
         if (GameControl.Instance.player_currentHP <= 0)
         {
-            controller.characterState = Controller2D.CharacterStates.Dying;
+            controller.characterState = CharacterState.Dying;
         }
         //Climbing
         else if (buttonPress == ButtonPresses.Interact && isClimbable && !casting)
         {
-            controller.characterState = Controller2D.CharacterStates.Climbing;
+            controller.characterState = CharacterState.Climbing;
             UpdateHeightReached();
         }
         //Summiting
-        else if (summiting && controller.characterState == Controller2D.CharacterStates.Climbing)
+        else if (summiting && controller.characterState == CharacterState.Climbing)
         {
-            controller.characterState = Controller2D.CharacterStates.Summiting;
+            controller.characterState = CharacterState.Summiting;
         }
         //Jumping
-        else if (buttonPress == ButtonPresses.Jump && (controller.collisions.below || controller.characterState == Controller2D.CharacterStates.Climbing))
+        else if (buttonPress == ButtonPresses.Jump && (controller.collisions.below || controller.characterState == CharacterState.Climbing))
         {
-            controller.characterState = Controller2D.CharacterStates.Jumping;
+            controller.characterState = CharacterState.Jumping;
         }
         //Falling
-        else if (!controller.collisions.below && (controller.characterState != Controller2D.CharacterStates.Climbing || !isClimbable))
+        else if (!controller.collisions.below && (controller.characterState != CharacterState.Climbing || !isClimbable))
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
             {
-                controller.characterState = Controller2D.CharacterStates.AerialCasting;
+                controller.characterState = CharacterState.AerialCasting;
             }
             else
             {
-                controller.characterState = Controller2D.CharacterStates.Falling;
+                controller.characterState = CharacterState.Falling;
                 UpdateHeightReached();
             }
         }
         //Running
         else if (controller.collisions.below && input.x != 0)
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
             {
-                controller.characterState = Controller2D.CharacterStates.RunCasting;
+                controller.characterState = CharacterState.RunCasting;
             }
             else
             {
-                controller.characterState = Controller2D.CharacterStates.Running;
+                controller.characterState = CharacterState.Running;
             }
         }
         //Standing
         else if (input.x == 0 && controller.collisions.below)
         {
-            if ((buttonPress == ButtonPresses.Cast && !cooldownList.ContainsKey(GameControl.Instance.selectedSpellId)) || casting)
+            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
             {
-                controller.characterState = Controller2D.CharacterStates.StandCasting;
+                controller.characterState = CharacterState.StandCasting;
             }
             else
             {
-                controller.characterState = Controller2D.CharacterStates.Standing;
+                controller.characterState = CharacterState.Standing;
             }
         }
+    }
+
+    private void DetermineMovementState(Vector2 input)
+    {
+        //Standing
+        if (controller.collisions.below && input.x == 0)
+        {
+            controller.movementState = MovementState.Standing;
+        }
+        //Running
+        if (controller.collisions.below && input.x != 0)
+        {
+            controller.movementState = MovementState.Running;
+        }
+        //TODO...See about conditions for movement state of climbing
+        //Climbing
+        if (controller.movementState == MovementState.Climbing)
+        {
+            controller.movementState = MovementState.Climbing;
+        }
+        //Falling
+        if (!controller.collisions.below && controller.movementState != MovementState.Climbing)
+        {
+            controller.movementState = MovementState.Falling;
+        }
+        //Summiting
+        if (summiting && controller.movementState == MovementState.Climbing)
+        {
+            controller.movementState = MovementState.Summiting;
+        }
+    }
+
+    private void DetermineActionState()
+    {
+
+    }
+
+    private bool CanCast()
+    {
+        //asks player spell controller if casting is possible by checking what spell conditions are currently equipped/active and cooldown lists
+        return PlayerSpellControl.Instance.CanCast(controller.characterState);
     }
 
     private Vector2 StateResult (Vector2 input)
     {
         #region Dying
-        if (controller.characterState == Controller2D.CharacterStates.Dying)
+        if (controller.characterState == CharacterState.Dying)
         {
             UnPauseAnimators();
             GameControl.Instance.inputState = InputStates.None;
@@ -163,7 +204,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Standing
-        else if (controller.characterState == Controller2D.CharacterStates.Standing)
+        else if (controller.characterState == CharacterState.Standing)
         {
             UnPauseAnimators();
 
@@ -186,7 +227,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Running
-        else if (controller.characterState == Controller2D.CharacterStates.Running)
+        else if (controller.characterState == CharacterState.Running)
         {
             UnPauseAnimators();
 
@@ -196,7 +237,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Jumping
-        else if (controller.characterState == Controller2D.CharacterStates.Jumping)
+        else if (controller.characterState == CharacterState.Jumping)
         {
             UnPauseAnimators();
             velocity.y = maxJumpVelocity;
@@ -204,7 +245,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Falling
-        else if (controller.characterState == Controller2D.CharacterStates.Falling)
+        else if (controller.characterState == CharacterState.Falling)
         {
             UnPauseAnimators();
 
@@ -226,7 +267,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Climbing
-        else if (controller.characterState == Controller2D.CharacterStates.Climbing)
+        else if (controller.characterState == CharacterState.Climbing)
         {
             velocity.y = input.y * climbSpeed;
             velocity.x = input.x * climbSpeed;
@@ -245,7 +286,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Summiting
-        else if (controller.characterState == Controller2D.CharacterStates.Summiting)
+        else if (controller.characterState == CharacterState.Summiting)
         {
             climbingUpPosition = transform.position.y + 10;
             CancelInvoke("PauseAnimators");
@@ -255,7 +296,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Stand Casting
-        else if (controller.characterState == Controller2D.CharacterStates.StandCasting)
+        else if (controller.characterState == CharacterState.StandCasting)
         {
             UnPauseAnimators();
 
@@ -284,7 +325,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Run Casting
-        else if (controller.characterState == Controller2D.CharacterStates.RunCasting)
+        else if (controller.characterState == CharacterState.RunCasting)
         {
             UnPauseAnimators();
 
@@ -300,7 +341,7 @@ public class Player : MonoBehaviour
         }
         #endregion
         #region Aerial Casting
-        else if (controller.characterState == Controller2D.CharacterStates.AerialCasting)
+        else if (controller.characterState == CharacterState.AerialCasting)
         {
             UnPauseAnimators();
 
@@ -494,7 +535,7 @@ public class Player : MonoBehaviour
 
     public void Die()
     {
-        controller.characterState = Controller2D.CharacterStates.Dying;
+        controller.characterState = CharacterState.Dying;
         PlayAnimation(faceDirection);
         GameControl.Instance.ProcessEndOfTowerCurrency(heightReached);
     }

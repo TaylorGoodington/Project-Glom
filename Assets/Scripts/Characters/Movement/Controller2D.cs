@@ -1,11 +1,13 @@
 ﻿using System;
 using UnityEngine;
+using static Utility;
 
 public class Controller2D : RaycastController
 {
 	private float maxClimbAngle = 80;
     private float maxDescendAngle = 80;
-    public CharacterStates characterState;
+    public CharacterState characterState;
+    public MovementState movementState;
 
     [HideInInspector] public bool wallJumpReady = false;
     [HideInInspector] public int enemyFaceDirection;
@@ -259,25 +261,6 @@ public class Controller2D : RaycastController
     {
 		collisions.fallingThroughPlatform = false;
 	}
-
-    public enum CharacterStates
-    {
-        Standing,
-        StandCasting,
-        Running,
-        RunCasting,
-        Jumping,
-        AerialCasting,
-        Falling,
-        Climbing,
-        Summiting,
-        Attacking,
-        Casting,
-        AbilityMoving,
-        Flinching,
-        KnockedBack,
-        Dying
-    }
 	
 	public struct CollisionInfo
     {

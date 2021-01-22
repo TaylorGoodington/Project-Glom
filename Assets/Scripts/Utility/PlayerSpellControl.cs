@@ -11,6 +11,7 @@ public class PlayerSpellControl : MonoBehaviour
     public List<GameObject> spellProjectiles;
 
     private Burst burst = null;
+    private Charge charge = null;
 
     void Awake()
     {
@@ -22,18 +23,29 @@ public class PlayerSpellControl : MonoBehaviour
         else
         {
             Instance = this;
+
+            burst = GetComponent<Burst>();
+            charge = GetComponent<Charge>();
+
+            spells = new List<Spells>();
+            spells.Add(new Spells(0, "Blast", true, 5, 0, 1));
+            spells.Add(new Spells(1, "Aura", false, 5, 2, 0));
+            spells.Add(new Spells(2, "Poof", false, 0, 3, 0));
         }
     }
 
     void Start ()
     {
-        burst = GetComponent<Burst>();
-
-        spells = new List<Spells>();
-        spells.Add(new Spells(0, "Blast", true, 5, 0, 1));
-        spells.Add(new Spells(1, "Aura", false, 5, 2, 0));
-        spells.Add(new Spells(2, "Poof", false, 0, 3, 0));
+        
 	}
+
+    //called from the player depending on input and state
+    public bool CanCast(CharacterState playerSate)
+    {
+        return true;
+
+        //check cooldown list and other params 
+    }
 
     public GameObject ReturnSpellProjectile (int spellId)
     {
@@ -52,6 +64,10 @@ public class PlayerSpellControl : MonoBehaviour
             {
                 burst.Cast();
             }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Charge)
+            {
+                charge.Cast();
+            }
         }
     }
 
@@ -67,6 +83,10 @@ public class PlayerSpellControl : MonoBehaviour
             else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Burst)
             {
                 burst.ProcessHitInformation(castKey, enemyObjectId);
+            }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Charge)
+            {
+                //burst.ProcessHitInformation(castKey, enemyObjectId);
             }
         }
     }

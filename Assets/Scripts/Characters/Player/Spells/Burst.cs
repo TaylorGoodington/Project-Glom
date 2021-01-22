@@ -31,8 +31,7 @@ public class Burst : MonoBehaviour
         UpdateProperties();
         castKey++;
         StartCoroutine(Instantiate());
-        //instantiate projectiles as per the burst way
-        //after projectile instantiation i need to set the castKey on the projectile script
+        //Tell player animator to "cast"
 
     }
 
