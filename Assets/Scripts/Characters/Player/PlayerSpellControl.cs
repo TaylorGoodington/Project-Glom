@@ -34,18 +34,13 @@ public class PlayerSpellControl : MonoBehaviour
         }
     }
 
-    void Start ()
-    {
-        
-	}
-
     //called from the player depending on input and state
-    public bool CanCast(CharacterState playerSate)
-    {
-        return true;
+    //public bool CanCast(CharacterState playerSate)
+    //{
+    //    return true;
 
-        //check cooldown list and other params 
-    }
+    //    //check cooldown list and other params 
+    //}
 
     public GameObject ReturnSpellProjectile (int spellId)
     {
@@ -89,6 +84,11 @@ public class PlayerSpellControl : MonoBehaviour
                 //burst.ProcessHitInformation(castKey, enemyObjectId);
             }
         }
+    }
+
+    internal ActionState RetrieveActionState()
+    {
+        throw new NotImplementedException();
     }
 }
 

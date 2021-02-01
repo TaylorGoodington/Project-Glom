@@ -1,6 +1,6 @@
 ﻿public class Utility
 {
-    public enum GameLayers
+    public enum GameLayer
     {
         levelBounds = 8,
         ground = 9,
@@ -12,7 +12,7 @@
         hazzard = 15
     }
 
-    public enum EnemyMindsets
+    public enum EnemyMindset
     {
         Standing,
         Patroling,
@@ -26,7 +26,7 @@
         Dead
     }
 
-    public enum InputStates
+    public enum InputState
     {
         Null,
         None,
@@ -35,7 +35,7 @@
         Dialogue
     }
 
-    public enum ButtonPresses
+    public enum ButtonPress
     {
         None,
         Interact,
@@ -45,14 +45,14 @@
         Advance
     }
 
-    public enum SoundEffects
+    public enum SoundEffect
     {
         Null,
         Company_Logo,
         Player_Death
     }
 
-    public enum MusicTracks
+    public enum MusicTrack
     {
         Null,
         Level_Zero_Normal,
@@ -60,7 +60,7 @@
         Player_Death
     }
 
-    public enum Levels
+    public enum Level
     {
         Company_Logo,
         Level_Zero,
@@ -80,7 +80,33 @@
         Lance
     }
 
-    public enum CharacterState
+    public enum MovementState
+    {
+        Standing,
+        Running,
+        Falling,
+        Climbing
+    }
+
+    public enum ActionState
+    {
+        None,
+        Attacking,
+        Jumping,
+        Casting,
+        Grabbing_Ladder
+    }
+
+    public enum ReactionState
+    {
+        None,
+        Summiting,
+        Flinching,
+        KnockedBack,
+        Dying
+    }
+
+    public enum AnimationState
     {
         Standing,
         StandCasting,
@@ -88,32 +114,10 @@
         RunCasting,
         Jumping,
         AerialCasting,
-        Falling,
         Climbing,
         Summiting,
         Attacking,
         Casting,
-        AbilityMoving,
-        Flinching,
-        KnockedBack,
-        Dying
-    }
-
-    public enum MovementState
-    {
-        Standing,
-        Running,
-        Falling,
-        Climbing,
-        Summiting
-    }
-
-    public enum ActionState
-    {
-        Attacking,
-        Jumping,
-        Casting,
-        Channeling,
         AbilityMoving,
         Flinching,
         KnockedBack,

@@ -19,6 +19,7 @@ public class Charge : MonoBehaviour
     {
         //tell the player animator that the cast has begun
         //start ienumerator to complete the cast unless it is cancelled early -> ienumerator is just the countdown
+        //Check for and apply previous charge bounses
         StartCoroutine(ChargeTimer());
     }
 

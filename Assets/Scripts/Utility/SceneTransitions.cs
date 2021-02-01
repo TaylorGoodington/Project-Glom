@@ -22,7 +22,7 @@ public class SceneTransitions : MonoBehaviour
 
     public float TransitionOut()
     {
-        GameControl.Instance.inputState = InputStates.None;
+        GameControl.Instance.inputState = InputState.None;
         animator.Play("transitionOut");
         CameraController.Instance.ClearCameraTarget();
         return CurrentAnimationLength();
@@ -31,7 +31,7 @@ public class SceneTransitions : MonoBehaviour
 
     public float TransitionIn ()
     {
-        GameControl.Instance.inputState = InputStates.None;
+        GameControl.Instance.inputState = InputState.None;
         animator.Play("transitionIn");
         return CurrentAnimationLength();
     }

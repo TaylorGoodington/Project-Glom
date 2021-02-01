@@ -9,7 +9,7 @@ public class Hazard : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == (int)GameLayers.player)
+        if (collision.gameObject.layer == (int)GameLayer.player)
         {
             StartCoroutine("DealDamage");
         }
@@ -17,7 +17,7 @@ public class Hazard : MonoBehaviour
 
     public void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == (int)GameLayers.player)
+        if (collision.gameObject.layer == (int)GameLayer.player)
         {
             StopCoroutine("DealDamage");
         }

@@ -11,27 +11,30 @@ public class Player : MonoBehaviour
     public LayerMask attackingLayer;
 
     public float heightReached = 0;
-    public float initialHeight;
+    private float initialHeight;
 
-    public float initialMaxJumpHeight;
-    private float maxJumpHeight;
-    public float initialMinJumpHeight;
-    private float minJumpHeight;
-    public float timeToJumpApex;
+    public int initialMaxJumpDistance;
+    private int maxJumpDistance;
+    private int maxJumpHeight;
+    public int initialMinJumpDistance;
+    private int minJumpDistance;
+    private int minJumpHeight;
+    //public float timeToJumpApex;
+
     public float InitialMoveSpeed;
     public float moveSpeed;
+
     public float InitialClimbSpeed;
     public float climbSpeed;
     
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
+
     private bool isClimbable;
     private bool summiting;
-    public bool casting;
+    private bool casting;
 
     private int faceDirection = 1;
-
-    //private bool uninteruptable;
 
     [HideInInspector] public int knockBackForce;
     [HideInInspector] public float climbingUpPosition;
@@ -39,10 +42,11 @@ public class Player : MonoBehaviour
     private PlayerAnimationController animator;
     private Controller2D controller;
 
-    private float gravity;
-    private float maxJumpVelocity;
+    private float gravity = -10f;
+    public float jumpVelocity;
     private float minJumpVelocity;
-    private Vector2 velocity;
+    public Vector2 velocity;
+    private Vector2 input;
     private float velocityXSmoothing;
 
     public Dictionary<int, float> cooldownList;
@@ -52,21 +56,94 @@ public class Player : MonoBehaviour
     {
         controller = GetComponent<Controller2D>();
         animator = GetComponent<PlayerAnimationController>();
-        //cooldownList = new Dictionary<int, float>();
         casting = false;
         initialHeight = transform.position.y;
 
+        //gravity = -(2 * maxJumpDistance) / Mathf.Pow(timeToJumpApex, 2);
+
         ResetCharacterPhysics();
-        controller.characterState = CharacterState.Standing;
+        ResetState();
     }
 
     void Update()
     {
-        UpdateCoolDownList();
+        if (!controller.collisions.below && controller.reactionState == ReactionState.Dying)
+        {
+            velocity.y += gravity;
+            controller.Move(velocity, input);
+        }
     }
 
-    public void RecieveInput (Vector2 input, ButtonPresses buttonPress)
+    private void FixedUpdate()
     {
+        DetermineStateResult();
+        controller.Move(velocity * Time.fixedDeltaTime, input);
+    }
+
+    public void ResetState()
+    {
+        controller.reactionState = ReactionState.None;
+        controller.movementState = MovementState.Standing;
+        controller.actionState = ActionState.None;
+    }
+
+    public void ReceiveMovementInput(Vector2 input)
+    {
+        ProcessMovementInput(input);
+    }
+
+    public void ReceiveButtonInput(ButtonPress buttonPress)
+    {
+        ProcessButtonPress(buttonPress);
+    }
+
+    public void ReceiveReactionInput(ReactionState reactionState)
+    {
+        ProcessReactionInput(reactionState);
+    }
+
+    private void ProcessButtonPress(ButtonPress buttonPress)
+    {
+        //Casting
+        if (buttonPress == ButtonPress.Cast)
+        {
+            if (controller.movementState != MovementState.Climbing && CanCast())
+            {
+                controller.actionState = ActionState.Casting;
+            }
+        }
+
+        //Jumping
+        else if (buttonPress == ButtonPress.Jump)
+        {
+            if (controller.movementState != MovementState.Falling)
+            {
+                controller.actionState = ActionState.Jumping;
+                minJumpHeight = Mathf.RoundToInt(transform.position.y) + minJumpDistance;
+                maxJumpHeight = Mathf.RoundToInt(transform.position.y) + maxJumpDistance;
+            }
+        }
+
+        //Interacting
+        else if (buttonPress == ButtonPress.Interact)
+        {
+            if (isClimbable)
+            {
+                controller.actionState = ActionState.Grabbing_Ladder;
+            }
+        }
+
+        //None
+        else
+        {
+            controller.actionState = ActionState.None;
+        }
+    }
+
+    private void ProcessMovementInput(Vector2 input)
+    {
+        this.input = input;
+
         if (input.x == 1)
         {
             faceDirection = 1;
@@ -76,204 +153,169 @@ public class Player : MonoBehaviour
             faceDirection = -1;
         }
 
-        DetermineState(input, buttonPress);
-        velocity = StateResult(input);
-        controller.Move(velocity, input);
+        if (controller.collisions.below)
+        {
+            if (input.x == 0)
+            {
+                controller.movementState = MovementState.Standing;
+            }
+            else
+            {
+                controller.movementState = MovementState.Running;
+            }
+        }
+        else
+        {
+            if (controller.movementState != MovementState.Climbing)
+            {
+                controller.movementState = MovementState.Falling;
+            }
+            else
+            {
+                controller.movementState = MovementState.Climbing;
+            }
+        }
     }
 
-    private void DetermineState (Vector2 input, ButtonPresses buttonPress)
+    private void ProcessReactionInput(ReactionState reactionState)
     {
+        if (reactionState == ReactionState.Summiting && controller.movementState == MovementState.Climbing)
+        {
+            controller.reactionState = ReactionState.Summiting;
+        }
+        else if (reactionState == ReactionState.Dying)
+        {
+            controller.reactionState = ReactionState.Dying;
+        }
+        else if (reactionState == ReactionState.Flinching)
+        {
+            //Not needed at the moment
+        }
+        else if (reactionState == ReactionState.KnockedBack)
+        {
+            //Not needed at the moment
+        }
+        else
+        {
+            controller.reactionState = ReactionState.None;
+        }
+
+        DetermineStateResult();
+    }
+
+    private void DetermineStateResult()
+    {
+        CancelInvoke("PauseAnimators");
+        UnPauseAnimators();
+
+        #region Reaction States
         //Dying
-        if (GameControl.Instance.player_currentHP <= 0)
-        {
-            controller.characterState = CharacterState.Dying;
-        }
-        //Climbing
-        else if (buttonPress == ButtonPresses.Interact && isClimbable && !casting)
-        {
-            controller.characterState = CharacterState.Climbing;
-            UpdateHeightReached();
-        }
-        //Summiting
-        else if (summiting && controller.characterState == CharacterState.Climbing)
-        {
-            controller.characterState = CharacterState.Summiting;
-        }
-        //Jumping
-        else if (buttonPress == ButtonPresses.Jump && (controller.collisions.below || controller.characterState == CharacterState.Climbing))
-        {
-            controller.characterState = CharacterState.Jumping;
-        }
-        //Falling
-        else if (!controller.collisions.below && (controller.characterState != CharacterState.Climbing || !isClimbable))
-        {
-            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
-            {
-                controller.characterState = CharacterState.AerialCasting;
-            }
-            else
-            {
-                controller.characterState = CharacterState.Falling;
-                UpdateHeightReached();
-            }
-        }
-        //Running
-        else if (controller.collisions.below && input.x != 0)
-        {
-            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
-            {
-                controller.characterState = CharacterState.RunCasting;
-            }
-            else
-            {
-                controller.characterState = CharacterState.Running;
-            }
-        }
-        //Standing
-        else if (input.x == 0 && controller.collisions.below)
-        {
-            if ((buttonPress == ButtonPresses.Cast && CanCast()) || casting)
-            {
-                controller.characterState = CharacterState.StandCasting;
-            }
-            else
-            {
-                controller.characterState = CharacterState.Standing;
-            }
-        }
-    }
-
-    private void DetermineMovementState(Vector2 input)
-    {
-        //Standing
-        if (controller.collisions.below && input.x == 0)
+        if (controller.reactionState == ReactionState.Dying)
         {
             controller.movementState = MovementState.Standing;
+            controller.actionState = ActionState.None;
+            animator.animationState = Utility.AnimationState.Dying;
         }
-        //Running
-        if (controller.collisions.below && input.x != 0)
-        {
-            controller.movementState = MovementState.Running;
-        }
-        //TODO...See about conditions for movement state of climbing
-        //Climbing
-        if (controller.movementState == MovementState.Climbing)
-        {
-            controller.movementState = MovementState.Climbing;
-        }
-        //Falling
-        if (!controller.collisions.below && controller.movementState != MovementState.Climbing)
-        {
-            controller.movementState = MovementState.Falling;
-        }
+
         //Summiting
-        if (summiting && controller.movementState == MovementState.Climbing)
+        else if (controller.reactionState == ReactionState.Summiting)
         {
-            controller.movementState = MovementState.Summiting;
+            controller.movementState = MovementState.Standing;
+            controller.actionState = ActionState.None;
+            animator.animationState = Utility.AnimationState.Dying;
+            climbingUpPosition = transform.position.y + 10;
         }
-    }
 
-    private void DetermineActionState()
-    {
+        //Flinching
 
-    }
-
-    private bool CanCast()
-    {
-        //asks player spell controller if casting is possible by checking what spell conditions are currently equipped/active and cooldown lists
-        return PlayerSpellControl.Instance.CanCast(controller.characterState);
-    }
-
-    private Vector2 StateResult (Vector2 input)
-    {
-        #region Dying
-        if (controller.characterState == CharacterState.Dying)
-        {
-            UnPauseAnimators();
-            GameControl.Instance.inputState = InputStates.None;
-
-            if (controller.collisions.below)
-            {
-                velocity = Vector2.zero;
-            }
-            else
-            {
-                velocity.x = 0;
-                velocity.y += gravity * Time.deltaTime;
-            }
-        }
+        //Knockback
         #endregion
-        #region Standing
-        else if (controller.characterState == CharacterState.Standing)
-        {
-            UnPauseAnimators();
 
-            if (velocity.x > 0)
+        #region Action States
+        //Casting
+        else if (controller.actionState == ActionState.Casting)
+        {
+            PlayerSpellControl.Instance.CastSpell();
+
+            if (controller.movementState == MovementState.Standing)
             {
-                velocity.x -= 0.1f;
+                //ask if we are channeling
+
             }
-            else if (velocity.x < 0)
+            else if (controller.movementState == MovementState.Running)
             {
-                velocity.x += 0.1f;
+                animator.animationState = Utility.AnimationState.RunCasting;
             }
-
-            if (velocity.x > -0.1 && velocity.x < 0.1)
+            else if (controller.movementState == MovementState.Falling)
             {
-                velocity.x = 0;
+                animator.animationState = Utility.AnimationState.AerialCasting;
             }
-
-            velocity.y = 0;
-            velocity.y += gravity * Time.deltaTime;
         }
-        #endregion
-        #region Running
-        else if (controller.characterState == CharacterState.Running)
-        {
-            UnPauseAnimators();
 
-            velocity.y = 0;
-            velocity.y += gravity * Time.deltaTime;
-            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-        }
-        #endregion
-        #region Jumping
-        else if (controller.characterState == CharacterState.Jumping)
+        //Jumping
+        else if (controller.actionState == ActionState.Jumping)
         {
-            UnPauseAnimators();
-            velocity.y = maxJumpVelocity;
-            velocity.y += gravity * Time.deltaTime;
-        }
-        #endregion
-        #region Falling
-        else if (controller.characterState == CharacterState.Falling)
-        {
-            UnPauseAnimators();
+            animator.animationState = Utility.AnimationState.Jumping;
+            //pushing the button will have keep action state as jumping until minimum jump height is reached
+            //holding down the button will allow jump height to build until max is reached
 
-            if (Input.GetButtonUp("Jump"))
+            velocity.y = jumpVelocity;
+            controller.actionState = ActionState.None;
+
+            if (transform.position.y >= maxJumpHeight)
             {
-                if (velocity.y > minJumpVelocity)
-                {
-                    velocity.y = minJumpVelocity;
-                }
+
             }
 
             if (controller.collisions.above)
             {
                 velocity.y = 0;
             }
+        }
 
-            velocity.y += gravity * Time.deltaTime;
-            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+        //Grabbing Ladder
+        else if (controller.actionState == ActionState.Grabbing_Ladder)
+        {
+            animator.animationState = Utility.AnimationState.Climbing;
         }
         #endregion
-        #region Climbing
-        else if (controller.characterState == CharacterState.Climbing)
-        {
-            velocity.y = input.y * climbSpeed;
-            velocity.x = input.x * climbSpeed;
-            PlayAnimation(input.x);
 
-            if (input == Vector2.zero)
+        #region Movement States
+        //Running
+        else if (controller.movementState == MovementState.Running)
+        {
+            velocity.y = 0;
+            velocity.y += gravity;
+            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+            animator.animationState = Utility.AnimationState.Running;
+        }
+
+        //Standing
+        else if (controller.movementState == MovementState.Standing)
+        {
+            velocity.x = Mathf.SmoothDamp(velocity.x, 0, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+            velocity.y = 0;
+            velocity.y += gravity;
+            animator.animationState = Utility.AnimationState.Standing;
+        }
+
+        //Falling
+        else if (controller.movementState == MovementState.Falling)
+        {
+            velocity.y += gravity;
+            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+            UpdateHeightReached();
+            animator.animationState = Utility.AnimationState.Jumping;
+        }
+
+        //Climbing
+        else if (controller.movementState == MovementState.Climbing)
+        {
+            velocity.y *= climbSpeed;
+            velocity.x *= climbSpeed;
+            //PlayAnimation();
+
+            if (velocity == Vector2.zero)
             {
                 Invoke("PauseAnimators", 0.1f);
             }
@@ -282,82 +324,23 @@ public class Player : MonoBehaviour
                 UnPauseAnimators();
             }
 
-            return velocity;
-        }
-        #endregion
-        #region Summiting
-        else if (controller.characterState == CharacterState.Summiting)
-        {
-            climbingUpPosition = transform.position.y + 10;
-            CancelInvoke("PauseAnimators");
-            UnPauseAnimators();
-            velocity = Vector2.zero;
-            GameControl.Instance.inputState = InputStates.None;
-        }
-        #endregion
-        #region Stand Casting
-        else if (controller.characterState == CharacterState.StandCasting)
-        {
-            UnPauseAnimators();
-
-            if (!casting)
-            {
-                casting = true;
-                ExecuteSpellPoperties();
-            }
-
-            if (velocity.x > 0)
-            {
-                velocity.x -= 0.1f;
-            }
-            else if (velocity.x < 0)
-            {
-                velocity.x += 0.1f;
-            }
-
-            if (velocity.x > -0.1 && velocity.x < 0.1)
-            {
-                velocity.x = 0;
-            }
-
-            velocity.y = 0;
-            velocity.y += gravity * Time.deltaTime;
-        }
-        #endregion
-        #region Run Casting
-        else if (controller.characterState == CharacterState.RunCasting)
-        {
-            UnPauseAnimators();
-
-            if (!casting)
-            {
-                casting = true;
-                ExecuteSpellPoperties();
-            }
-
-            velocity.y = 0;
-            velocity.y += gravity * Time.deltaTime;
-            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-        }
-        #endregion
-        #region Aerial Casting
-        else if (controller.characterState == CharacterState.AerialCasting)
-        {
-            UnPauseAnimators();
-
-            if (!casting)
-            {
-                casting = true;
-                ExecuteSpellPoperties();
-            }
-
-            velocity.y += gravity * Time.deltaTime;
-            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+            animator.animationState = Utility.AnimationState.Climbing;
         }
         #endregion
 
-        PlayAnimation(input.x);
-        return velocity;
+        PlayAnimation();
+    }
+
+    private bool CanCast()
+    {
+        //asks player spell controller if casting is possible by checking what spell conditions are currently equipped/active and cooldown lists
+        //return PlayerSpellControl.Instance.CanCast(controller.characterState);
+        return true;
+    }
+
+    private ActionState SpellActionState()
+    {
+        return PlayerSpellControl.Instance.RetrieveActionState();
     }
 
     private void UpdateHeightReached()
@@ -372,24 +355,26 @@ public class Player : MonoBehaviour
 
     public void AdjustCharacterPhysics(float maxJumpModifier, float minJumpModifier, float moveSpeedModifier, float climbSpeedModifier)
     {
-        maxJumpHeight *= maxJumpModifier;
-        minJumpHeight *= minJumpModifier;
+        maxJumpDistance = Mathf.RoundToInt((1 + maxJumpModifier) * maxJumpDistance);
+        minJumpDistance = Mathf.RoundToInt((1 + minJumpModifier) * minJumpDistance);
         moveSpeed *= moveSpeedModifier;
         climbSpeed *= climbSpeedModifier;
-        maxJumpVelocity = (Mathf.Abs(gravity) * (timeToJumpApex)) * ((Mathf.Pow(maxJumpHeight, -0.5221f)) * 0.1694f) * maxJumpHeight;
-        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+
+        jumpVelocity = Mathf.Sqrt(-2 * gravity * maxJumpDistance);
+        //minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpDistance);
     }
 
     private void ResetCharacterPhysics ()
     {
-        maxJumpHeight = initialMaxJumpHeight / 56;
-        minJumpHeight = initialMinJumpHeight / 56;
+        maxJumpDistance = initialMaxJumpDistance;
+        minJumpDistance = initialMinJumpDistance;
         moveSpeed = InitialMoveSpeed;
         climbSpeed = InitialClimbSpeed;
 
-        gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
-        maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+        //maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+        //jumpVelocity = (maxJumpDistance / timeToJumpApex) / 32;
+        jumpVelocity = Mathf.Sqrt(-2 * gravity * maxJumpDistance);
+        //minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpDistance);
     }
 
     private void ExecuteSpellPoperties()
@@ -406,7 +391,7 @@ public class Player : MonoBehaviour
         //Aura
         else if (GameControl.Instance.selectedSpellId == 1)
         {
-            AuraSpell();
+
         }
 
         //Poof
@@ -414,11 +399,6 @@ public class Player : MonoBehaviour
         {
             PoofSpell();
         }
-    }
-
-    private void AuraSpell()
-    {
-        //Instantiate(SpellDatabase.Instance.ReturnSpellProjectile(1),transform.position, Quaternion.identity, SpellDatabase.Instance.transform);
     }
 
     private void PoofSpell()
@@ -520,23 +500,15 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void PlayAnimation (float input)
+    private void PlayAnimation ()
     {
-        string state = controller.characterState.ToString();
-
-        //Falling and Jumping are the same animation.
-        if (state == "Falling")
-        {
-            state = "Jumping";
-        }
-
-        animator.PlayAnimation(state, input);
+        string state = animator.animationState.ToString();
+        animator.PlayAnimation(state, faceDirection);
     }
 
     public void Die()
     {
-        controller.characterState = CharacterState.Dying;
-        PlayAnimation(faceDirection);
+        ReceiveReactionInput(ReactionState.Dying);
         GameControl.Instance.ProcessEndOfTowerCurrency(heightReached);
     }
 
@@ -550,7 +522,8 @@ public class Player : MonoBehaviour
 
         if (collider.gameObject.layer == 14)
         {
-            summiting = true;
+            //Summiting
+            ReceiveReactionInput(ReactionState.Summiting);
         }
 
         //Reaching the Goal

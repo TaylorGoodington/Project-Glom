@@ -5,6 +5,8 @@ public class InputController : MonoBehaviour
 {
     public static InputController Instance;
 
+    private ButtonPress buttonPress = ButtonPress.None;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,32 +22,42 @@ public class InputController : MonoBehaviour
 
     void Update()
     {
-        if (GameControl.Instance.inputState == InputStates.Player_Character)
+        if (GameControl.Instance.inputState == InputState.Player_Character)
         {
-            Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            ButtonPresses buttonPress = ProcessPlayerCharacterButtonInput();
-            ProcessPlayerInput(input, buttonPress);
-
-            if (Input.GetButtonDown("Cycle"))
-            {
-                CycleSelectedSpell();
-            }
-
-            //Testing
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
-                GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Burst;
-                PlayerSpellControl.Instance.CastSpell();
-            }
+            ProcessInputForPlayerCharacter();
         }
-        else if (GameControl.Instance.inputState == InputStates.Menus)
+        else if (GameControl.Instance.inputState == InputState.Menus)
         {
 
         }
-        else if (GameControl.Instance.inputState == InputStates.Dialogue)
+        else if (GameControl.Instance.inputState == InputState.Dialogue)
         {
 
+        }
+    }
+
+    private void ProcessInputForPlayerCharacter()
+    {
+        ProcessPlayerCharacterButtonInput();
+        if (buttonPress != ButtonPress.None)
+        {
+            GameControl.Instance.player.ReceiveButtonInput(buttonPress);
+        }
+
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        GameControl.Instance.player.ReceiveMovementInput(input);
+
+        if (Input.GetButtonDown("Cycle"))
+        {
+            CycleSelectedSpell();
+        }
+
+        //Testing
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
+            GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Burst;
+            PlayerSpellControl.Instance.CastSpell();
         }
     }
 
@@ -65,29 +77,24 @@ public class InputController : MonoBehaviour
         UserInterface.Instance.UpdateSelectedSpell();
     }
 
-    private void ProcessPlayerInput(Vector2 input, ButtonPresses buttonPress)
+    private void ProcessPlayerCharacterButtonInput()
     {
-        GameControl.Instance.player.RecieveInput(input, buttonPress);
-    }
-
-    private ButtonPresses ProcessPlayerCharacterButtonInput()
-    {
-        ButtonPresses buttonPress = ButtonPresses.None;
-
         if (Input.GetButtonDown("Interact"))
         {
-            buttonPress = ButtonPresses.Interact;
+            buttonPress = ButtonPress.Interact;
         }
         else if (Input.GetButtonDown("Jump"))
         {
-            buttonPress = ButtonPresses.Jump;
+            buttonPress = ButtonPress.Jump;
         }
         else if (Input.GetButtonDown("Cast"))
         {
-            buttonPress = ButtonPresses.Cast;
+            buttonPress = ButtonPress.Cast;
         }
-
-        return buttonPress;
+        else
+        {
+            buttonPress = ButtonPress.None;
+        }
     }
 
     public Vector2 CollectPlayerDirectionalInput()

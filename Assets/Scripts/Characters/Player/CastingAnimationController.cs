@@ -32,7 +32,7 @@ public class CastingAnimationController : MonoBehaviour
 
     public void CastComplete ()
     {
-        gameObject.transform.parent.GetComponent<Player>().casting = false;
+        //gameObject.transform.parent.GetComponent<Player>().casting = false;
         castingPhase = 0;
     }
 }

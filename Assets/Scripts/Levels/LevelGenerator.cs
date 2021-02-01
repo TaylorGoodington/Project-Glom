@@ -118,7 +118,7 @@ public class LevelGenerator : ScriptableObject
         List<GameObject> potentialSpawnPoints = new List<GameObject>(); 
         foreach (Transform child in block.transform)
         {
-            if (child.gameObject.layer == (int)GameLayers.ground || child.gameObject.layer == (int)GameLayers.platforms)
+            if (child.gameObject.layer == (int)GameLayer.ground || child.gameObject.layer == (int)GameLayer.platforms)
             {
                 if (child.GetComponent<BoxCollider2D>().size.x >= 48)
                 {

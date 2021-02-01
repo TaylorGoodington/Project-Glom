@@ -29,7 +29,7 @@ public class MusicController : MonoBehaviour
         player = GetComponent<AudioSource>();
 	}
 
-    public void PlayTrack (MusicTracks track)
+    public void PlayTrack (Utility.MusicTrack track)
     {
         AudioClip clip = null;
 
@@ -51,10 +51,10 @@ public class MusicController : MonoBehaviour
 [Serializable]
 public class MusicTrack
 {
-    public MusicTracks track;
+    public Utility.MusicTrack track;
     public AudioClip clip;
 
-    public MusicTrack(MusicTracks track, AudioClip clip)
+    public MusicTrack(Utility.MusicTrack track, AudioClip clip)
     {
         this.track = track;
         this.clip = clip;

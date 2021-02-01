@@ -1,13 +1,15 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static Utility;
 
-public class LevelZero : MonoBehaviour
+public class TestLevel : MonoBehaviour
 {
-    private Vector2 normalPlayerStartPosition = new Vector2(10, 29);
-    private GameState gameState;
-
+    [SerializeField] LevelGenerator LevelGenerator = null;
+    [SerializeField] Transform LevelComponentTransform = null;
     [SerializeField] Player player = null;
+
+    private Vector2 normalPlayerStartPosition = new Vector2(98, 15); private GameState gameState;
 
     private enum GameState
     {
@@ -21,8 +23,11 @@ public class LevelZero : MonoBehaviour
     void Start()
     {
         DetermineGameState();
+        //LevelGenerator.CreateBottomBlock(LevelComponentTransform);
         InitializeLevel();
+        CameraController.Instance.SetCameraTarget();
         SceneTransitions.Instance.TransitionIn();
+        //LevelGenerator.GenerateLevel(LevelComponentTransform);
         CheckAndRunCinematics();
         StartUIAndControl();
     }
@@ -81,11 +86,11 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region Music
-            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_Zero_Normal);
+            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_One_Normal);
             #endregion
 
             #region UI
-            //UserInterface.Instance.UpdateUserInterface();
+            UserInterface.Instance.UpdateUserInterface();
             #endregion
 
         }
@@ -104,11 +109,11 @@ public class LevelZero : MonoBehaviour
             #endregion
 
             #region Music
-            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_Zero_Normal);
+            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_One_Normal);
             #endregion
 
             #region UI
-            //UserInterface.Instance.UpdateUserInterface();
+            UserInterface.Instance.UpdateUserInterface();
             #endregion
         }
         else if (gameState == GameState.Helmet_Info)

@@ -10,11 +10,11 @@ public class CompanyLogo : MonoBehaviour
 
     public void PlaySoundEffect()
     {
-        SoundEffectsController.Instance.PlaySoundEffect(SoundEffects.Company_Logo);
+        SoundEffectsController.Instance.PlaySoundEffect(Utility.SoundEffect.Company_Logo);
     }
 
     public void TransitionOut()
     {
-        LevelManager.Instance.LoadLevel(Levels.Level_Zero);
+        LevelManager.Instance.LoadLevel(Level.Level_Zero);
     }
 }

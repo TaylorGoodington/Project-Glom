@@ -8,8 +8,9 @@ public class PlayerAnimationController : MonoBehaviour
     public Animator castingAnimator;
     public Animator scarAnimator;
     public Animator spellAnimator;
+    public Utility.AnimationState animationState;
 
-    public void PlayAnimation(string animation, float facingDirecion)
+    public void PlayAnimation(string animation, int facingDirecion)
     {
         PlayBodyAnimation(animation, facingDirecion);
 
@@ -25,10 +26,10 @@ public class PlayerAnimationController : MonoBehaviour
         yield return new WaitForSeconds(bodyAnimator.GetCurrentAnimatorStateInfo(0).length);
 
         transform.position = new Vector3(transform.position.x, gameObject.GetComponent<Player>().climbingUpPosition);
-        GameControl.Instance.inputState = InputStates.Player_Character;
+        GameControl.Instance.inputState = InputState.Player_Character;
     }
 
-    private void PlayBodyAnimation(string animation, float direction)
+    private void PlayBodyAnimation(string animation, int direction)
     {
         if (animation == "Climbing" || animation == "Summiting")
         {

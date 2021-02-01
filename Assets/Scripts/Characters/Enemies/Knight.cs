@@ -46,9 +46,9 @@ public class Knight : EnemyBase
     {
         if (playerDetection != null)
         {
-            if (playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Patroling)
+            if (playerDetection.isPlayerDetected && mindSet == EnemyMindset.Patroling)
             {
-                mindSet = EnemyMindsets.Attacking;
+                mindSet = EnemyMindset.Attacking;
             }
         }
     }
@@ -84,7 +84,7 @@ public class Knight : EnemyBase
 
     public void AttackComplete()
     {
-        mindSet = EnemyMindsets.Patroling;
+        mindSet = EnemyMindset.Patroling;
         Destroy(weapon);
     }
 

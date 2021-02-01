@@ -20,7 +20,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void LoadLevel(Levels level)
+    public void LoadLevel(Level level)
     {
         SceneManager.LoadScene(level.ToString());
         SaveDataController.Instance.WriteSaveData();
@@ -40,13 +40,13 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(SceneTransitions.Instance.TransitionOut());
 
-        LoadLevel(Levels.Level_One);
+        LoadLevel(Level.Level_One);
     }
 
     private IEnumerator LeaveTower()
     {
         yield return new WaitForSeconds(SceneTransitions.Instance.TransitionOut());
 
-        LoadLevel(Levels.Level_Zero);
+        LoadLevel(Level.Level_Zero);
     }
 }

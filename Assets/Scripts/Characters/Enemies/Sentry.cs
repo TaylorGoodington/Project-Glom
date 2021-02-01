@@ -14,13 +14,13 @@ public class Sentry : EnemyBase
 
     void Update()
     {
-        if (stats.currentHp <= 0 && mindSet != EnemyMindsets.Dead)
+        if (stats.currentHp <= 0 && mindSet != EnemyMindset.Dead)
         {
             CombatEngine.Instance.EnemyDeath(enemyId);
-            mindSet = EnemyMindsets.Dying;
+            mindSet = EnemyMindset.Dying;
         }
 
-        if (mindSet == EnemyMindsets.Dying)
+        if (mindSet == EnemyMindset.Dying)
         {
             Breaking();
         }
@@ -30,7 +30,7 @@ public class Sentry : EnemyBase
     {
         breakingAnimation = UnityEngine.Random.Range(1, 5);
         enemyAnimationController.Play("Breaking " + breakingAnimation);
-        mindSet = EnemyMindsets.Dead;
+        mindSet = EnemyMindset.Dead;
     }
 
     public void Broken()

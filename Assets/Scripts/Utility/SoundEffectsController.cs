@@ -29,7 +29,7 @@ public class SoundEffectsController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
-    public void PlaySoundEffect(SoundEffects effect)
+    public void PlaySoundEffect(Utility.SoundEffect effect)
     {
         AudioClip clip = null;
 
@@ -50,10 +50,10 @@ public class SoundEffectsController : MonoBehaviour
 [Serializable]
 public class SoundEffect
 {
-    public SoundEffects effect;
+    public Utility.SoundEffect effect;
     public AudioClip clip;
 
-    public SoundEffect(SoundEffects effect, AudioClip clip)
+    public SoundEffect(Utility.SoundEffect effect, AudioClip clip)
     {
         this.effect = effect;
         this.clip = clip;

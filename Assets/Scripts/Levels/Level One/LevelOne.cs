@@ -86,7 +86,7 @@ public class LevelOne : MonoBehaviour
             #endregion
 
             #region Music
-            MusicController.Instance.PlayTrack(MusicTracks.Level_One_Normal);
+            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_One_Normal);
             #endregion
 
             #region UI
@@ -109,7 +109,7 @@ public class LevelOne : MonoBehaviour
             #endregion
 
             #region Music
-            MusicController.Instance.PlayTrack(MusicTracks.Level_One_Normal);
+            MusicController.Instance.PlayTrack(Utility.MusicTrack.Level_One_Normal);
             #endregion
 
             #region UI
@@ -129,6 +129,6 @@ public class LevelOne : MonoBehaviour
     private void StartUIAndControl()
     {
         UserInterface.Instance.UpdateUserInterface();
-        GameControl.Instance.inputState = InputStates.Player_Character;
+        GameControl.Instance.inputState = InputState.Player_Character;
     }
 }

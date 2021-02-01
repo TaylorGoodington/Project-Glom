@@ -35,13 +35,13 @@ public class Helmet : EnemyBase
     {
         if (playerDetection != null)
         {
-            if (playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Patroling)
+            if (playerDetection.isPlayerDetected && mindSet == EnemyMindset.Patroling)
             {
-                mindSet = EnemyMindsets.Attack_Prep;
+                mindSet = EnemyMindset.Attack_Prep;
             }
-            else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindsets.Attacking)
+            else if (!playerDetection.isPlayerDetected && mindSet == EnemyMindset.Attacking)
             {
-                mindSet = EnemyMindsets.Attack_Recovery;
+                mindSet = EnemyMindset.Attack_Recovery;
             }
         }
     }

@@ -4,7 +4,7 @@ using static Utility;
 public class GameControl : MonoBehaviour
 {
     public static GameControl Instance;
-    public InputStates inputState;
+    public InputState inputState;
     public Player player;
     public Camera mainCamera;
     public int selectedSpellId;
@@ -30,7 +30,7 @@ public class GameControl : MonoBehaviour
     void Start ()
     {
         SaveDataController.Instance.InitializeGameData();
-        inputState = InputStates.None;
+        inputState = InputState.None;
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         SetPlayerHealthOnLevelInitialization();
     }
@@ -49,9 +49,9 @@ public class GameControl : MonoBehaviour
     //Triggered by Combat Engine
     public void PlayerHasDied()
     {
-        inputState = InputStates.None;
-        MusicController.Instance.PlayTrack(MusicTracks.Player_Death);
-        SoundEffectsController.Instance.PlaySoundEffect(SoundEffects.Player_Death);
+        inputState = InputState.None;
+        MusicController.Instance.PlayTrack(Utility.MusicTrack.Player_Death);
+        SoundEffectsController.Instance.PlaySoundEffect(Utility.SoundEffect.Player_Death);
         player.Die();
     }
 
