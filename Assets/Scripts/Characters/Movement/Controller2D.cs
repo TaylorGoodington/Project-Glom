@@ -7,8 +7,8 @@ public class Controller2D : RaycastController
 	private float maxClimbAngle = 80;
     private float maxDescendAngle = 80;
     public MovementState movementState;
-    public ActionState actionState;
     public ReactionState reactionState;
+    public CastingState castingState;
 
     [HideInInspector] public bool wallJumpReady = false;
     [HideInInspector] public int enemyFaceDirection;

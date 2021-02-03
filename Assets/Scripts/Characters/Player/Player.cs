@@ -13,19 +13,17 @@ public class Player : MonoBehaviour
     public float heightReached = 0;
     private float initialHeight;
 
-    public int initialMaxJumpDistance;
-    private int maxJumpDistance;
-    private int maxJumpHeight;
-    public int initialMinJumpDistance;
-    private int minJumpDistance;
-    private int minJumpHeight;
-    //public float timeToJumpApex;
+    //velocity is in reference to being able to jump 16 pixels with min and 16 more with max
+    public int initialMinJumpVelocity = 122;
+    public int minJumpVelocity;
+    private float maxJumpHeight;
+    private int jumpPixelDifferential = 18;
 
-    public float InitialMoveSpeed;
-    public float moveSpeed;
+    public float InitialMoveSpeed = 100;
+    [HideInInspector] public float moveSpeed;
 
     public float InitialClimbSpeed;
-    public float climbSpeed;
+    [HideInInspector] public float climbSpeed;
     
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
@@ -43,11 +41,10 @@ public class Player : MonoBehaviour
     private Controller2D controller;
 
     private float gravity = -10f;
-    public float jumpVelocity;
-    private float minJumpVelocity;
+    private float velocityXSmoothing;
+
     public Vector2 velocity;
     private Vector2 input;
-    private float velocityXSmoothing;
 
     public Dictionary<int, float> cooldownList;
     #endregion
@@ -59,19 +56,7 @@ public class Player : MonoBehaviour
         casting = false;
         initialHeight = transform.position.y;
 
-        //gravity = -(2 * maxJumpDistance) / Mathf.Pow(timeToJumpApex, 2);
-
         ResetCharacterPhysics();
-        ResetState();
-    }
-
-    void Update()
-    {
-        if (!controller.collisions.below && controller.reactionState == ReactionState.Dying)
-        {
-            velocity.y += gravity;
-            controller.Move(velocity, input);
-        }
     }
 
     private void FixedUpdate()
@@ -80,67 +65,21 @@ public class Player : MonoBehaviour
         controller.Move(velocity * Time.fixedDeltaTime, input);
     }
 
-    public void ResetState()
+    public void AdjustCharacterPhysics(float minJumpModifier, float moveSpeedModifier, float climbSpeedModifier)
     {
-        controller.reactionState = ReactionState.None;
-        controller.movementState = MovementState.Standing;
-        controller.actionState = ActionState.None;
+        minJumpVelocity = Mathf.RoundToInt(minJumpVelocity * minJumpModifier);
+        moveSpeed *= moveSpeedModifier;
+        climbSpeed *= climbSpeedModifier;
     }
 
-    public void ReceiveMovementInput(Vector2 input)
+    private void ResetCharacterPhysics()
     {
-        ProcessMovementInput(input);
+        minJumpVelocity = initialMinJumpVelocity;
+        moveSpeed = InitialMoveSpeed;
+        climbSpeed = InitialClimbSpeed;
     }
 
-    public void ReceiveButtonInput(ButtonPress buttonPress)
-    {
-        ProcessButtonPress(buttonPress);
-    }
-
-    public void ReceiveReactionInput(ReactionState reactionState)
-    {
-        ProcessReactionInput(reactionState);
-    }
-
-    private void ProcessButtonPress(ButtonPress buttonPress)
-    {
-        //Casting
-        if (buttonPress == ButtonPress.Cast)
-        {
-            if (controller.movementState != MovementState.Climbing && CanCast())
-            {
-                controller.actionState = ActionState.Casting;
-            }
-        }
-
-        //Jumping
-        else if (buttonPress == ButtonPress.Jump)
-        {
-            if (controller.movementState != MovementState.Falling)
-            {
-                controller.actionState = ActionState.Jumping;
-                minJumpHeight = Mathf.RoundToInt(transform.position.y) + minJumpDistance;
-                maxJumpHeight = Mathf.RoundToInt(transform.position.y) + maxJumpDistance;
-            }
-        }
-
-        //Interacting
-        else if (buttonPress == ButtonPress.Interact)
-        {
-            if (isClimbable)
-            {
-                controller.actionState = ActionState.Grabbing_Ladder;
-            }
-        }
-
-        //None
-        else
-        {
-            controller.actionState = ActionState.None;
-        }
-    }
-
-    private void ProcessMovementInput(Vector2 input)
+    public void ReceiveAndProcessMovementInput(Vector2 input)
     {
         this.input = input;
 
@@ -155,32 +94,72 @@ public class Player : MonoBehaviour
 
         if (controller.collisions.below)
         {
-            if (input.x == 0)
+            if (velocity.y > 1)
             {
-                controller.movementState = MovementState.Standing;
+                controller.movementState = MovementState.Jumping;
             }
             else
             {
-                controller.movementState = MovementState.Running;
+                if (input.x == 0)
+                {
+                    controller.movementState = MovementState.Standing;
+                }
+                else
+                {
+                    controller.movementState = MovementState.Running;
+                }
             }
         }
         else
         {
-            if (controller.movementState != MovementState.Climbing)
+            if (velocity.y < 0 && controller.movementState != MovementState.Climbing)
             {
                 controller.movementState = MovementState.Falling;
             }
-            else
+        }
+    }
+
+    public void ReceiveAndProcessButtonInput(ButtonPress buttonPress)
+    {
+        //Casting
+        if (buttonPress == ButtonPress.Cast)
+        {
+            if (CanCast())
+            {
+                PlayerSpellControl.Instance.CastSpell();
+                controller.castingState = RetrieveCastingState();
+            }
+        }
+
+        //Jumping
+        else if (buttonPress == ButtonPress.Jump_Start)
+        {
+            if (controller.movementState != MovementState.Falling)
+            {
+                velocity.y = minJumpVelocity;
+                maxJumpHeight = transform.position.y + jumpPixelDifferential;
+            }
+        }
+        else if (buttonPress == ButtonPress.Jump_End && controller.movementState == MovementState.Jumping)
+        {
+            controller.movementState = MovementState.Falling;
+        }
+
+        //Interacting
+        else if (buttonPress == ButtonPress.Interact)
+        {
+            if (isClimbable && controller.movementState != MovementState.Climbing)
             {
                 controller.movementState = MovementState.Climbing;
             }
         }
     }
 
-    private void ProcessReactionInput(ReactionState reactionState)
+    public void ReceiveAndProcessReactionInput(ReactionState reactionState)
     {
         if (reactionState == ReactionState.Summiting && controller.movementState == MovementState.Climbing)
         {
+            climbingUpPosition = transform.position.y + 10;
             controller.reactionState = ReactionState.Summiting;
         }
         else if (reactionState == ReactionState.Dying)
@@ -195,12 +174,6 @@ public class Player : MonoBehaviour
         {
             //Not needed at the moment
         }
-        else
-        {
-            controller.reactionState = ReactionState.None;
-        }
-
-        DetermineStateResult();
     }
 
     private void DetermineStateResult()
@@ -208,95 +181,51 @@ public class Player : MonoBehaviour
         CancelInvoke("PauseAnimators");
         UnPauseAnimators();
 
-        #region Reaction States
-        //Dying
-        if (controller.reactionState == ReactionState.Dying)
+        if (controller.reactionState != ReactionState.None)
         {
-            controller.movementState = MovementState.Standing;
-            controller.actionState = ActionState.None;
-            animator.animationState = Utility.AnimationState.Dying;
+            velocity = Vector2.zero;
         }
 
-        //Summiting
-        else if (controller.reactionState == ReactionState.Summiting)
+        if (controller.castingState == CastingState.Channel)
         {
-            controller.movementState = MovementState.Standing;
-            controller.actionState = ActionState.None;
-            animator.animationState = Utility.AnimationState.Dying;
-            climbingUpPosition = transform.position.y + 10;
+            velocity = Vector2.zero;
         }
 
-        //Flinching
-
-        //Knockback
-        #endregion
-
-        #region Action States
-        //Casting
-        else if (controller.actionState == ActionState.Casting)
-        {
-            PlayerSpellControl.Instance.CastSpell();
-
-            if (controller.movementState == MovementState.Standing)
-            {
-                //ask if we are channeling
-
-            }
-            else if (controller.movementState == MovementState.Running)
-            {
-                animator.animationState = Utility.AnimationState.RunCasting;
-            }
-            else if (controller.movementState == MovementState.Falling)
-            {
-                animator.animationState = Utility.AnimationState.AerialCasting;
-            }
-        }
-
-        //Jumping
-        else if (controller.actionState == ActionState.Jumping)
-        {
-            animator.animationState = Utility.AnimationState.Jumping;
-            //pushing the button will have keep action state as jumping until minimum jump height is reached
-            //holding down the button will allow jump height to build until max is reached
-
-            velocity.y = jumpVelocity;
-            controller.actionState = ActionState.None;
-
-            if (transform.position.y >= maxJumpHeight)
-            {
-
-            }
-
-            if (controller.collisions.above)
-            {
-                velocity.y = 0;
-            }
-        }
-
-        //Grabbing Ladder
-        else if (controller.actionState == ActionState.Grabbing_Ladder)
-        {
-            animator.animationState = Utility.AnimationState.Climbing;
-        }
-        #endregion
-
-        #region Movement States
         //Running
-        else if (controller.movementState == MovementState.Running)
+        if (controller.movementState == MovementState.Running)
         {
             velocity.y = 0;
             velocity.y += gravity;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-            animator.animationState = Utility.AnimationState.Running;
+            //animator.animationState = Utility.AnimationState.Running;
         }
 
         //Standing
         else if (controller.movementState == MovementState.Standing)
         {
             velocity.x = Mathf.SmoothDamp(velocity.x, 0, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-            velocity.y = 0;
+            velocity.y = gravity;
+            //animator.animationState = Utility.AnimationState.Standing;
+        }
+
+        //Jumping
+        else if (controller.movementState == MovementState.Jumping)
+        {
+            //once the player has gone up the difference in pixels stop countering gravity.
+            if (transform.position.y < maxJumpHeight)
+            {
+                velocity.y -= gravity;
+            }
+
+            if (controller.collisions.above)
+            {
+                velocity.y = 0;
+            }
+
             velocity.y += gravity;
-            animator.animationState = Utility.AnimationState.Standing;
+            velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+            UpdateHeightReached();
+            //animator.animationState = Utility.AnimationState.Jumping;
         }
 
         //Falling
@@ -304,8 +233,7 @@ public class Player : MonoBehaviour
         {
             velocity.y += gravity;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-            UpdateHeightReached();
-            animator.animationState = Utility.AnimationState.Jumping;
+            //animator.animationState = Utility.AnimationState.Jumping;
         }
 
         //Climbing
@@ -324,23 +252,45 @@ public class Player : MonoBehaviour
                 UnPauseAnimators();
             }
 
-            animator.animationState = Utility.AnimationState.Climbing;
+            //animator.animationState = Utility.AnimationState.Climbing;
         }
-        #endregion
 
         PlayAnimation();
+    }
+    private void PlayAnimation()
+    {
+        string state;
+
+        //Reaction States
+        if (controller.reactionState != ReactionState.None)
+        {
+            state = controller.reactionState.ToString();
+        }
+
+        else if (controller.castingState == CastingState.Channel)
+        {
+            state = Utility.AnimationState.Channeling.ToString();
+        }
+        else
+        {
+            state = controller.movementState.ToString();
+        }
+
+        animator.PlayAnimation(state, faceDirection);
     }
 
     private bool CanCast()
     {
+        //check if we can cast based on the current reaction states, action states, and movement states
+
         //asks player spell controller if casting is possible by checking what spell conditions are currently equipped/active and cooldown lists
-        //return PlayerSpellControl.Instance.CanCast(controller.characterState);
-        return true;
+
+        return PlayerSpellControl.Instance.CanCast();
     }
 
-    private ActionState SpellActionState()
+    private CastingState RetrieveCastingState()
     {
-        return PlayerSpellControl.Instance.RetrieveActionState();
+        return PlayerSpellControl.Instance.RetrieveCastingState();
     }
 
     private void UpdateHeightReached()
@@ -351,30 +301,6 @@ public class Player : MonoBehaviour
         {
             heightReached = currentHeight;
         }
-    }
-
-    public void AdjustCharacterPhysics(float maxJumpModifier, float minJumpModifier, float moveSpeedModifier, float climbSpeedModifier)
-    {
-        maxJumpDistance = Mathf.RoundToInt((1 + maxJumpModifier) * maxJumpDistance);
-        minJumpDistance = Mathf.RoundToInt((1 + minJumpModifier) * minJumpDistance);
-        moveSpeed *= moveSpeedModifier;
-        climbSpeed *= climbSpeedModifier;
-
-        jumpVelocity = Mathf.Sqrt(-2 * gravity * maxJumpDistance);
-        //minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpDistance);
-    }
-
-    private void ResetCharacterPhysics ()
-    {
-        maxJumpDistance = initialMaxJumpDistance;
-        minJumpDistance = initialMinJumpDistance;
-        moveSpeed = InitialMoveSpeed;
-        climbSpeed = InitialClimbSpeed;
-
-        //maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-        //jumpVelocity = (maxJumpDistance / timeToJumpApex) / 32;
-        jumpVelocity = Mathf.Sqrt(-2 * gravity * maxJumpDistance);
-        //minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpDistance);
     }
 
     private void ExecuteSpellPoperties()
@@ -499,20 +425,13 @@ public class Player : MonoBehaviour
             transform.position = poofDestination;
         }
     }
-
-    private void PlayAnimation ()
-    {
-        string state = animator.animationState.ToString();
-        animator.PlayAnimation(state, faceDirection);
-    }
-
+    
     public void Die()
     {
-        ReceiveReactionInput(ReactionState.Dying);
+        ReceiveAndProcessReactionInput(ReactionState.Dying);
         GameControl.Instance.ProcessEndOfTowerCurrency(heightReached);
     }
 
-    //Triggers dictate climbing, interactables, level triggers, and other things.
     public void OnTriggerEnter2D(Collider2D collider)
     {
         if (collider.gameObject.layer == 13)
@@ -523,38 +442,16 @@ public class Player : MonoBehaviour
         if (collider.gameObject.layer == 14)
         {
             //Summiting
-            ReceiveReactionInput(ReactionState.Summiting);
+            ReceiveAndProcessReactionInput(ReactionState.Summiting);
         }
-
-        //Reaching the Goal
-        //if (collider.gameObject.layer == 18)
-        //{
-        //    GameControl.gameControl.endOfLevel = true;
-        //    velocity.x = 1 * moveSpeed;
-        //    UserInterface uI = GameObject.FindGameObjectWithTag("UserInterface").GetComponent<UserInterface>();
-        //    uI.EndOfLevel();
-        //}
 
         //Falling off the world
         if (collider.gameObject.layer == 19)
         {
             GameControl.Instance.player_currentHP = 0;
         }
-
-        //Interactable Objects
-        if (collider.gameObject.layer == 21)
-        {
-            //GameObject.FindGameObjectWithTag("UserInterface").GetComponent<UserInterface>().showInteractableDisplay = true;
-        }
-
-        if (collider.tag == "EnemyWeaponCollider")
-        {
-            //GameObject enemy = collider.transform.parent.gameObject;
-            //CombatEngine.combatEngine.AttackingPlayer(enemy.GetComponent<Collider2D>(), enemy.GetComponent<EnemyStats>().maximumDamage);
-        }
     }
 
-    //this will be used to gauge interactions...I might need to do these things in the climbable script.
     public void OnTriggerExit2D(Collider2D collider)
     {
         if (collider.gameObject.layer == 13)

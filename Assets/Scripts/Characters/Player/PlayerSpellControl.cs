@@ -35,12 +35,11 @@ public class PlayerSpellControl : MonoBehaviour
     }
 
     //called from the player depending on input and state
-    //public bool CanCast(CharacterState playerSate)
-    //{
-    //    return true;
-
-    //    //check cooldown list and other params 
-    //}
+    public bool CanCast()
+    {
+        //check cooldown list and other params 
+        return true;
+    }
 
     public GameObject ReturnSpellProjectile (int spellId)
     {
@@ -86,9 +85,25 @@ public class PlayerSpellControl : MonoBehaviour
         }
     }
 
-    internal ActionState RetrieveActionState()
+    public CastingState RetrieveCastingState()
     {
-        throw new NotImplementedException();
+        if (GameControl.Instance.currentOffensiveSpell == OffensiveSpell.Blast)
+        {
+            if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.None)
+            {
+                return CastingState.Instant;
+            }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Burst)
+            {
+                return CastingState.Instant;
+            }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Charge)
+            {
+                return CastingState.Channel;
+            }
+        }
+
+        return CastingState.Instant;
     }
 }
 

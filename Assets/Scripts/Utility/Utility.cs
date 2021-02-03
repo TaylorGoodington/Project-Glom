@@ -40,6 +40,8 @@
         None,
         Interact,
         Jump,
+        Jump_Start,
+        Jump_End,
         Cast,
         Select,
         Advance
@@ -84,18 +86,20 @@
     {
         Standing,
         Running,
+        Jumping,
         Falling,
         Climbing
     }
 
-    public enum ActionState
-    {
-        None,
-        Attacking,
-        Jumping,
-        Casting,
-        Grabbing_Ladder
-    }
+    //public enum ActionState
+    //{
+    //    None,
+    //    Attacking,
+    //    Jumping_Start,
+    //    Jumping_End,
+    //    Casting,
+    //    Grabbing_Ladder
+    //}
 
     public enum ReactionState
     {
@@ -106,10 +110,18 @@
         Dying
     }
 
+    public enum CastingState
+    {
+        None,
+        Instant,
+        Channel,
+    }
+
     public enum AnimationState
     {
         Standing,
         StandCasting,
+        Channeling,
         Running,
         RunCasting,
         Jumping,

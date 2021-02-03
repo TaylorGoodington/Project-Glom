@@ -41,11 +41,11 @@ public class InputController : MonoBehaviour
         ProcessPlayerCharacterButtonInput();
         if (buttonPress != ButtonPress.None)
         {
-            GameControl.Instance.player.ReceiveButtonInput(buttonPress);
+            GameControl.Instance.player.ReceiveAndProcessButtonInput(buttonPress);
         }
 
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        GameControl.Instance.player.ReceiveMovementInput(input);
+        GameControl.Instance.player.ReceiveAndProcessMovementInput(input);
 
         if (Input.GetButtonDown("Cycle"))
         {
@@ -85,7 +85,11 @@ public class InputController : MonoBehaviour
         }
         else if (Input.GetButtonDown("Jump"))
         {
-            buttonPress = ButtonPress.Jump;
+            buttonPress = ButtonPress.Jump_Start;
+        }
+        else if (Input.GetButtonUp("Jump"))
+        {
+            buttonPress = ButtonPress.Jump_End;
         }
         else if (Input.GetButtonDown("Cast"))
         {
