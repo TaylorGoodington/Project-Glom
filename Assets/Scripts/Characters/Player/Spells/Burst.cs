@@ -8,10 +8,10 @@ public class Burst : MonoBehaviour
     //spell behavior based on those upgrades
     //projectiles or effects that are needed
 
-    float projectileBaseSpeed = 1f;
-    int projectileDamage = 3;
+    float projectileBaseSpeed = 150f;
+    float projectileSpeed = 150f;
     int projectileBaseDamage = 5;
-    float projectileSpeed = 1f;
+    int projectileDamage = 3;
     float cooldown = 0f;
     int concurrenceCounter = 0;
     int concurrenceTarget = 0;
@@ -31,20 +31,20 @@ public class Burst : MonoBehaviour
         UpdateProperties();
         castKey++;
         StartCoroutine(Instantiate());
-        //Tell player animator to "cast"
-
     }
 
     IEnumerator Instantiate ()
     {
         GameObject blast = Instantiate(projectile, GameControl.Instance.player.transform.position, Quaternion.identity);
-        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey);
+        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey, GameControl.Instance.player.FaceDirection());
         yield return new WaitForSeconds(timeBetweenProjectiles);
         blast = Instantiate(projectile, GameControl.Instance.player.transform.position, Quaternion.identity);
-        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey);
+        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey, GameControl.Instance.player.FaceDirection());
         yield return new WaitForSeconds(timeBetweenProjectiles);
         blast = Instantiate(projectile, GameControl.Instance.player.transform.position, Quaternion.identity);
-        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey);
+        blast.GetComponent<ProjectileMovement>().Initialize(projectileSpeed, projectileDamage, castKey, GameControl.Instance.player.FaceDirection());
+        yield return new WaitForSeconds(timeBetweenProjectiles);
+        PlayerSpellControl.Instance.CastComplete();
     }
 
     private void UpdateProperties()

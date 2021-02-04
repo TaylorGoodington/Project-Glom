@@ -8,7 +8,7 @@ public class GameControl : MonoBehaviour
     public Player player;
     public Camera mainCamera;
     public int selectedSpellId;
-    public int player_currentHP;
+    public int player_CurrentHP;
 
     public OffensiveSpell currentOffensiveSpell;
     public OffensiveSpellVariant currentOffensiveSpellVariant;
@@ -49,6 +49,7 @@ public class GameControl : MonoBehaviour
     //Triggered by Combat Engine
     public void PlayerHasDied()
     {
+        player_CurrentHP = 0;
         inputState = InputState.None;
         MusicController.Instance.PlayTrack(Utility.MusicTrack.Player_Death);
         SoundEffectsController.Instance.PlaySoundEffect(Utility.SoundEffect.Player_Death);
@@ -69,7 +70,7 @@ public class GameControl : MonoBehaviour
 
     private void SetPlayerHealthOnLevelInitialization()
     {
-        player_currentHP = SaveDataController.Instance.player_MaxHP;
+        player_CurrentHP = SaveDataController.Instance.player_MaxHP;
     }
     #endregion
 

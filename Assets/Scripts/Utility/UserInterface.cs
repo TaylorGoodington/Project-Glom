@@ -44,7 +44,7 @@ public class UserInterface : MonoBehaviour
 
     public void UpdateHealth ()
     {
-        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameControl.Instance.player_currentHP;
+        healthBar.GetComponent<Slider>().value = healthBar.GetComponent<Slider>().maxValue - GameControl.Instance.player_CurrentHP;
     }
 
     public void UpdateSelectedSpell ()

@@ -5,8 +5,8 @@ using static Utility;
 
 public class TestLevel : MonoBehaviour
 {
-    [SerializeField] LevelGenerator LevelGenerator = null;
-    [SerializeField] Transform LevelComponentTransform = null;
+    //[SerializeField] LevelGenerator LevelGenerator = null;
+    //[SerializeField] Transform LevelComponentTransform = null;
     [SerializeField] Player player = null;
 
     private Vector2 normalPlayerStartPosition = new Vector2(98, 15); private GameState gameState;

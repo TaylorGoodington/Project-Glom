@@ -7,10 +7,10 @@ public class PlayerAnimationController : MonoBehaviour
     public Animator bodyAnimator;
     public Animator castingAnimator;
     public Animator scarAnimator;
-    public Animator spellAnimator;
+    public Animator backgroundEffectsAnimator;
     public Utility.AnimationState animationState;
 
-    public void PlayAnimation(string animation, int facingDirecion)
+    public void PlayAnimation(string animation, int facingDirecion, Utility.CastingState castingState)
     {
         PlayBodyAnimation(animation, facingDirecion);
 
@@ -18,9 +18,14 @@ public class PlayerAnimationController : MonoBehaviour
         {
             StartCoroutine(Summit());
         }
+
+        if (castingState != CastingState.None)
+        {
+            PlayCastingAnimation();
+        }
     }
 
-    private IEnumerator Summit ()
+    private IEnumerator Summit()
     {
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(bodyAnimator.GetCurrentAnimatorStateInfo(0).length);
@@ -44,26 +49,26 @@ public class PlayerAnimationController : MonoBehaviour
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = true;
                 castingAnimator.GetComponent<SpriteRenderer>().flipX = true;
                 scarAnimator.GetComponent<SpriteRenderer>().flipX = true;
-                spellAnimator.GetComponent<SpriteRenderer>().flipX = true;
+                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = true;
             }
             else if (direction == 1)
             {
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = false;
                 castingAnimator.GetComponent<SpriteRenderer>().flipX = false;
                 scarAnimator.GetComponent<SpriteRenderer>().flipX = false;
-                spellAnimator.GetComponent<SpriteRenderer>().flipX = false;
+                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = false;
             }
         }
 
         if (animation == "AerialCasting")
         {
             castingAnimator.transform.localPosition = new Vector2(0, 2);
-            spellAnimator.transform.localPosition = new Vector2(0, 2);
+            backgroundEffectsAnimator.transform.localPosition = new Vector2(0, 2);
         }
         else
         {
             castingAnimator.transform.localPosition = new Vector2(0, 0);
-            spellAnimator.transform.localPosition = new Vector2(0, 0);
+            backgroundEffectsAnimator.transform.localPosition = new Vector2(0, 0);
         }
 
         bodyAnimator.Play(animation);
@@ -71,41 +76,9 @@ public class PlayerAnimationController : MonoBehaviour
         ChangeScarColor();
     }
 
-    public void PlaySpellAnimation (int spellId)
+    public void PlayCastingAnimation()
     {
         castingAnimator.Play("Casting");
-        spellAnimator.Play(PlayerSpellControl.Instance.spells[spellId].name);
-        if (PlayerSpellControl.Instance.spells[spellId].hasProjectile)
-        {
-            StartCoroutine(InstantiateSpell(spellId));
-        }
-    }
-
-    private IEnumerator InstantiateSpell (int spellId)
-    {
-        GameObject prefab = PlayerSpellControl.Instance.ReturnSpellProjectile(spellId);
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForSeconds(spellAnimator.GetCurrentAnimatorStateInfo(0).length);
-        Vector3 position = transform.localPosition;
-        position.z = -1;
-
-        if (castingAnimator.transform.localPosition.y == 2)
-        {
-            position.y += 2;
-        }
-
-        GameObject spell = Instantiate(prefab, position, Quaternion.identity);
-        spell.GetComponent<ProjectileMovement>().spellId = spellId;
-
-        if (bodyAnimator.GetComponent<SpriteRenderer>().flipX == true)
-        {
-            spell.GetComponent<SpriteRenderer>().flipX = true;
-            spell.GetComponent<BoxCollider2D>().offset = new Vector2(spell.GetComponent<BoxCollider2D>().offset.x * -1, spell.GetComponent<BoxCollider2D>().offset.y);
-        }
-        else if (bodyAnimator.GetComponent<SpriteRenderer>().flipX == false)
-        {
-            spell.GetComponent<SpriteRenderer>().flipX = false;
-        }
     }
 
     private void ChangeScarColor ()

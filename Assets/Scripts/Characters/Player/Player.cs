@@ -7,32 +7,30 @@ using static Utility;
 public class Player : MonoBehaviour
 {
     #region Variables
-    [Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
-    public LayerMask attackingLayer;
+    //[Tooltip("This field is used to specify which layers block the attacking and abilities raycasts.")]
+    //public LayerMask attackingLayer;
 
     public float heightReached = 0;
     private float initialHeight;
 
     //velocity is in reference to being able to jump 16 pixels with min and 16 more with max
-    public int initialMinJumpVelocity = 122;
-    public int minJumpVelocity;
+    [SerializeField] private int initialMinJumpVelocity = 122;
+    private int minJumpVelocity;
     private float maxJumpHeight;
     private int jumpPixelDifferential = 18;
 
-    public float InitialMoveSpeed = 100;
+    [SerializeField] private float InitialMoveSpeed = 100;
     [HideInInspector] public float moveSpeed;
 
-    public float InitialClimbSpeed;
+    [SerializeField] private float InitialClimbSpeed = 100;
     [HideInInspector] public float climbSpeed;
-    
+
     private float accelerationTimeAirborne = .1f;
     private float accelerationTimeGrounded = .1f;
 
     private bool isClimbable;
     private bool summiting;
     private bool casting;
-
-    private int faceDirection = 1;
 
     [HideInInspector] public int knockBackForce;
     [HideInInspector] public float climbingUpPosition;
@@ -43,10 +41,10 @@ public class Player : MonoBehaviour
     private float gravity = -10f;
     private float velocityXSmoothing;
 
-    public Vector2 velocity;
+    private Vector2 velocity;
     private Vector2 input;
 
-    public Dictionary<int, float> cooldownList;
+    private int faceDirection = 1;
     #endregion
 
     void Start()
@@ -83,13 +81,9 @@ public class Player : MonoBehaviour
     {
         this.input = input;
 
-        if (input.x == 1)
+        if (input.x != 0)
         {
-            faceDirection = 1;
-        }
-        else if (input.x == -1)
-        {
-            faceDirection = -1;
+            faceDirection = (int)input.x;
         }
 
         if (controller.collisions.below)
@@ -257,6 +251,7 @@ public class Player : MonoBehaviour
 
         PlayAnimation();
     }
+
     private void PlayAnimation()
     {
         string state;
@@ -267,25 +262,65 @@ public class Player : MonoBehaviour
             state = controller.reactionState.ToString();
         }
 
+        //Casting States
         else if (controller.castingState == CastingState.Channel)
         {
             state = Utility.AnimationState.Channeling.ToString();
         }
-        else
+        else if (controller.castingState == CastingState.Instant)
         {
-            state = controller.movementState.ToString();
+            if (controller.movementState == MovementState.Standing)
+            {
+                state = Utility.AnimationState.StandCasting.ToString();
+            }
+            else if (controller.movementState == MovementState.Running)
+            {
+                state = Utility.AnimationState.RunCasting.ToString();
+            }
+            else
+            {
+                state = Utility.AnimationState.AerialCasting.ToString();
+            }
         }
 
-        animator.PlayAnimation(state, faceDirection);
+        //Movement States
+        else
+        {
+            if (controller.movementState == MovementState.Falling)
+            {
+                state = MovementState.Jumping.ToString();
+            }
+            else
+            {
+                state = controller.movementState.ToString();
+            }
+        }
+
+        animator.PlayAnimation(state, (int)input.x, controller.castingState);
     }
 
     private bool CanCast()
     {
         //check if we can cast based on the current reaction states, action states, and movement states
+        if (controller.movementState == MovementState.Climbing)
+        {
+            return false;
+        }
 
-        //asks player spell controller if casting is possible by checking what spell conditions are currently equipped/active and cooldown lists
+        if (controller.castingState == CastingState.None)
+        {
+            //condition for if states align with channeling
+            //if (true)
+            //{
 
-        return PlayerSpellControl.Instance.CanCast();
+            //}
+            //else
+            //{
+                return PlayerSpellControl.Instance.CanCast();
+            //}
+        }
+
+        return false;
     }
 
     private CastingState RetrieveCastingState()
@@ -302,130 +337,17 @@ public class Player : MonoBehaviour
             heightReached = currentHeight;
         }
     }
-
-    private void ExecuteSpellPoperties()
-    {
-        cooldownList.Add(GameControl.Instance.selectedSpellId, PlayerSpellControl.Instance.spells[GameControl.Instance.selectedSpellId].cooldown);
-        animator.PlaySpellAnimation(GameControl.Instance.selectedSpellId);
-
-        //Blast
-        if (GameControl.Instance.selectedSpellId == 0)
-        {
-            //move projectile instantiation from player animation controller.
-        }
-
-        //Aura
-        else if (GameControl.Instance.selectedSpellId == 1)
-        {
-
-        }
-
-        //Poof
-        else if (GameControl.Instance.selectedSpellId == 2)
-        {
-            PoofSpell();
-        }
-    }
-
-    private void PoofSpell()
-    {
-        Vector2 input = InputController.Instance.CollectPlayerDirectionalInput();
-        float closestDistance = 161;
-        float rayLength = 160;
-        Vector2 bottomLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.min.y + .5f);
-        Vector2 bottomRight = new Vector2(GetComponent<Collider2D>().bounds.max.x, GetComponent<Collider2D>().bounds.min.y + .5f);
-        Vector2 topLeft = new Vector2(GetComponent<Collider2D>().bounds.min.x, GetComponent<Collider2D>().bounds.max.y - .5f);
-        float horizontalRaySpacing = (GetComponent<Collider2D>().bounds.size.y - 1) / 3;
-        float verticalRaySpacing = (GetComponent<Collider2D>().bounds.size.x - 1) / 3;
-
-        if (input.y != 0)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 rayOrigin = (input.y == -1) ? bottomLeft : topLeft;
-                rayOrigin += Vector2.right * (verticalRaySpacing * i + input.x);
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * input.y, rayLength, 1 << 9);
-
-                if (hit)
-                {
-                    if (hit.distance < closestDistance)
-                    {
-                        closestDistance = hit.distance;
-                    }
-                }
-            }
-
-            float newPositionY;
-
-            if (input.y == 1)
-            {
-                newPositionY = transform.position.y + closestDistance;
-            }
-            else
-            {
-                newPositionY = transform.position.y - closestDistance;
-            }
-
-            Vector2 poofDestination = new Vector2(transform.position.x, newPositionY);
-            transform.position = poofDestination;
-            UpdateHeightReached();
-        }
-        else 
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 rayOrigin = (faceDirection == -1) ? bottomLeft : bottomRight;
-                rayOrigin += Vector2.up * (horizontalRaySpacing * i);
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * faceDirection, rayLength, controller.collisionMask);
-
-                if (hit)
-                {
-                    // this section is for moving through the side of platforms that can be fallen through.
-                     if (hit.collider.tag == "Through")
-                        {
-                            if (input.y != 0)
-                            {
-                                continue;
-                            }
-                        }
-
-                    //this section is for moving through the side of platforms that can't be fallen through.
-                    if (hit.collider.tag == "3Sides")
-                    {
-                        if (input.y != 0)
-                        {
-                            continue;
-                        }
-                    }
-
-                    if (hit.distance == 0)
-                    {
-                        continue;
-                    }
-
-                    if (hit.distance < closestDistance)
-                    {
-                        closestDistance = hit.distance;
-                    }
-                }
-            }
-
-            float newPositionX;
-
-            if (faceDirection == 1)
-            {
-                newPositionX = transform.position.x + closestDistance;
-            }
-            else
-            {
-                newPositionX = transform.position.x - closestDistance;
-            }
-
-            Vector2 poofDestination = new Vector2(newPositionX, transform.position.y);
-            transform.position = poofDestination;
-        }
-    }
     
+    public int FaceDirection()
+    {
+        return faceDirection;
+    }
+
+    public void CastComplete()
+    {
+        controller.castingState = CastingState.None;
+    }
+
     public void Die()
     {
         ReceiveAndProcessReactionInput(ReactionState.Dying);
@@ -448,7 +370,7 @@ public class Player : MonoBehaviour
         //Falling off the world
         if (collider.gameObject.layer == 19)
         {
-            GameControl.Instance.player_currentHP = 0;
+            GameControl.Instance.PlayerHasDied();
         }
     }
 
@@ -469,7 +391,7 @@ public class Player : MonoBehaviour
     public void PauseAnimators()
     {
         animator.enabled = false;
-        animator.spellAnimator.gameObject.GetComponent<Animator>().enabled = false;
+        animator.backgroundEffectsAnimator.gameObject.GetComponent<Animator>().enabled = false;
         animator.bodyAnimator.gameObject.GetComponent<Animator>().enabled = false;
         animator.scarAnimator.gameObject.GetComponent<Animator>().enabled = false;
         animator.castingAnimator.gameObject.GetComponent<Animator>().enabled = false;
@@ -478,26 +400,9 @@ public class Player : MonoBehaviour
     public void UnPauseAnimators()
     {
         animator.enabled = true;
-        animator.spellAnimator.gameObject.GetComponent<Animator>().enabled = true;
+        animator.backgroundEffectsAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.bodyAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.scarAnimator.gameObject.GetComponent<Animator>().enabled = true;
         animator.castingAnimator.gameObject.GetComponent<Animator>().enabled = true;
-    }
-
-    public void UpdateCoolDownList()
-    {
-        for (int i = 0; i < cooldownList.Count; i++)
-        {
-            var key = cooldownList.ElementAt(i);
-            int itemKey = key.Key;
-            if (cooldownList[itemKey] <= 0)
-            {
-                cooldownList.Remove(itemKey);
-            }
-            else
-            {
-                cooldownList[itemKey] -= Time.deltaTime;
-            }
-        }
     }
 }
