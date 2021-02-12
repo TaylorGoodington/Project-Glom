@@ -88,7 +88,11 @@ public class Player : MonoBehaviour
 
         if (controller.collisions.below)
         {
-            if (velocity.y > 1)
+            if (controller.castingState == CastingState.Channel)
+            {
+                controller.movementState = MovementState.Standing;
+            }
+            else if (velocity.y > 1)
             {
                 controller.movementState = MovementState.Jumping;
             }
@@ -120,8 +124,8 @@ public class Player : MonoBehaviour
         {
             if (CanCast())
             {
-                PlayerSpellControl.Instance.CastSpell();
                 controller.castingState = RetrieveCastingState();
+                PlayerSpellControl.Instance.CastSpell();
             }
         }
 
@@ -191,7 +195,6 @@ public class Player : MonoBehaviour
             velocity.y = 0;
             velocity.y += gravity;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-            //animator.animationState = Utility.AnimationState.Running;
         }
 
         //Standing
@@ -199,7 +202,6 @@ public class Player : MonoBehaviour
         {
             velocity.x = Mathf.SmoothDamp(velocity.x, 0, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
             velocity.y = gravity;
-            //animator.animationState = Utility.AnimationState.Standing;
         }
 
         //Jumping
@@ -219,7 +221,6 @@ public class Player : MonoBehaviour
             velocity.y += gravity;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
             UpdateHeightReached();
-            //animator.animationState = Utility.AnimationState.Jumping;
         }
 
         //Falling
@@ -227,7 +228,6 @@ public class Player : MonoBehaviour
         {
             velocity.y += gravity;
             velocity.x = Mathf.SmoothDamp(velocity.x, input.x * moveSpeed, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
-            //animator.animationState = Utility.AnimationState.Jumping;
         }
 
         //Climbing
@@ -245,8 +245,6 @@ public class Player : MonoBehaviour
             {
                 UnPauseAnimators();
             }
-
-            //animator.animationState = Utility.AnimationState.Climbing;
         }
 
         PlayAnimation();
@@ -318,6 +316,11 @@ public class Player : MonoBehaviour
             //{
                 return PlayerSpellControl.Instance.CanCast();
             //}
+        }
+
+        if (controller.castingState == CastingState.Channel)
+        {
+            return true;
         }
 
         return false;

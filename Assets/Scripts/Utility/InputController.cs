@@ -53,11 +53,15 @@ public class InputController : MonoBehaviour
         }
 
         //Testing
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.B))
         {
             GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
             GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Burst;
-            PlayerSpellControl.Instance.CastSpell();
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
+            GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Charge;
         }
     }
 

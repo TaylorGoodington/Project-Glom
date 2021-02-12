@@ -12,6 +12,7 @@ public class PlayerSpellControl : MonoBehaviour
 
     private Burst burst = null;
     private Charge charge = null;
+    private float nextCastTime = 0;
 
     void Awake()
     {
@@ -32,13 +33,22 @@ public class PlayerSpellControl : MonoBehaviour
             spells.Add(new Spells(1, "Aura", false, 5, 2, 0));
             spells.Add(new Spells(2, "Poof", false, 0, 3, 0));
         }
+
+        nextCastTime = Time.time;
     }
 
     //called from the player depending on input and state
     public bool CanCast()
     {
-        //check cooldown list and other params 
-        return true;
+        if (Time.time > nextCastTime)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     public GameObject ReturnSpellProjectile (int spellId)
@@ -69,6 +79,11 @@ public class PlayerSpellControl : MonoBehaviour
                 charge.Cast();
             }
         }
+    }
+
+    public void UpdateNextCastTime(float cooldown)
+    {
+        nextCastTime = Time.time + cooldown;
     }
 
     //called from projectiles or effects on hit

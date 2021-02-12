@@ -12,7 +12,7 @@ public class Burst : MonoBehaviour
     float projectileSpeed = 150f;
     int projectileBaseDamage = 5;
     int projectileDamage = 3;
-    float cooldown = 0f;
+    float cooldown = 2f;
     int concurrenceCounter = 0;
     int concurrenceTarget = 0;
     int concurrenctCastKey = 0;
@@ -30,6 +30,7 @@ public class Burst : MonoBehaviour
     {
         UpdateProperties();
         castKey++;
+        PlayerSpellControl.Instance.UpdateNextCastTime(cooldown);
         StartCoroutine(Instantiate());
     }
 
