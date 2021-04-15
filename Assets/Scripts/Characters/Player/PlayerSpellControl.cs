@@ -12,6 +12,7 @@ public class PlayerSpellControl : MonoBehaviour
 
     private Burst burst = null;
     private Charge charge = null;
+    private Lance lance = null;
     private float nextCastTime = 0;
 
     void Awake()
@@ -27,6 +28,7 @@ public class PlayerSpellControl : MonoBehaviour
 
             burst = GetComponent<Burst>();
             charge = GetComponent<Charge>();
+            lance = GetComponent<Lance>();
 
             spells = new List<Spells>();
             spells.Add(new Spells(0, "Blast", true, 5, 0, 1));
@@ -78,6 +80,10 @@ public class PlayerSpellControl : MonoBehaviour
             {
                 charge.Cast();
             }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Lance)
+            {
+                lance.Cast();
+            }
         }
     }
 
@@ -103,6 +109,10 @@ public class PlayerSpellControl : MonoBehaviour
             {
                 //burst.ProcessHitInformation(castKey, enemyObjectId);
             }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Lance)
+            {
+                //burst.ProcessHitInformation(castKey, enemyObjectId);
+            }
         }
     }
 
@@ -121,6 +131,10 @@ public class PlayerSpellControl : MonoBehaviour
             else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Charge)
             {
                 return CastingState.Channel;
+            }
+            else if (GameControl.Instance.currentOffensiveSpellVariant == OffensiveSpellVariant.Lance)
+            {
+                return CastingState.Instant;
             }
         }
 

@@ -63,6 +63,11 @@ public class InputController : MonoBehaviour
             GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
             GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Charge;
         }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            GameControl.Instance.currentOffensiveSpell = OffensiveSpell.Blast;
+            GameControl.Instance.currentOffensiveSpellVariant = OffensiveSpellVariant.Lance;
+        }
     }
 
     private void CycleSelectedSpell()
