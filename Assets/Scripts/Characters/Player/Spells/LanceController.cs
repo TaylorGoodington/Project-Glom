@@ -8,6 +8,11 @@ public class LanceController : MonoBehaviour
     private int damage;
     private int castKey = 0;
 
+    private void LateUpdate()
+    {
+        GetComponent<SpriteRenderer>().flipX = PlayerSpellControl.Instance.flipX;
+    }
+
     public void Initialize(int lanceDamage, int castKey, int direction)
     {
         this.damage = lanceDamage;
@@ -33,6 +38,7 @@ public class LanceController : MonoBehaviour
 
     public void CompleteCast()
     {
-
+        PlayerSpellControl.Instance.CastComplete();
+        Destroy(this.gameObject);
     }
 }

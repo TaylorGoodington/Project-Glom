@@ -49,14 +49,16 @@ public class PlayerAnimationController : MonoBehaviour
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = true;
                 castingAnimator.GetComponent<SpriteRenderer>().flipX = true;
                 scarAnimator.GetComponent<SpriteRenderer>().flipX = true;
-                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = true;
+                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = true; 
+                PlayerSpellControl.Instance.PlayerFlipX(true);
             }
             else if (direction == 1)
             {
                 bodyAnimator.GetComponent<SpriteRenderer>().flipX = false;
                 castingAnimator.GetComponent<SpriteRenderer>().flipX = false;
                 scarAnimator.GetComponent<SpriteRenderer>().flipX = false;
-                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = false;
+                backgroundEffectsAnimator.GetComponent<SpriteRenderer>().flipX = false; 
+                PlayerSpellControl.Instance.PlayerFlipX(false);
             }
         }
 

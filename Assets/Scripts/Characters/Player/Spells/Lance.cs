@@ -39,7 +39,8 @@ public class Lance : MonoBehaviour
     {
         GameObject lance = Instantiate(lancePrefab, GameControl.Instance.player.transform.position, Quaternion.identity);
         lance.GetComponent<LanceController>().Initialize(lanceDamage, castKey, GameControl.Instance.player.FaceDirection());
-        PlayerSpellControl.Instance.CastComplete();
+        lance.transform.SetParent(GameControl.Instance.player.transform);
+        lance.transform.position = GameControl.Instance.player.transform.position;
     }
 
     private void UpdateProperties()

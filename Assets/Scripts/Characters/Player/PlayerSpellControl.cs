@@ -9,6 +9,7 @@ public class PlayerSpellControl : MonoBehaviour
 
     public List<Spells> spells;
     public List<GameObject> spellProjectiles;
+    public bool flipX = false;
 
     private Burst burst = null;
     private Charge charge = null;
@@ -139,6 +140,11 @@ public class PlayerSpellControl : MonoBehaviour
         }
 
         return CastingState.Instant;
+    }
+
+    public void PlayerFlipX(bool flipX)
+    {
+        this.flipX = flipX;
     }
 
     //public void UpdateCoolDownList()
